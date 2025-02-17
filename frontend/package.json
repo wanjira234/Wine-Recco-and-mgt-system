@@ -1,0 +1,23 @@
+{
+    "name": "wine-recommender-frontend",
+    "version": "1.0.0",
+    "scripts": {
+      "build": "webpack --mode production",
+      "watch": "webpack --watch --mode development"
+    },
+    "dependencies": [
+      "react",
+      "react-dom",
+      "react-router-dom",
+      "axios",
+      "@babel/runtime"
+    ],
+    "devDependencies": [
+      "webpack",
+      "webpack-cli",
+      "babel-loader",
+      "@babel/core",
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ]
+  }
