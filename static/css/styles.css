@@ -1,0 +1,197 @@
+
+css
+/* Global Styles /
+body {
+    font-family: 'Arial', sans-serif; / Modern and clean font /
+    background-color: #f8f9fa; / Light background for contrast */
+    margin: 0;
+    padding: 0;
+}
+/* Navbar Styles /
+.navbar {
+margin-bottom: 20px; / Space below navbar */
+}
+.navbar-brand {
+font-size: 1.5rem; /* Increased font size for branding */
+}
+.nav-link {
+color: #ffffff; /* White text color /
+transition: color 0.3s ease; / Smooth transition for hover effect */
+}
+.nav-link:hover {
+color: #ffc107; /* Gold color on hover */
+}
+/* Main Content Styles /
+main {
+padding: 20px; / Padding for main content */
+}
+h1, h2, h3 {
+color: #343a40; /* Dark color for headings */
+}
+p {
+color: #666666; /* Dark gray for regular text */
+}
+/* Footer Styles /
+footer {
+background-color: #343a40; / Dark background for footer /
+color: white; / White text in footer /
+text-align: center; / Centered text /
+padding: 10px 0; / Padding for footer /
+position: relative; / For stacking context /
+bottom: 0; / Positioning footer at the bottom /
+width: 100%; / Full width */
+}
+/* Responsive Design /
+@media (max-width: 768px) {
+.navbar {
+padding: 10px; / Less padding on smaller screens */
+}
+.navbar-brand {
+font-size: 1.25rem; /* Smaller brand size on mobile */
+}
+main {
+padding: 10px; /* Reduced padding on mobile */
+}
+footer {
+font-size: 0.9rem; /* Smaller footer text on mobile */
+}
+}
+
+/* Main container for the account page /
+.my-account-container {
+max-width: 900px; / Set maximum width for larger screens /
+margin: 0 auto; / Center the container /
+padding: 20px; / Add spacing around the container */
+}
+/* Responsive card styling /
+.my-account-card {
+background-color: #ffffff; / Card background color /
+border-radius: 8px; / Rounded corners /
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); / Subtle shadow for depth */
+}
+/* Heading styles /
+h2 {
+color: #333333; / Dark text color /
+font-size: 1.5rem; / Responsive font size /
+font-weight: 600; / Semi-bold font weight */
+}
+/* Alert message styles /
+.alert {
+margin-bottom: 20px; / Spacing below alerts */
+}
+/* Form input field styles /
+.form-control,
+.form-select {
+border: 1px solid #ced4da; / Light border /
+border-radius: 4px; / Rounded corners /
+padding: 10px; / Padding for input fields /
+transition: border-color 0.3s; / Smooth transition for border color */
+}
+.form-control:focus,
+.form-select:focus {
+border-color: #007bff; /* Change border color on focus /
+box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); / Add shadow on focus */
+}
+/* Button styles /
+.btn-primary {
+background-color: #007bff; / Primary color /
+border: none; / Remove border /
+padding: 10px; / Padding for buttons /
+font-weight: 600; / Bold text */
+}
+.btn-primary:hover {
+background-color: #0056b3; /* Darker on hover */
+}
+/* Responsive typography /
+@media (max-width: 768px) {
+h2 {
+font-size: 1.25rem; / Smaller heading for mobile */
+}
+.my-account-card {
+padding: 15px; /* Reduce padding on mobile */
+}
+}
+/* Spacing for text below buttons /
+.mt-3 {
+margin-top: 1rem; / Margin top for spacing */
+}
+/* Link styles /
+.link-secondary {
+color: #6c757d; / Secondary link color */
+}
+.link-secondary:hover {
+color: #0056b3; /* Darker on hover /
+text-decoration: underline; / Underline on hover */
+}
+
+
+css
+/* Basic styles for the catalog page /
+body {
+font-family: 'Arial', sans-serif;
+line-height: 1.6;
+background-color: #f8f9fa; / Light background for contrast */
+margin: 0;
+padding: 20px;
+}
+/* Row styles for the catalog /
+.row {
+display: flex;
+flex-wrap: wrap; / Allows for responsiveness /
+justify-content: center; / Center align cards */
+}
+/* Card styles /
+.card {
+border: none; / Removes default card border /
+border-radius: 8px; / Rounded corners for a modern look /
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); / Soft shadow /
+transition: transform 0.2s; / Animation for hover effect */
+}
+.card:hover {
+transform: scale(1.05); /* Slightly enlarge the card on hover */
+}
+/* Image styles /
+.card-img-top {
+border-top-left-radius: 8px; / Match card border radius /
+border-top-right-radius: 8px; / Match card border radius /
+width: 100%; / Full width for responsive images /
+height: 200px; / Fixed height for uniformity /
+object-fit: cover; / Maintains aspect ratio, covers 100% */
+}
+/* Card title styles /
+.card-title {
+font-size: 1.25rem; / Larger font for titles /
+color: #343a40; / Dark color for contrast */
+}
+/* Price styles /
+.card-text {
+font-size: 1rem; / Regular font for price /
+color: #28a745; / Green for price to signify value */
+}
+/* Button styles /
+.btn {
+width: 100%; / Full width button for mobile devices /
+padding: 10px;
+font-weight: bold; / Bold text for emphasis */
+}
+.btn-primary {
+background-color: #007bff; /* Bootstrap primary color /
+border: none; / Removes button border */
+}
+.btn-primary:hover {
+background-color: #0056b3; /* Darker blue on hover */
+}
+/* Responsive adjustments /
+@media (max-width: 768px) {
+.card {
+margin-bottom: 20px; / Space between cards on mobile */
+}
+}
+
+/* Footer */
+footer {
+    background-color: #222;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+}

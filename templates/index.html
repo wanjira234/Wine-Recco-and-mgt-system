@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Home | Wine Store{% endblock %}
+
+{% block content %}
+<header class="hero-header">
+    <div class="container text-center py-5">
+        <h1 class="display-4">Discover Your Favorite Wines</h1>
+        <form action="/search" method="GET" class="mt-4">
+            <div class="input-group">
+                <input type="text" class="form-control" name="query" placeholder="Search for wines..." required>
+                <button class="btn btn-primary" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+</header>
+
+<section class="section container">
+    <h2 class="text-center">Welcome to Our Website</h2>
+    <p class="text-center">Explore a wide variety of wines curated just for you.</p>
+</section>
+{% endblock %}
