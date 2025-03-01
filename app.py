@@ -11,6 +11,9 @@ from services.recommendation_service import recommendation_engine
 from flask_login import login_required, current_user
 import logging
 from commands import index_wines_command
+from blueprints.interaction import interaction_bp
+from blueprints.wine_discovery import wine_discovery_bp
+from blueprints.analytics import analytics_bp
 
 def create_app():
     app = Flask(__name__)
@@ -43,6 +46,9 @@ def create_app():
     app.register_blueprint(cart_bp, url_prefix='/api/cart')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
     app.cli.add_command(index_wines_command)
+    app.register_blueprint(interaction_bp, url_prefix='/interactions')
+    app.register_blueprint(wine_discovery_bp, url_prefix='/wine-discovery')
+    app.register_blueprint(analytics_bp, url_prefix='/analytics')
 
     # Initialize recommendation data when app starts
     with app.app_context():
