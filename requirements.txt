@@ -7,7 +7,6 @@ Flask-Cors==3.0.10
 flask-marshmallow==0.14.0
 
 # Database
-psycopg2-binary==2.9.3
 SQLAlchemy==1.4.32
 
 # Authentication and Security
@@ -20,7 +19,7 @@ bcrypt==3.2.0
 scikit-learn==1.0.2
 numpy==1.22.3
 pandas==1.4.2
-surprise==0.1
+surprise==0.1wher
 
 # Image Processing
 Pillow==9.1.0
