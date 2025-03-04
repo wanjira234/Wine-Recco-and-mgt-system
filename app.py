@@ -1,4 +1,5 @@
 from flask import Flask, render_template, jsonify
+from flask_socketio import SocketIO, join_room, leave_room
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -10,12 +11,18 @@ from blueprints.admin import admin_bp
 from services.recommendation_service import recommendation_engine
 from flask_login import login_required, current_user
 import logging
+from flask_jwt_extended import get_jwt_identity
+from extensions import db, socketio, mail
 from commands import index_wines_command
 from blueprints.interaction import interaction_bp
 from blueprints.wine_discovery import wine_discovery_bp
 from blueprints.analytics import analytics_bp
 from blueprints.order import order_bp
 from blueprints.inventory import inventory_bp
+from blueprints.community import community_bp
+from blueprints.notification import notification_bp
+from blueprints.search import search_bp
+
 
 def create_app():
     app = Flask(__name__)
@@ -24,11 +31,15 @@ def create_app():
     # Configure logging
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-
+    # Initialize extensions
+    socketio = SocketIO()
+    
     # Initialize extensions
     db.init_app(app)
     migrate = Migrate(app, db)
-    
+    socketio.init_app(app)
+    mail.init_app(app)
+
     # Login Manager
     login_manager = LoginManager()
     login_manager.init_app(app)
@@ -53,8 +64,10 @@ def create_app():
     app.register_blueprint(analytics_bp, url_prefix='/analytics')
     app.register_blueprint(order_bp, url_prefix='/orders')
     app.register_blueprint(inventory_bp, url_prefix='/inventory')
+    app.register_blueprint(community_bp, url_prefix='/community')
+    app.register_blueprint(notification_bp, url_prefix='/notifications')
+    app.register_blueprint(search_bp, url_prefix='/search')
     
-    # ... rest of the code
     # Initialize recommendation data when app starts
     with app.app_context():
         try:
@@ -127,6 +140,18 @@ def create_app():
     @app.route('/<path:path>')
     def catch_all(path):
         return render_template('react_app.html')
+    
+    socketio.init_app(app)
+# WebSocket Event Handlers
+    @socketio.on('connect')
+    def handle_connect():
+        user_id = get_jwt_identity()
+        join_room(f'user_{user_id}')
+
+    @socketio.on('disconnect')
+    def handle_disconnect():
+        user_id = get_jwt_identity()
+        leave_room(f'user_{user_id}')
 
     return app
 
