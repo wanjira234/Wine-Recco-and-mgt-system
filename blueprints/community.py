@@ -5,7 +5,7 @@ from services.community_service import CommunityService
 
 community_bp = Blueprint('community', __name__)
 
-@community_bp.route('/post', methods=['POST'])
+@community_bp.route('/posts', methods=['POST'])
 @jwt_required()
 def create_post():
     """
@@ -15,17 +15,92 @@ def create_post():
     data = request.get_json()
     
     try:
-        post = CommunityService.create_post(
-            user_id=user_id,
-            content=data.get('content'),
-            wine_id=data.get('wine_id'),
-            image_url=data.get('image_url')
-        )
-        
+        post = CommunityService.create_post(user_id, data)
         return jsonify({
-            'message': 'Post created successfully',
-            'post_id': post.id
+            'id': post.id,
+            'message': 'Post created successfully'
         }), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@community_bp.route('/posts/<int:post_id>/comments', methods=['POST'])
+@jwt_required()
+def add_comment(post_id):
+    """
+    Add a comment to a post
+    """
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    try:
+        comment = CommunityService.add_comment(
+            user_id, 
+            post_id, 
+            data['content']
+        )
+        return jsonify({
+            'id': comment.id,
+            'message': 'Comment added successfully'
+        }), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@community_bp.route('/posts/<int:post_id>/like', methods=['POST'])
+@jwt_required()
+def like_post(post_id):
+    """
+    Like a post
+    """
+    user_id = get_jwt_identity()
+    
+    try:
+        post = CommunityService.like_post(user_id, post_id)
+        return jsonify({
+            'likes_count': post.likes_count,
+            'message': 'Post liked successfully'
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@community_bp.route('/connections/request', methods=['POST'])
+@jwt_required()
+def send_connection_request():
+    """
+    Send a connection request
+    """
+    requester_id = get_jwt_identity()
+    data = request.get_json()
+    receiver_id = data['receiver_id']
+    
+    try:
+        connection = CommunityService.send_connection_request(
+            requester_id, 
+            receiver_id
+        )
+        return jsonify({
+            'id': connection.id,
+            'message': 'Connection request sent'
+        }), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@community_bp.route('/connections/<int:connection_id>/accept', methods=['POST'])
+@jwt_required()
+def accept_connection_request(connection_id):
+    """
+    Accept a connection request
+    """
+    receiver_id = get_jwt_identity()
+    
+    try:
+        connection = CommunityService.accept_connection_request(
+            connection_id, 
+            receiver_id
+        )
+        return jsonify({
+            'id': connection.id,
+            'message': 'Connection request accepted'
+        }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
@@ -41,59 +116,10 @@ def get_community_feed():
     
     try:
         feed = CommunityService.get_community_feed(
-            user_id=user_id,
-            page=page,
-            per_page=per_page
+            user_id, 
+            page, 
+            per_page
         )
         return jsonify(feed), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@community_bp.route('/connect/<int:target_user_id>', methods=['POST'])
-@jwt_required()
-def connect_users(target_user_id):
-    """
-    Connect with another user
-    """
-    user_id = get_jwt_identity()
-    
-    try:
-        connection = CommunityService.connect_users(
-            user_id=user_id,
-            target_user_id=target_user_id
-        )
-        return jsonify({
-            'message': 'Connection request sent/accepted',
-            'status': connection.status
-        }), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-
-@community_bp.route('/connections', methods=['GET'])
-@jwt_required()
-def get_user_connections():
-    """
-    Get user's connections
-    """
-    user_id = get_jwt_identity()
-    status = request.args.get('status', 'accepted')
-    
-    try:
-        connections = CommunityService.get_user_connections(
-            user_id=user_id,
-            status=status
-        )
-        return jsonify(connections), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@community_bp.route('/wine/<int:wine_id>/social-insights', methods=['GET'])
-def get_wine_social_insights(wine_id):
-    """
-    Get social insights for a wine
-    """
-    try:
-        insights = CommunityService.get_wine_social_insights(wine_id)
-        return jsonify(insights), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

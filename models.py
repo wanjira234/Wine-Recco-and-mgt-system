@@ -6,7 +6,8 @@ from extensions import db
 from enum import Enum
 from extensions import db
 from datetime import datetime, timedelta
-
+from extensions import db
+from sqlalchemy.dialects.postgresql import JSONB
 
 db = SQLAlchemy()
 
@@ -84,9 +85,7 @@ class NotificationType(Enum):
     FRIEND_CONNECTION = 'friend_connection'
 
 # models/notification.py
-from extensions import db
-from sqlalchemy.dialects.postgresql import JSONB
-from datetime import datetime
+
 
 class Notification(db.Model):
     __tablename__ = 'notifications'
@@ -235,3 +234,361 @@ class EventAttendee(db.Model):
     # Relationships
     event = db.relationship('Event', back_populates='attendees')
     user = db.relationship('User', backref='event_registrations')
+
+# models/community.py
+
+class PostType(Enum):
+    REVIEW = 'review'
+    DISCUSSION = 'discussion'
+    RECOMMENDATION = 'recommendation'
+    EVENT = 'event'
+
+class CommunityPost(db.Model):
+    __tablename__ = 'community_posts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_type = db.Column(db.Enum(PostType), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    
+    # Optional references
+    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('events.id'), nullable=True)
+    
+    # Media and attachments
+    image_url = db.Column(db.String(300), nullable=True)
+    
+    # Engagement metrics
+    likes_count = db.Column(db.Integer, default=0)
+    comments_count = db.Column(db.Integer, default=0)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='posts')
+    wine = db.relationship('Wine', backref='community_posts')
+    event = db.relationship('Event', backref='community_posts')
+
+class PostComment(db.Model):
+    __tablename__ = 'post_comments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('community_posts.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    content = db.Column(db.Text, nullable=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    post = db.relationship('CommunityPost', backref='comments')
+    user = db.relationship('User', backref='comments')
+
+class UserConnection(db.Model):
+    __tablename__ = 'user_connections'
+
+    id = db.Column(db.Integer, primary_key=True)
+    requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    status = db.Column(db.String(20), default='pending')  # pending, accepted, rejected
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    requester = db.relationship('User', foreign_keys=[requester_id], backref='sent_connections')
+    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_connections')
+
+
+
+# models/cellar.py
+
+class WineCellarStatus(Enum):
+    IN_STOCK = 'in_stock'
+    AGING = 'aging'
+    CONSUMED = 'consumed'
+    GIFTED = 'gifted'
+    SOLD = 'sold'
+
+class WineCellar(db.Model):
+    __tablename__ = 'wine_cellars'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=False)
+    
+    # Inventory details
+    quantity = db.Column(db.Integer, default=1)
+    purchase_date = db.Column(db.DateTime, default=datetime.utcnow)
+    purchase_price = db.Column(db.Float, nullable=True)
+    
+    # Wine aging and storage
+    storage_location = db.Column(db.String(200), nullable=True)
+    expected_peak_year = db.Column(db.Integer, nullable=True)
+    
+    # Status tracking
+    status = db.Column(db.Enum(WineCellarStatus), default=WineCellarStatus.IN_STOCK)
+    status_updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Tasting and consumption
+    date_consumed = db.Column(db.DateTime, nullable=True)
+    personal_rating = db.Column(db.Float, nullable=True)
+    tasting_notes = db.Column(db.Text, nullable=True)
+    
+    # Relationships
+    user = db.relationship('User', backref='cellar_wines')
+    wine = db.relationship('Wine', backref='cellar_entries')
+
+class WineCellarTransaction(db.Model):
+    __tablename__ = 'wine_cellar_transactions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    cellar_id = db.Column(db.Integer, db.ForeignKey('wine_cellars.id'), nullable=False)
+    transaction_type = db.Column(db.String(50), nullable=False)  # buy, sell, gift, consume
+    
+    # Transaction details
+    quantity = db.Column(db.Integer, nullable=False)
+    transaction_date = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Optional financial details
+    price = db.Column(db.Float, nullable=True)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    
+    # Relationships
+    cellar_entry = db.relationship('WineCellar', backref='transactions')
+    recipient = db.relationship('User', foreign_keys=[recipient_id])
+
+# models/education.py
+
+class CourseCategory(Enum):
+    BEGINNER = 'beginner'
+    INTERMEDIATE = 'intermediate'
+    ADVANCED = 'advanced'
+    SOMMELIER = 'sommelier'
+
+class CourseType(Enum):
+    VIDEO = 'video'
+    TEXT = 'text'
+    INTERACTIVE = 'interactive'
+    WEBINAR = 'webinar'
+
+class WineCourse(db.Model):
+    __tablename__ = 'wine_courses'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    
+    # Course details
+    category = db.Column(db.Enum(CourseCategory), nullable=False)
+    course_type = db.Column(db.Enum(CourseType), nullable=False)
+    
+    # Content and media
+    content_url = db.Column(db.String(300), nullable=False)
+    thumbnail_url = db.Column(db.String(300), nullable=True)
+    
+    # Learning metrics
+    duration_minutes = db.Column(db.Integer, nullable=False)
+    difficulty_level = db.Column(db.Integer, nullable=False)
+    
+    # Metadata
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    modules = db.relationship('CourseModule', back_populates='course')
+    quizzes = db.relationship('CourseQuiz', back_populates='course')
+
+class CourseModule(db.Model):
+    __tablename__ = 'course_modules'
+
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('wine_courses.id'), nullable=False)
+    
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    order = db.Column(db.Integer, nullable=False)
+    
+    # Content details
+    content_type = db.Column(db.String(50), nullable=False)  # video, text, audio
+    content_url = db.Column(db.String(300), nullable=False)
+    
+    # Relationships
+    course = db.relationship('WineCourse', back_populates='modules')
+
+class CourseQuiz(db.Model):
+    __tablename__ = 'course_quizzes'
+
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('wine_courses.id'), nullable=False)
+    
+    title = db.Column(db.String(200), nullable=False)
+    passing_score = db.Column(db.Float, default=0.7)
+    
+    # Relationships
+    course = db.relationship('WineCourse', back_populates='quizzes')
+    questions = db.relationship('QuizQuestion', back_populates='quiz')
+
+class QuizQuestion(db.Model):
+    __tablename__ = 'quiz_questions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('course_quizzes.id'), nullable=False)
+    
+    question_text = db.Column(db.Text, nullable=False)
+    question_type = db.Column(db.String(50), nullable=False)  # multiple_choice, true_false
+    
+    # Question options
+    options = db.Column(db.JSON, nullable=False)
+    correct_answer = db.Column(db.String(200), nullable=False)
+    
+    # Relationships
+    quiz = db.relationship('CourseQuiz', back_populates='questions')
+
+class UserCourseProgress(db.Model):
+    __tablename__ = 'user_course_progress'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    course_id = db.Column(db.Integer, db.ForeignKey('wine_courses.id'), nullable=False)
+    
+    # Progress tracking
+    completed_modules = db.Column(db.JSON, default=list)
+    quiz_attempts = db.Column(db.Integer, default=0)
+    highest_quiz_score = db.Column(db.Float, default=0)
+    is_course_completed = db.Column(db.Boolean, default=False)
+    
+    # Timestamps
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    user = db.relationship('User', backref='course_progress')
+    course = db.relationship('WineCourse', backref='user_progress')
+
+# models/education_content.py
+
+
+class ContentType(Enum):
+    ARTICLE = 'article'
+    INTERACTIVE_GUIDE = 'interactive_guide'
+    INFOGRAPHIC = 'infographic'
+    VIDEO_TUTORIAL = 'video_tutorial'
+    WINE_REGION_EXPLORATION = 'wine_region_exploration'
+
+class WineKnowledgeContent(db.Model):
+    __tablename__ = 'wine_knowledge_content'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(300), nullable=False)
+    slug = db.Column(db.String(300), nullable=False, unique=True)
+    
+    # Content details
+    content_type = db.Column(db.Enum(ContentType), nullable=False)
+    
+    # Main content fields
+    summary = db.Column(db.Text, nullable=True)
+    main_content = db.Column(db.Text, nullable=False)
+    
+    # Metadata
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    tags = db.Column(db.JSON, nullable=True)
+    
+    # Multimedia
+    cover_image_url = db.Column(db.String(300), nullable=True)
+    additional_media = db.Column(db.JSON, nullable=True)
+    
+    # Interactive elements
+    interactive_data = db.Column(db.JSON, nullable=True)
+    
+    # Tracking and engagement
+    views_count = db.Column(db.Integer, default=0)
+    likes_count = db.Column(db.Integer, default=0)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    author = db.relationship('User', backref='created_content')
+    categories = db.relationship('WineContentCategory', secondary='content_categories')
+
+class WineContentCategory(db.Model):
+    __tablename__ = 'wine_content_categories'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    description = db.Column(db.Text, nullable=True)
+
+class ContentCategories(db.Model):
+    __tablename__ = 'content_categories'
+
+    content_id = db.Column(db.Integer, db.ForeignKey('wine_knowledge_content.id'), primary_key=True)
+    category_id = db.Column(db.Integer, db.ForeignKey('wine_content_categories.id'), primary_key=True)
+
+class UserContentInteraction(db.Model):
+    __tablename__ = 'user_content_interactions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    content_id = db.Column(db.Integer, db.ForeignKey('wine_knowledge_content.id'), nullable=False)
+    
+    # Interaction types
+    viewed = db.Column(db.Boolean, default=False)
+    liked = db.Column(db.Boolean, default=False)
+    completed = db.Column(db.Boolean, default=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+# models/analytics.py
+
+
+class ModelPerformanceMetric(db.Model):
+    __tablename__ = 'model_performance_metrics'
+
+    id = db.Column(db.Integer, primary_key=True)
+    model_name = db.Column(db.String(100), nullable=False)
+    
+    # Performance Metrics
+    accuracy = db.Column(db.Float, nullable=False)
+    precision = db.Column(db.Float, nullable=False)
+    recall = db.Column(db.Float, nullable=False)
+    f1_score = db.Column(db.Float, nullable=False)
+    
+    # Model Metadata
+    model_version = db.Column(db.String(50), nullable=False)
+    training_dataset_size = db.Column(db.Integer, nullable=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Training Environment
+    training_environment = db.Column(db.JSON, nullable=True)
+
+class ModelRetrainingLog(db.Model):
+    __tablename__ = 'model_retraining_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    model_name = db.Column(db.String(100), nullable=False)
+    
+    # Retraining Details
+    status = db.Column(db.String(50), nullable=False)  # started, completed, failed
+    trigger_reason = db.Column(db.String(100), nullable=True)
+    
+    # Performance Comparison
+    previous_version = db.Column(db.String(50), nullable=True)
+    new_version = db.Column(db.String(50), nullable=False)
+    
+    # Performance Metrics
+    previous_accuracy = db.Column(db.Float, nullable=True)
+    new_accuracy = db.Column(db.Float, nullable=False)
+    
+    # Timestamps
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime, nullable=True)

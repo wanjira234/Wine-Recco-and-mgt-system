@@ -7,6 +7,163 @@ from sklearn.decomposition import PCA
 from extensions import db
 from models import Wine, WineReview, UserInteraction, UserPreference
 from sqlalchemy import func, distinct
+import datetime
+
+# services/analytics_service.py
+import mlflow
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import (
+    accuracy_score, 
+    precision_score, 
+    recall_score, 
+    f1_score
+)
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from extensions import db
+from models import (
+    ModelPerformanceMetric, 
+    ModelRetrainingLog,
+    Wine,
+    WineReview,
+    User
+)
+
+class AnalyticsService:
+    def wine_clustering(self):
+        """
+        Perform advanced wine clustering analysis
+        """
+        # Prepare wine data for clustering
+        wines = Wine.query.all()
+        
+        # Extract features for clustering
+        features = [
+            [
+                wine.alcohol_percentage, 
+                wine.price, 
+                wine.rating
+            ] for wine in wines
+        ]
+        
+        # Standardize features
+        scaler = StandardScaler()
+        scaled_features = scaler.fit_transform(features)
+        
+        # Perform K-means clustering
+        kmeans = KMeans(n_clusters=5, random_state=42)
+        kmeans.fit(scaled_features)
+        
+        # Analyze clusters
+        clusters = {}
+        for i, wine in enumerate(wines):
+            cluster = kmeans.labels_[i]
+            if cluster not in clusters:
+                clusters[cluster] = []
+            clusters[cluster].append({
+                'id': wine.id,
+                'name': wine.name,
+                'type': wine.type,
+                'price': wine.price
+            })
+        
+        return {
+            'total_clusters': len(clusters),
+            'cluster_details': clusters
+        }
+
+    def wine_recommendation_insights(self):
+        """
+        Generate insights for wine recommendations
+        """
+        # Analyze user preferences
+        user_preferences = db.session.query(
+            User.id,
+            Wine.type,
+            func.count(WineReview.id).label('review_count')
+        ).join(WineReview).join(Wine)\
+         .group_by(User.id, Wine.type)\
+         .order_by(func.count(WineReview.id).desc())\
+         .limit(10).all()
+        
+        # Analyze top-rated wines
+        top_rated_wines = Wine.query\
+            .order_by(Wine.rating.desc())\
+            .limit(10).all()
+        
+        return {
+            'user_preferences': [
+                {
+                    'user_id': pref[0],
+                    'wine_type': pref[1],
+                    'review_count': pref[2]
+                } for pref in user_preferences
+            ],
+            'top_rated_wines': [
+                {
+                    'id': wine.id,
+                    'name': wine.name,
+                    'type': wine.type,
+                    'rating': wine.rating
+                } for wine in top_rated_wines
+            ]
+        }
+
+    def price_sensitivity_analysis(self):
+        """
+        Analyze price sensitivity across wine types
+        """
+        # Group wines by type and price ranges
+        price_sensitivity = db.session.query(
+            Wine.type,
+            func.min(Wine.price).label('min_price'),
+            func.max(Wine.price).label('max_price'),
+            func.avg(Wine.price).label('avg_price'),
+            func.count(Wine.id).label('wine_count')
+        ).group_by(Wine.type).all()
+        
+        # Analyze review ratings by price range
+        price_rating_correlation = db.session.query(
+            Wine.type,
+            func.avg(Wine.price).label('avg_price'),
+            func.avg(WineReview.rating).label('avg_rating')
+        ).join(WineReview)\
+         .group_by(Wine.type)\
+         .order_by(func.avg(Wine.price).desc())\
+         .all()
+        
+        return {
+            'price_ranges': [
+                {
+                    'type': analysis[0],
+                    'min_price': analysis[1],
+                    'max_price': analysis[2],
+                    'avg_price': analysis[3],
+                    'wine_count': analysis[4]
+                } for analysis in price_sensitivity
+            ],
+            'price_rating_correlation': [
+                {
+                    'type': corr[0],
+                    'avg_price': corr[1],
+                    'avg_rating': corr[2]
+                } for corr in price_rating_correlation
+            ]
+        }
+
+    def generate_comprehensive_report(self):
+        """
+        Generate a comprehensive analytics report
+        """
+        return {
+            'wine_clustering': self.wine_clustering(),
+            'recommendation_insights': self.wine_recommendation_insights(),
+            'price_sensitivity': self.price_sensitivity_analysis(),
+            'timestamp': datetime.utcnow().isoformat()
+        }
+
 
 class AnalyticsService:
     def __init__(self):

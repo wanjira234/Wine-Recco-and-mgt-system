@@ -2,30 +2,35 @@
 from extensions import db
 from models import (
     CommunityPost, 
-    CommunityComment, 
+    PostComment, 
     UserConnection, 
-    User, 
-    WineReview, 
-    Wine
+    PostType, 
+    User
 )
-from sqlalchemy import func, or_
-from datetime import datetime, timedelta
+from services.notification_service import NotificationService
+from sqlalchemy import or_
 
 class CommunityService:
     @classmethod
-    def create_post(cls, user_id, content, wine_id=None, image_url=None):
+    def create_post(cls, user_id, post_data):
         """
         Create a new community post
         """
         post = CommunityPost(
             user_id=user_id,
-            content=content,
-            wine_id=wine_id,
-            image_url=image_url,
-            created_at=datetime.utcnow()
+            post_type=PostType(post_data['post_type']),
+            content=post_data['content'],
+            wine_id=post_data.get('wine_id'),
+            event_id=post_data.get('event_id'),
+            image_url=post_data.get('image_url')
         )
+        
         db.session.add(post)
         db.session.commit()
+        
+        # Notify followers
+        cls.notify_followers(user_id, post)
+        
         return post
 
     @classmethod
@@ -33,63 +38,167 @@ class CommunityService:
         """
         Add a comment to a post
         """
-        comment = CommunityComment(
-            user_id=user_id,
+        comment = PostComment(
             post_id=post_id,
-            content=content,
-            created_at=datetime.utcnow()
+            user_id=user_id,
+            content=content
         )
+        
         db.session.add(comment)
+        
+        # Update post comment count
+        post = CommunityPost.query.get(post_id)
+        post.comments_count += 1
+        
         db.session.commit()
+        
+        # Notify post owner
+        NotificationService.create_notification(
+            user_id=post.user_id,
+            notification_type='post_comment',
+            content=f"New comment on your post",
+            metadata={
+                'post_id': post_id,
+                'commenter_id': user_id
+            }
+        )
+        
         return comment
+
+    @classmethod
+    def like_post(cls, user_id, post_id):
+        """
+        Like a post
+        """
+        post = CommunityPost.query.get(post_id)
+        
+        if not post:
+            raise ValueError("Post not found")
+        
+        post.likes_count += 1
+        db.session.commit()
+        
+        # Notify post owner
+        NotificationService.create_notification(
+            user_id=post.user_id,
+            notification_type='post_like',
+            content=f"Someone liked your post",
+            metadata={
+                'post_id': post_id,
+                'liker_id': user_id
+            }
+        )
+        
+        return post
+
+    @classmethod
+    def send_connection_request(cls, requester_id, receiver_id):
+        """
+        Send a connection request
+        """
+        # Check if connection already exists
+        existing_connection = UserConnection.query.filter(
+            or_(
+                (UserConnection.requester_id == requester_id and UserConnection.receiver_id == receiver_id),
+                (UserConnection.requester_id == receiver_id and UserConnection.receiver_id == requester_id)
+            )
+        ).first()
+        
+        if existing_connection:
+            raise ValueError("Connection request already exists")
+        
+        connection = UserConnection(
+            requester_id=requester_id,
+            receiver_id=receiver_id,
+            status='pending'
+        )
+        
+        db.session.add(connection)
+        db.session.commit()
+        
+        # Notify receiver
+        NotificationService.create_notification(
+            user_id=receiver_id,
+            notification_type='connection_request',
+            content=f"New connection request",
+            metadata={
+                'requester_id': requester_id,
+                'connection_id': connection.id
+            }
+        )
+        
+        return connection
+
+    @classmethod
+    def accept_connection_request(cls, connection_id, receiver_id):
+        """
+        Accept a connection request
+        """
+        connection = UserConnection.query.get(connection_id)
+        
+        if not connection or connection.receiver_id != receiver_id:
+            raise ValueError("Invalid connection request")
+        
+        connection.status = 'accepted'
+        db.session.commit()
+        
+        # Notify requester
+        NotificationService.create_notification(
+            user_id=connection.requester_id,
+            notification_type='connection_accepted',
+            content=f"Connection request accepted",
+            metadata={
+                'receiver_id': receiver_id
+            }
+        )
+        
+        return connection
 
     @classmethod
     def get_community_feed(cls, user_id, page=1, per_page=20):
         """
-        Get community feed with advanced filtering
+        Get community feed with pagination
         """
         # Get user's connections
-        connections = UserConnection.query.filter_by(
-            user_id=user_id, 
-            status='accepted'
+        connections = UserConnection.query.filter(
+            or_(
+                UserConnection.requester_id == user_id,
+                UserConnection.receiver_id == user_id
+            ),
+            UserConnection.status == 'accepted'
         ).all()
         
-        connection_ids = [
-            conn.connected_user_id for conn in connections
-        ] + [user_id]
-
-        # Fetch posts
+        # Get connected user IDs
+        connected_user_ids = [
+            conn.requester_id if conn.receiver_id == user_id else conn.receiver_id
+            for conn in connections
+        ]
+        
+        # Include user's own posts
+        connected_user_ids.append(user_id)
+        
+        # Query posts from connected users
         posts = CommunityPost.query.filter(
-            or_(
-                CommunityPost.user_id.in_(connection_ids),
-                CommunityPost.is_public == True
-            )
+            CommunityPost.user_id.in_(connected_user_ids)
         ).order_by(
             CommunityPost.created_at.desc()
         ).paginate(page=page, per_page=per_page)
-
+        
         return {
             'posts': [
                 {
                     'id': post.id,
                     'user_id': post.user_id,
-                    'username': post.user.username,
+                    'post_type': post.post_type.value,
                     'content': post.content,
-                    'wine_id': post.wine_id,
-                    'wine_name': post.wine.name if post.wine else None,
-                    'image_url': post.image_url,
-                    'created_at': post.created_at,
                     'likes_count': post.likes_count,
-                    'comments_count': post.comments.count(),
-                    'comments': [
-                        {
-                            'id': comment.id,
-                            'user_id': comment.user_id,
-                            'username': comment.user.username,
-                            'content': comment.content,
-                            'created_at': comment.created_at
-                        } for comment in post.comments.limit(3)
-                    ]
+                    'comments_count': post.comments_count,
+                    'created_at': post.created_at.isoformat(),
+                    'user': {
+                        'id': post.user.id,
+                        'username': post.user.username,
+                        'profile_picture': post.user.profile_picture
+                    }
                 } for post in posts.items
             ],
             'pagination': {
@@ -100,120 +209,33 @@ class CommunityService:
         }
 
     @classmethod
-    def connect_users(cls, user_id, target_user_id):
+    def notify_followers(cls, user_id, post):
         """
-        Send or accept a connection request
+        Notify user's followers about a new post
         """
-        # Check if connection already exists
-        existing_connection = UserConnection.query.filter(
-            or_(
-                (UserConnection.user_id == user_id) & 
-                (UserConnection.connected_user_id == target_user_id),
-                (UserConnection.user_id == target_user_id) & 
-                (UserConnection.connected_user_id == user_id)
-            )
-        ).first()
-
-        if existing_connection:
-            if existing_connection.status == 'pending':
-                existing_connection.status = 'accepted'
-                db.session.commit()
-                return existing_connection
-            return existing_connection
-
-        # Create new connection request
-        connection = UserConnection(
-            user_id=user_id,
-            connected_user_id=target_user_id,
-            status='pending'
-        )
-        db.session.add(connection)
-        db.session.commit()
-        return connection
-
-    @classmethod
-    def get_user_connections(cls, user_id, status='accepted'):
-        """
-        Get user's connections
-        """
+        # Get user's connections
         connections = UserConnection.query.filter(
             or_(
-                (UserConnection.user_id == user_id),
-                (UserConnection.connected_user_id == user_id)
+                UserConnection.requester_id == user_id,
+                UserConnection.receiver_id == user_id
             ),
-            UserConnection.status == status
+            UserConnection.status == 'accepted'
         ).all()
-
-        connected_users = []
-        for conn in connections:
-            if conn.user_id == user_id:
-                user = conn.connected_user
-            else:
-                user = conn.user
-
-            # Get user's wine expertise
-            wine_reviews = WineReview.query.filter_by(user_id=user.id).count()
-            favorite_wines = Wine.query.join(WineReview).filter(
-                WineReview.user_id == user.id
-            ).count()
-
-            connected_users.append({
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'wine_expertise': {
-                    'reviews_count': wine_reviews,
-                    'favorite_wines_count': favorite_wines
+        
+        # Get follower IDs
+        follower_ids = [
+            conn.requester_id if conn.receiver_id == user_id else conn.receiver_id
+            for conn in connections
+        ]
+        
+        # Send notifications to followers
+        for follower_id in follower_ids:
+            NotificationService.create_notification(
+                user_id=follower_id,
+                notification_type='new_post',
+                content=f"New post from a connection",
+                metadata={
+                    'post_id': post.id,
+                    'poster_id': user_id
                 }
-            })
-
-        return connected_users
-
-    @classmethod
-    def get_wine_social_insights(cls, wine_id):
-        """
-        Get social insights for a specific wine
-        """
-        # Recent reviews
-        recent_reviews = WineReview.query.filter_by(
-            wine_id=wine_id
-        ).order_by(
-            WineReview.created_at.desc()
-        ).limit(10).all()
-
-        # Community posts
-        community_posts = CommunityPost.query.filter_by(
-            wine_id=wine_id
-        ).order_by(
-            CommunityPost.created_at.desc()
-        ).limit(10).all()
-
-        # Aggregate review data
-        review_insights = db.session.query(
-            func.avg(WineReview.rating).label('avg_rating'),
-            func.count(WineReview.id).label('review_count')
-        ).filter_by(wine_id=wine_id).first()
-
-        return {
-            'recent_reviews': [
-                {
-                    'user_id': review.user_id,
-                    'username': review.user.username,
-                    'rating': review.rating,
-                    'comment': review.comment,
-                    'created_at': review.created_at
-                } for review in recent_reviews
-            ],
-            'community_posts': [
-                {
-                    'user_id': post.user_id,
-                    'username': post.user.username,
-                    'content': post.content,
-                    'created_at': post.created_at
-                } for post in community_posts
-            ],
-            'review_insights': {
-                'average_rating': float(review_insights.avg_rating or 0),
-                'review_count': review_insights.review_count
-            }
-        }
+            )
