@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaTrash, FaShoppingCart } from 'react-icons/fa';
-import { fetchCartItems, removeCartItem, updateCartItemQuantity } from '../services/cartService';
+import { loadCartFromLocalStorage, saveCartToLocalStorage, fetchCartItems, removeCartItem, updateCartItemQuantity } from '../services/cartService';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -10,10 +10,13 @@ const Cart = () => {
   useEffect(() => {
     const loadCartItems = async () => {
       try {
-        const items = await fetchCartItems();
+        const items = await fetchCartItems(); // Fetch items from the server
         setCartItems(items);
       } catch (err) {
-        setError('Failed to load cart items.');
+        // Load items from local storage if fetching fails
+        const savedItems = loadCartFromLocalStorage();
+        setCartItems(savedItems);
+        setError('Failed to load cart items. Loaded from local storage.');
       } finally {
         setLoading(false);
       }
@@ -24,14 +27,18 @@ const Cart = () => {
 
   const handleRemove = async (id) => {
     await removeCartItem(id);
-    setCartItems(cartItems.filter(item => item.id !== id));
+    const updatedCart = cartItems.filter(item => item.id !== id);
+    setCartItems(updatedCart);
+    saveCartToLocalStorage(updatedCart); // Save updated cart to local storage
   };
 
   const handleUpdateQuantity = async (id, newQuantity) => {
     await updateCartItemQuantity(id, newQuantity);
-    setCartItems(cartItems.map(item => 
+    const updatedCart = cartItems.map(item => 
       item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
+    );
+    setCartItems(updatedCart);
+    saveCartToLocalStorage(updatedCart); // Save updated cart to local storage
   };
 
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
