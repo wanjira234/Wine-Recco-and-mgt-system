@@ -13,6 +13,7 @@ const Navbar = () => {
         </Link>
         <ul className="flex space-x-4">
           <li><Link to="/catalog">Catalog</Link></li>
+          <li><Link to="/cart">Cart</Link></li>
           {user ? (
             <>
               <li><Link to="/my-account">My Account</Link></li>

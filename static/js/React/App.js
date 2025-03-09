@@ -28,7 +28,8 @@ function App() {
                             <Route path="/" element={<Home />} />
                             <Route path="/login" element={<Login />} />
                             <Route path="/signup" element={<Signup />} />
-                            
+                            <Route path="/catalog" element={<Catalog />} />
+                            <Route path="/wine/:id" element={<WineDetails />} />
                             {/* Protected Routes */}
                             <Route 
                                 path="/catalog" 

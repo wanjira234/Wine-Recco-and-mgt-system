@@ -1,0 +1,12 @@
+/* static/js/react/styles/index.css */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Custom global styles */
+body {
+    font-family: sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #1a202c; /* Equivalent to text-gray-900 */
+}

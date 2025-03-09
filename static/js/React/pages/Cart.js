@@ -1,28 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaTrash, FaShoppingCart } from 'react-icons/fa';
+import { fetchCartItems, removeCartItem, updateCartItemQuantity } from '../services/cartService';
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Château Margaux',
-      price: 599.99,
-      quantity: 1
-    },
-    // More cart items
-  ]);
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const removeFromCart = (id) => {
+  useEffect(() => {
+    const loadCartItems = async () => {
+      try {
+        const items = await fetchCartItems();
+        setCartItems(items);
+      } catch (err) {
+        setError('Failed to load cart items.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCartItems();
+  }, []);
+
+  const handleRemove = async (id) => {
+    await removeCartItem(id);
     setCartItems(cartItems.filter(item => item.id !== id));
   };
 
-  const updateQuantity = (id, newQuantity) => {
+  const handleUpdateQuantity = async (id, newQuantity) => {
+    await updateCartItemQuantity(id, newQuantity);
     setCartItems(cartItems.map(item => 
       item.id === id ? { ...item, quantity: newQuantity } : item
     ));
   };
 
   const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -38,8 +53,8 @@ const Cart = () => {
             <CartItem 
               key={item.id} 
               item={item} 
-              onRemove={removeFromCart}
-              onUpdateQuantity={updateQuantity}
+              onRemove={handleRemove}
+              onUpdateQuantity={handleUpdateQuantity}
             />
           ))}
 
