@@ -1,12 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const SearchBar = () => {
+const SearchBar = ({ onSearch }) => {
+    const [query, setQuery] = useState('');
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        onSearch(query);
+    };
+
     return (
-        <input
-            type="text"
-            placeholder="Search for wines..."
-            className="border rounded-md p-2 mb-4 w-full"
-        />
+        <form onSubmit={handleSubmit} className="mb-4">
+            <input
+                type="text"
+                placeholder="Search for wines..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="border rounded p-2 w-full"
+            />
+            <button type="submit" className="bg-wine-primary text-white px-4 py-2 rounded mt-2">
+                Search
+            </button>
+        </form>
     );
 };
 
