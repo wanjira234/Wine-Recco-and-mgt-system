@@ -1,42 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { fetchWines } from '../services/wineService';
-import WineCard from '../components/WineCard';
-import SearchBar from '../components/SearchBar';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-const Catalog = () => {
-    const [wines, setWines] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+const Navbar = () => {
+  const { user, logout } = useAuth();
 
-    useEffect(() => {
-        const loadWines = async () => {
-            try {
-                const wineData = await fetchWines();
-                setWines(wineData);
-            } catch (err) {
-                setError('Failed to load wines.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadWines();
-    }, []);
-
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>{error}</div>;
-
-    return (
-        <div className="catalog">
-            <h1 className="text-3xl font-bold mb-4">Wine Catalog</h1>
-            <SearchBar />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {wines.map(wine => (
-                    <WineCard key={wine.id} wine={wine} />
-                ))}
-            </div>
-        </div>
-    );
+  return (
+    <nav className="bg-wine-primary text-white">
+      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <Link to="/" className="text-2xl font-bold hover:underline">
+          Wine Recommender
+        </Link>
+        <ul className="flex space-x-4">
+          <li><Link to="/catalog" className="hover:underline">Catalog</Link></li>
+          <li><Link to="/cart" className="hover:underline">Cart</Link></li>
+          {user ? (
+            <>
+              <li><Link to="/my-account" className="hover:underline">My Account</Link></li>
+              <li>
+                <button 
+                  onClick={logout} 
+                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                >
+                  Logout
+                </button>
+              </li>
+            </>
+          ) : (
+            <>
+              <li><Link to="/login" className="hover:underline">Login</Link></li>
+              <li><Link to="/signup" className="hover:underline">Sign Up</Link></li>
+            </>
+          )}
+        </ul>
+      </div>
+    </nav>
+  );
 };
 
-export default Catalog;
+export default Navbar;

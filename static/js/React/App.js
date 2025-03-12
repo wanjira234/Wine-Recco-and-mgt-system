@@ -1,4 +1,3 @@
-// static/js/react/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -28,41 +27,26 @@ function App() {
                             <Route path="/" element={<Home />} />
                             <Route path="/login" element={<Login />} />
                             <Route path="/signup" element={<Signup />} />
-                            <Route path="/catalog" element={<Catalog />} />
-                            <Route path="/wine/:id" element={<WineDetails />} />
-                            {/* Protected Routes */}
-                            <Route 
-                                path="/catalog" 
-                                element={
-                                    <PrivateRoute>
-                                        <Catalog />
-                                    </PrivateRoute>
-                                } 
-                            />
-                            <Route 
-                                path="/wine/:id" 
-                                element={
-                                    <PrivateRoute>
-                                        <WineDetails />
-                                    </PrivateRoute>
-                                } 
-                            />
-                            <Route 
-                                path="/cart" 
-                                element={
-                                    <PrivateRoute>
-                                        <Cart />
-                                    </PrivateRoute>
-                                } 
-                            />
-                            <Route 
-                                path="/account" 
-                                element={
-                                    <PrivateRoute>
-                                        <MyAccount />
-                                    </PrivateRoute>
-                                } 
-                            />
+                            <Route path="/catalog" element={
+                                <PrivateRoute>
+                                    <Catalog />
+                                </PrivateRoute>
+                            } />
+                            <Route path="/wine/:id" element={
+                                <PrivateRoute>
+                                    <WineDetails />
+                                </PrivateRoute>
+                            } />
+                            <Route path="/cart" element={
+                                <PrivateRoute>
+                                    <Cart />
+                                </PrivateRoute>
+                            } />
+                            <Route path="/account" element={
+                                <PrivateRoute>
+                                    <MyAccount />
+                                </PrivateRoute>
+                            } />
                         </Routes>
                     </main>
                     <Footer />
