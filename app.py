@@ -1,4 +1,5 @@
 from flask import Flask, render_template, jsonify
+from services.wine_discovery_service import create_wine_discovery_service
 from flask_socketio import SocketIO, join_room, leave_room
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -8,11 +9,12 @@ from blueprints.auth import auth_bp
 from blueprints.wines import wines_bp
 from blueprints.cart import cart_bp
 from blueprints.admin import admin_bp
-from services.recommendation_service import recommendation_engine
+from blueprints.recommendation import recommendation_bp
+from services.recommendation_service import RecommendationEngine
 from flask_login import login_required, current_user
 import logging
 from flask_jwt_extended import get_jwt_identity
-from extensions import db, socketio, mail
+from extensions import socketio, mail
 from commands import index_wines_command
 from blueprints.interaction import interaction_bp
 from blueprints.wine_discovery import wine_discovery_bp
@@ -23,17 +25,18 @@ from blueprints.community import community_bp
 from blueprints.notification import notification_bp
 from blueprints.search import search_bp
 
+# Initialize recommendation engine globally
+recommendation_engine = RecommendationEngine()
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')
 
     # Configure logging
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, 
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
-    # Initialize extensions
-    socketio = SocketIO()
-    
+
     # Initialize extensions
     db.init_app(app)
     migrate = Migrate(app, db)
@@ -58,6 +61,7 @@ def create_app():
     app.register_blueprint(wines_bp, url_prefix='/api/wines')
     app.register_blueprint(cart_bp, url_prefix='/api/cart')
     app.register_blueprint(admin_bp, url_prefix='/api/admin')
+    app.register_blueprint(recommendation_bp, url_prefix='/api/recommendations')
     app.cli.add_command(index_wines_command)
     app.register_blueprint(interaction_bp, url_prefix='/interactions')
     app.register_blueprint(wine_discovery_bp, url_prefix='/wine-discovery')
@@ -69,62 +73,15 @@ def create_app():
     app.register_blueprint(search_bp, url_prefix='/search')
     
     # Initialize recommendation data when app starts
+    global _wine_discovery_service
+    
     with app.app_context():
         try:
-            recommendation_engine.prepare_recommendation_data()
+            recommendation_engine.load_wine_data()
             logger.info("Recommendation engine initialized successfully")
         except Exception as e:
             logger.error(f"Failed to initialize recommendation engine: {str(e)}")
-
-    # Recommendation Routes
-    @wines_bp.route('/recommendations', methods=['GET'])
-    @login_required
-    def get_wine_recommendations():
-        try:
-            # Get recommendations for the current user
-            recommended_wine_ids = recommendation_engine.hybrid_recommendation(
-                current_user.id
-            )
-
-            # Fetch wine details
-            recommended_wines = Wine.query.filter(Wine.id.in_(recommended_wine_ids)).all()
-
-            return jsonify({
-                'recommendations': [
-                    {
-                        'id': wine.id,
-                        'name': wine.name,
-                        'type': wine.type,
-                        'region': wine.region,
-                        'price': wine.price,
-                        'image_url': wine.image_url,
-                        'description': wine.description
-                    } for wine in recommended_wines
-                ]
-            })
-        except Exception as e:
-            # Log the error and return a generic error response
-            logger.error(f"Recommendation error: {str(e)}")
-            return jsonify({
-                'error': 'Failed to generate recommendations',
-                'details': str(e)
-            }), 500
-
-    # Optional: Add a route to manually refresh recommendations
-    @wines_bp.route('/refresh-recommendations', methods=['POST'])
-    @login_required
-    def refresh_recommendations():
-        try:
-            recommendation_engine.prepare_recommendation_data()
-            return jsonify({
-                'message': 'Recommendation engine refreshed successfully'
-            }), 200
-        except Exception as e:
-            logger.error(f"Recommendation refresh error: {str(e)}")
-            return jsonify({
-                'error': 'Failed to refresh recommendation engine',
-                'details': str(e)
-            }), 500
+        wine_discovery_service = create_wine_discovery_service(app)
 
     # Error Handlers
     @app.errorhandler(404)
@@ -142,7 +99,8 @@ def create_app():
         return render_template('react_app.html')
     
     socketio.init_app(app)
-# WebSocket Event Handlers
+    
+    # WebSocket Event Handlers
     @socketio.on('connect')
     def handle_connect():
         user_id = get_jwt_identity()

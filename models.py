@@ -28,6 +28,43 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+class UserRole(str, Enum):
+    CUSTOMER = 'customer'
+    ADMIN = 'admin'
+    SOMMELIER = 'sommelier'
+    
+class UserPreference(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # Wine preference fields
+    preferred_wine_types = db.Column(db.JSON, nullable=True)
+    preferred_regions = db.Column(db.JSON, nullable=True)
+    preferred_price_range = db.Column(db.JSON, nullable=True)
+    
+    # Flavor and style preferences
+    flavor_profiles = db.Column(db.JSON, nullable=True)
+    wine_styles = db.Column(db.JSON, nullable=True)
+    
+    # Relationship with User
+    user = db.relationship('User', backref='preferences', uselist=False)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'preferred_wine_types': self.preferred_wine_types,
+            'preferred_regions': self.preferred_regions,
+            'preferred_price_range': self.preferred_price_range,
+            'flavor_profiles': self.flavor_profiles,
+            'wine_styles': self.wine_styles
+        }
+    
 
 class Wine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -43,6 +80,36 @@ class Wine(db.Model):
     # Relationships
     reviews = db.relationship('WineReview', backref='wine', lazy='dynamic')
     inventory = db.relationship('WineInventory', backref='wine', uselist=False)
+
+class UserInteraction(db.Model):
+    __tablename__ = 'user_interactions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    # Interaction types
+    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=True)
+    interaction_type = db.Column(db.String(50), nullable=False)  # e.g., view, like, recommend
+    
+    # Metadata
+    interaction_details = db.Column(db.JSON, nullable=True)
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = db.relationship('User', backref='interactions')
+    wine = db.relationship('Wine', backref='interactions')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'wine_id': self.wine_id,
+            'interaction_type': self.interaction_type,
+            'interaction_details': self.interaction_details,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
 
 class WineReview(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -91,10 +158,10 @@ class Notification(db.Model):
     __tablename__ = 'notifications'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    type = db.Column(db.String(50), nullable=False)  # e.g., 'connection', 'review', 'recommendation'
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Changed from 'users.id'
+    type = db.Column(db.String(50), nullable=False)  
     content = db.Column(db.Text, nullable=False)
-    metadata = db.Column(JSONB, nullable=True)
+    notification_details = db.Column(JSONB, nullable=True)  # Renamed from notification_metadata
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     

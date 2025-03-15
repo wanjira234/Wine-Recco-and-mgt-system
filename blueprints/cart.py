@@ -18,7 +18,7 @@ def checkout():
         status='Pending'
     ).first()
 
-    if not order or not order.order_items.count():
+    if not order or not order.order_items:
         return jsonify({"error": "Cart is empty"}), 400
 
     try:

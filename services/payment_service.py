@@ -25,7 +25,8 @@ class PaymentService:
             return payment_intent
         except stripe.error.CardError as e:
             # Handle card errors
-            return None, str(e)
+            current_app.logger.error(f"Card payment error: {str(e)}")
+            return None
 
     def update_inventory(self, order):
         for item in order.order_items:
@@ -49,19 +50,23 @@ class PaymentService:
         db.session.commit()
 
     def complete_order(self, order, user, payment_method_id):
-        # Process payment
-        payment_result = self.process_payment(order, payment_method_id)
-        
-        if payment_result:
-            # Update inventory
-            self.update_inventory(order)
+        try:
+            # Process payment
+            payment_result = self.process_payment(order, payment_method_id)
             
-            # Send confirmation email
-            send_order_confirmation_email(
-                user.email, 
-                order, 
-                payment_result
-            )
-            
-            return True
-        return False
+            if payment_result:
+                # Update inventory
+                self.update_inventory(order)
+                
+                # Send confirmation email
+                send_order_confirmation_email(
+                    user.email, 
+                    order, 
+                    payment_result
+                )
+                
+                return True
+            return False
+        except Exception as e:
+            current_app.logger.error(f"Order completion error: {str(e)}")
+            return False

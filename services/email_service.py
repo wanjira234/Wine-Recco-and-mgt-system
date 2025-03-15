@@ -11,25 +11,33 @@ def send_order_confirmation_email(recipient_email, order, payment_details):
             recipients=[recipient_email]
         )
         
-        # Construct email body
-        msg.body = f"""
-        Thank you for your order!
+        # Construct email body using triple quotes and string formatting
+        msg.body = """
+Thank you for your order!
 
-        Order Details:
-        Order ID: {order.id}
-        Total Amount: ${order.total_price:.2f}
-        Payment Status: Completed
+Order Details:
+Order ID: {order_id}
+Total Amount: ${total_amount:.2f}
+Payment Status: Completed
 
-        Items:
-        {'\n'.join([
-            f"- {item.wine.name} (Qty: {item.quantity}) - ${item.price * item.quantity:.2f}" 
-            for item in order.order_items
-        ])}
+Items:
+{order_items}
 
-        Payment Reference: {payment_details.id}
+Payment Reference: {payment_ref}
 
-        Thank you for shopping with us!
-        """
+Thank you for shopping with us!
+""".format(
+            order_id=order.id,
+            total_amount=order.total_price,
+            order_items='\n'.join([
+                "- {name} (Qty: {qty}) - ${price:.2f}".format(
+                    name=item.wine.name, 
+                    qty=item.quantity, 
+                    price=item.price * item.quantity
+                ) for item in order.order_items
+            ]),
+            payment_ref=payment_details.id if payment_details else 'N/A'
+        )
 
         mail.send(msg)
         return True

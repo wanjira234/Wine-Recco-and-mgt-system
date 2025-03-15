@@ -1,173 +1,87 @@
-# services/wine_discovery_service.py
-from models import Wine, WineReview, UserInteraction
-from extensions import db
-from sqlalchemy import func, or_
-from elasticsearch import Elasticsearch
+from models import UserPreference, Wine
 
-class WineDiscoveryService:
-    def __init__(self):
-        # Initialize Elasticsearch connection
-        self.es = Elasticsearch(['localhost:9200'])
-        self.index_name = 'wine_discovery'
+def get_wine_filters(self):
+    """
+    Retrieve available wine filters from Elasticsearch
+    """
+    if not self.es:
+        self.logger.error("Elasticsearch not connected")
+        return {}
 
-    def create_wine_index(self):
-        """
-        Create advanced Elasticsearch index for wine discovery
-        """
-        index_mapping = {
-            "mappings": {
-                "properties": {
-                    "name": {"type": "text", "analyzer": "standard"},
-                    "description": {"type": "text", "analyzer": "standard"},
-                    "type": {"type": "keyword"},
-                    "region": {"type": "keyword"},
-                    "grape_variety": {"type": "keyword"},
-                    "traits": {"type": "keyword"},
-                    "price": {"type": "float"},
-                    "alcohol_percentage": {"type": "float"},
-                    "vintage": {"type": "integer"},
-                    "popularity_score": {"type": "float"},
-                    "average_rating": {"type": "float"}
+    try:
+        # Aggregation query to get unique filter values
+        agg_body = {
+            "size": 0,
+            "aggs": {
+                "types": {"terms": {"field": "type"}},
+                "regions": {"terms": {"field": "region"}},
+                "grape_varieties": {"terms": {"field": "grape_variety"}},
+                "traits": {"terms": {"field": "traits"}},
+                "price_range": {
+                    "range": {
+                        "field": "price",
+                        "ranges": [
+                            {"to": 20},
+                            {"from": 20, "to": 50},
+                            {"from": 50, "to": 100},
+                            {"from": 100}
+                        ]
+                    }
                 }
             }
         }
-        
-        if not self.es.indices.exists(index=self.index_name):
-            self.es.indices.create(index=self.index_name, body=index_mapping)
 
-    def index_wine(self, wine):
-        """
-        Index wine with advanced metadata
-        """
-        # Calculate popularity and rating scores
-        popularity_score = self._calculate_popularity_score(wine)
-        rating_data = self._get_wine_rating(wine.id)
-
-        doc = {
-            'name': wine.name,
-            'description': wine.description,
-            'type': wine.type,
-            'region': wine.region,
-            'grape_variety': wine.grape_variety,
-            'traits': wine.traits.split(',') if wine.traits else [],
-            'price': wine.price,
-            'alcohol_percentage': wine.alcohol_percentage,
-            'vintage': wine.vintage,
-            'popularity_score': popularity_score,
-            'average_rating': rating_data['average_rating']
-        }
+        results = self.es.search(index=self.index_name, body=agg_body)
         
-        self.es.index(index=self.index_name, id=wine.id, body=doc)
-
-    def _calculate_popularity_score(self, wine):
-        """
-        Calculate wine popularity based on interactions and reviews
-        """
-        view_count = UserInteraction.query.filter_by(
-            wine_id=wine.id, 
-            interaction_type='view'
-        ).count()
-        
-        favorite_count = UserInteraction.query.filter_by(
-            wine_id=wine.id, 
-            interaction_type='favorite'
-        ).count()
-        
-        review_count = WineReview.query.filter_by(wine_id=wine.id).count()
-        
-        # Weighted calculation
-        popularity_score = (
-            view_count * 0.3 + 
-            favorite_count * 0.5 + 
-            review_count * 0.2
-        )
-        
-        return popularity_score
-
-    def _get_wine_rating(self, wine_id):
-        """
-        Get wine rating details
-        """
-        rating_data = db.session.query(
-            func.avg(WineReview.rating).label('average_rating'),
-            func.count(WineReview.id).label('review_count')
-        ).filter_by(wine_id=wine_id).first()
-
-        return {
-            'average_rating': rating_data.average_rating or 0,
-            'review_count': rating_data.review_count or 0
-        }
-
-    def advanced_search(self, query_params):
-        """
-        Advanced wine search with multiple filters
-        """
-        search_body = {
-            "query": {
-                "bool": {
-                    "must": [],
-                    "filter": []
-                }
-            },
-            "sort": [
-                {"popularity_score": {"order": "desc"}},
-                {"average_rating": {"order": "desc"}}
+        # Process aggregation results
+        filters = {
+            "types": [bucket['key'] for bucket in results['aggregations']['types']['buckets']],
+            "regions": [bucket['key'] for bucket in results['aggregations']['regions']['buckets']],
+            "grape_varieties": [bucket['key'] for bucket in results['aggregations']['grape_varieties']['buckets']],
+            "traits": [bucket['key'] for bucket in results['aggregations']['traits']['buckets']],
+            "price_ranges": [
+                {
+                    "label": self._format_price_range(bucket),
+                    "from": bucket.get('from', 0),
+                    "to": bucket.get('to', float('inf'))
+                } for bucket in results['aggregations']['price_range']['buckets']
             ]
         }
 
-        # Text search
-        if query_params.get('query'):
-            search_body["query"]["bool"]["must"].append({
-                "multi_match": {
-                    "query": query_params['query'],
-                    "fields": [
-                        "name^3", 
-                        "description^2", 
-                        "traits^2"
-                    ]
-                }
-            })
+        return filters
+    
+    except Exception as e:
+        self.logger.error(f"Error getting wine filters: {e}")
+        return {}
 
-        # Filters
-        filters = [
-            ('type', 'terms'),
-            ('region', 'terms'),
-            ('grape_variety', 'terms'),
-            ('traits', 'terms')
-        ]
+def _format_price_range(self, bucket):
+    """
+    Format price range label
+    """
+    if 'from' not in bucket and 'to' in bucket:
+        return f"Under ${bucket['to']}"
+    elif 'from' in bucket and 'to' in bucket:
+        return f"${bucket['from']} - ${bucket['to']}"
+    elif 'from' in bucket:
+        return f"Over ${bucket['from']}"
+    return "Unknown"
 
-        for field, es_type in filters:
-            if query_params.get(field):
-                search_body["query"]["bool"]["filter"].append({
-                    es_type: {field: query_params[field]}
-                })
+def get_wine_suggestions(self, wine_id, user_id=None):
+    """
+    Enhanced wine suggestions with optional user personalization
+    """
+    if not self.es:
+        self.logger.error("Elasticsearch not connected")
+        return {'suggestions': []}
 
-        # Price range filter
-        if query_params.get('min_price') or query_params.get('max_price'):
-            price_range = {}
-            if query_params.get('min_price'):
-                price_range['gte'] = query_params['min_price']
-            if query_params.get('max_price'):
-                price_range['lte'] = query_params['max_price']
-            
-            search_body["query"]["bool"]["filter"].append({
-                "range": {"price": price_range}
-            })
-
-        # Execute search
-        results = self.es.search(index=self.index_name, body=search_body)
-        
-        return {
-            'total': results['hits']['total']['value'],
-            'wines': [hit['_source'] for hit in results['hits']['hits']]
-        }
-
-    def get_wine_suggestions(self, wine_id):
-        """
-        Get wine suggestions based on similarity
-        """
+    try:
         wine = Wine.query.get(wine_id)
         
+        if not wine:
+            self.logger.warning(f"Wine not found: {wine_id}")
+            return {'suggestions': []}
+
+        # Base search body for suggestions
         search_body = {
             "query": {
                 "bool": {
@@ -184,11 +98,34 @@ class WineDiscoveryService:
                 {"popularity_score": {"order": "desc"}},
                 {"_score": {"order": "desc"}}
             ],
-            "size": 5
+            "size": 10  # Fetch more suggestions to allow for personalization filtering
         }
+
+        # If user_id is provided, add personalization logic
+        if user_id:
+            # You might want to implement more sophisticated personalization
+            # This is a basic example
+            user_preferences = UserPreference.query.filter_by(user_id=user_id).all()
+            
+            if user_preferences:
+                # Add user preference filters
+                preference_filters = [
+                    {"terms": {field: [pref.value for pref in user_preferences if pref.field == field]}}
+                    for field in ['type', 'region', 'grape_variety']
+                ]
+                
+                search_body["query"]["bool"]["should"].extend(preference_filters)
+                search_body["query"]["bool"]["minimum_should_match"] = 1
 
         results = self.es.search(index=self.index_name, body=search_body)
         
+        suggestions = [hit['_source'] for hit in results['hits']['hits']]
+        
         return {
-            'suggestions': [hit['_source'] for hit in results['hits']['hits']]
+            'suggestions': suggestions[:5],  # Limit to 5 final suggestions
+            'total_suggestions': len(suggestions)
         }
+    
+    except Exception as e:
+        self.logger.error(f"Error getting wine suggestions: {e}")
+        return {'suggestions': [], 'total_suggestions': 0}

@@ -51,4 +51,8 @@ MAIL_PORT = 587
 MAIL_USE_TLS = True
 MAIL_USERNAME = os.environ.get('EMAIL_USER')
 MAIL_PASSWORD = os.environ.get('EMAIL_PASS')
-MAIL_DEFAULT_SENDER = 'your-email@example.com'
+MAIL_DEFAULT_SENDER = 'epiphanywanjira@gmail.com'
+
+ # Elasticsearch Configuration
+ELASTICSEARCH_HOST = 'http://localhost:9200'
+ELASTICSEARCH_WINE_INDEX = 'wine_discovery'
