@@ -1,131 +1,193 @@
-from models import UserPreference, Wine
+from flask import current_app
+from models import Wine, WineReview, UserInteraction, UserPreference
+from extensions import db
+from sqlalchemy import func, or_
+from elasticsearch import Elasticsearch
+import logging
+import os
 
-def get_wine_filters(self):
-    """
-    Retrieve available wine filters from Elasticsearch
-    """
-    if not self.es:
-        self.logger.error("Elasticsearch not connected")
-        return {}
+class WineDiscoveryService:
+    _instance = None
 
-    try:
-        # Aggregation query to get unique filter values
-        agg_body = {
-            "size": 0,
-            "aggs": {
-                "types": {"terms": {"field": "type"}},
-                "regions": {"terms": {"field": "region"}},
-                "grape_varieties": {"terms": {"field": "grape_variety"}},
-                "traits": {"terms": {"field": "traits"}},
-                "price_range": {
-                    "range": {
-                        "field": "price",
-                        "ranges": [
-                            {"to": 20},
-                            {"from": 20, "to": 50},
-                            {"from": 50, "to": 100},
-                            {"from": 100}
+    def __new__(cls):
+        """
+        Singleton pattern to ensure only one instance
+        """
+        if not cls._instance:
+            cls._instance = super(WineDiscoveryService, cls).__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        """
+        Initialize service with lazy loading
+        """
+        if not hasattr(self, 'initialized'):
+            # Logging setup
+            self.logger = logging.getLogger(__name__)
+            
+            # Elasticsearch configuration
+            self.es_host = os.getenv(
+                'ELASTICSEARCH_HOST', 
+                'http://localhost:9200'
+            )
+            
+            # Defer Elasticsearch connection
+            self.es = None
+            self.index_name = 'wine_discovery'
+            
+            # Initialization flag
+            self.initialized = False
+
+    def connect(self, app=None):
+        """
+        Establish Elasticsearch connection
+        
+        :param app: Flask application context (optional)
+        :return: Elasticsearch client
+        """
+        try:
+            # Use app config if provided
+            if app:
+                es_host = app.config.get('ELASTICSEARCH_HOST', self.es_host)
+                index_name = app.config.get(
+                    'ELASTICSEARCH_WINE_INDEX', 
+                    'wine_discovery'
+                )
+            else:
+                es_host = self.es_host
+                index_name = self.index_name
+
+            # Configure Elasticsearch connection
+            self.es = Elasticsearch(
+                [es_host],
+                retry_on_timeout=True,
+                max_retries=3,
+                timeout=30
+            )
+            
+            # Verify connection
+            if not self.es.ping():
+                raise ValueError("Elasticsearch connection failed")
+            
+            # Set index name
+            self.index_name = index_name
+            
+            # Mark as initialized
+            self.initialized = True
+            
+            self.logger.info("Elasticsearch connected successfully")
+            return self.es
+        
+        except Exception as e:
+            self.logger.error(f"Elasticsearch connection error: {e}")
+            self.es = None
+            self.initialized = False
+            return None
+
+    def initialize_service(self, app=None):
+        """
+        Public method to initialize the service
+        
+        :param app: Flask application context
+        :return: Initialized service instance
+        """
+        if not self.initialized:
+            self.connect(app)
+        return self
+
+    # Rest of the methods from previous implementation...
+
+    def advanced_search(self, query_params):
+        """
+        Advanced wine search with multiple filters and error handling
+        """
+        if not self.es:
+            self.logger.error("Elasticsearch not connected")
+            return {'total': 0, 'wines': []}
+
+        try:
+            search_body = {
+                "query": {
+                    "bool": {
+                        "must": [],
+                        "filter": []
+                    }
+                },
+                "sort": [
+                    {"popularity_score": {"order": "desc"}},
+                    {"average_rating": {"order": "desc"}}
+                ],
+                "from": (query_params.get('page', 1) - 1) * query_params.get('per_page', 20),
+                "size": query_params.get('per_page', 20)
+            }
+
+            # Text search
+            if query_params.get('query'):
+                search_body["query"]["bool"]["must"].append({
+                    "multi_match": {
+                        "query": query_params['query'],
+                        "fields": [
+                            "name^3", 
+                            "description^2", 
+                            "traits^2"
                         ]
                     }
-                }
-            }
-        }
+                })
 
-        results = self.es.search(index=self.index_name, body=agg_body)
-        
-        # Process aggregation results
-        filters = {
-            "types": [bucket['key'] for bucket in results['aggregations']['types']['buckets']],
-            "regions": [bucket['key'] for bucket in results['aggregations']['regions']['buckets']],
-            "grape_varieties": [bucket['key'] for bucket in results['aggregations']['grape_varieties']['buckets']],
-            "traits": [bucket['key'] for bucket in results['aggregations']['traits']['buckets']],
-            "price_ranges": [
-                {
-                    "label": self._format_price_range(bucket),
-                    "from": bucket.get('from', 0),
-                    "to": bucket.get('to', float('inf'))
-                } for bucket in results['aggregations']['price_range']['buckets']
+            # Filters
+            filters = [
+                ('type', 'terms'),
+                ('region', 'terms'),
+                ('grape_variety', 'terms'),
+                ('traits', 'terms')
             ]
-        }
 
-        return filters
-    
-    except Exception as e:
-        self.logger.error(f"Error getting wine filters: {e}")
-        return {}
+            for field, es_type in filters:
+                if query_params.get(field):
+                    search_body["query"]["bool"]["filter"].append({
+                        es_type: {field: query_params[field]}
+                    })
 
-def _format_price_range(self, bucket):
-    """
-    Format price range label
-    """
-    if 'from' not in bucket and 'to' in bucket:
-        return f"Under ${bucket['to']}"
-    elif 'from' in bucket and 'to' in bucket:
-        return f"${bucket['from']} - ${bucket['to']}"
-    elif 'from' in bucket:
-        return f"Over ${bucket['from']}"
-    return "Unknown"
-
-def get_wine_suggestions(self, wine_id, user_id=None):
-    """
-    Enhanced wine suggestions with optional user personalization
-    """
-    if not self.es:
-        self.logger.error("Elasticsearch not connected")
-        return {'suggestions': []}
-
-    try:
-        wine = Wine.query.get(wine_id)
-        
-        if not wine:
-            self.logger.warning(f"Wine not found: {wine_id}")
-            return {'suggestions': []}
-
-        # Base search body for suggestions
-        search_body = {
-            "query": {
-                "bool": {
-                    "must": [
-                        {"match": {"type": wine.type}},
-                        {"range": {"price": {
-                            "gte": wine.price * 0.8,
-                            "lte": wine.price * 1.2
-                        }}}
-                    ]
-                }
-            },
-            "sort": [
-                {"popularity_score": {"order": "desc"}},
-                {"_score": {"order": "desc"}}
-            ],
-            "size": 10  # Fetch more suggestions to allow for personalization filtering
-        }
-
-        # If user_id is provided, add personalization logic
-        if user_id:
-            # You might want to implement more sophisticated personalization
-            # This is a basic example
-            user_preferences = UserPreference.query.filter_by(user_id=user_id).all()
-            
-            if user_preferences:
-                # Add user preference filters
-                preference_filters = [
-                    {"terms": {field: [pref.value for pref in user_preferences if pref.field == field]}}
-                    for field in ['type', 'region', 'grape_variety']
-                ]
+            # Price range filter
+            if query_params.get('min_price') or query_params.get('max_price'):
+                price_range = {}
+                if query_params.get('min_price'):
+                    price_range['gte'] = query_params['min_price']
+                if query_params.get('max_price'):
+                    price_range['lte'] = query_params['max_price']
                 
-                search_body["query"]["bool"]["should"].extend(preference_filters)
-                search_body["query"]["bool"]["minimum_should_match"] = 1
+                search_body["query"]["bool"]["filter"].append({
+                    "range": {"price": price_range}
+                })
 
-        results = self.es.search(index=self.index_name, body=search_body)
+            # Execute search
+            results = self.es.search(index=self.index_name, body=search_body)
+            
+            return {
+                'total': results['hits']['total']['value'],
+                'wines': [hit['_source'] for hit in results['hits']['hits']]
+            }
         
-        suggestions = [hit['_source'] for hit in results['hits']['hits']]
-        
-        return {
-            'suggestions': suggestions[:5],  # Limit to 5 final suggestions
-            'total_suggestions': len(suggestions)
-        }
+        except Exception as e:
+            self.logger.error(f"Error in advanced search: {e}")
+            return {'total': 0, 'wines': []}
+
+# Global function to create service
+def create_wine_discovery_service(app=None):
+    """
+    Create and initialize WineDiscoveryService
     
-    except Exception as e:
-        self.logger.error(f"Error getting wine suggestions: {e}")
-        return {'suggestions': [], 'total_suggestions': 0}
+    :param app: Flask application context
+    :return: Initialized WineDiscoveryService instance
+    """
+    service = WineDiscoveryService()
+    
+    # Initialize with app context if provided
+    if app:
+        with app.app_context():
+            service.initialize_service(app)
+    
+    return service
+
+# Global service instance
+wine_discovery_service = WineDiscoveryService()

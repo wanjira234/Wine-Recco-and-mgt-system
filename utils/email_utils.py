@@ -1,54 +1,55 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from flask_mail import Message
 from flask import current_app
+from extensions import mail
+import logging
+from typing import List, Optional, Dict
 
 class EmailUtils:
-    @staticmethod
-    def send_email(to_email, subject, body, html=None):
+    """
+    Comprehensive Email Utility Class
+    """
+    
+    @classmethod
+    def send_email(
+        cls, 
+        subject: str, 
+        recipients: List[str], 
+        body: str = None, 
+        html: str = None,
+        attachments: Optional[List[Dict[str, str]]] = None
+    ):
         """
-        Send email using SMTP
+        Send email with flexible configuration
+        
+        :param subject: Email subject
+        :param recipients: List of recipient email addresses
+        :param body: Plain text email body
+        :param html: HTML email body
+        :param attachments: List of file attachments
         """
         try:
-            msg = MIMEMultipart()
-            msg['From'] = current_app.config.get('EMAIL_SENDER')
-            msg['To'] = to_email
-            msg['Subject'] = subject
-
-            msg.attach(MIMEText(body, 'plain'))
+            msg = Message(
+                subject, 
+                recipients=recipients,
+                body=body,
+                html=html
+            )
             
-            if html:
-                msg.attach(MIMEText(html, 'html'))
-
-            # Use app configuration for SMTP settings
-            smtp_server = current_app.config.get('SMTP_SERVER')
-            smtp_port = current_app.config.get('SMTP_PORT')
-            smtp_username = current_app.config.get('SMTP_USERNAME')
-            smtp_password = current_app.config.get('SMTP_PASSWORD')
-
-            with smtplib.SMTP(smtp_server, smtp_port) as server:
-                server.starttls()
-                server.login(smtp_username, smtp_password)
-                server.send_message(msg)
+            # Add attachments if provided
+            if attachments:
+                for attachment in attachments:
+                    with current_app.open_resource(attachment['path']) as file:
+                        msg.attach(
+                            attachment['filename'], 
+                            attachment['mimetype'], 
+                            file.read()
+                        )
             
-            return True
+            # Send email
+            mail.send(msg)
+            
+            current_app.logger.info(f"Email sent to {', '.join(recipients)}")
+        
         except Exception as e:
             current_app.logger.error(f"Email sending failed: {str(e)}")
-            return False
-
-    @staticmethod
-    def send_welcome_email(user):
-        """
-        Send welcome email to new users
-        """
-        subject = "Welcome to Wine Recommender!"
-        body = f"Hi {user.name},\n\nWelcome to Wine Recommender!"
-        html = f"""
-        <html>
-            <body>
-                <h1>Welcome, {user.name}!</h1>
-                <p>Thank you for joining Wine Recommender</p>
-            </body>
-        </html>
-        """
-        return EmailUtils.send_email(user.email, subject, body, html)
+            logging.error(f"Email Error: {str(e)}")

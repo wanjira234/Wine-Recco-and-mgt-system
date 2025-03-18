@@ -1,7 +1,6 @@
-# Add this to your blueprints or create a new file named notification.py
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import NotificationService
+from services.notification_service import NotificationService
 
 notification_bp = Blueprint('notification', __name__)
 
@@ -19,13 +18,18 @@ def update_notification_preferences():
             user_id=user_id,
             preferences=data
         )
-        return jsonify({
-            'message': 'Notification preferences updated',
-            'preferences': {
-                k: v for k, v in preferences.__dict__.items() 
-                if not k.startswith('_')
-            }
-        }), 200
+        
+        if preferences:
+            return jsonify({
+                'message': 'Notification preferences updated',
+                'preferences': {
+                    k: v for k, v in preferences.__dict__.items() 
+                    if not k.startswith('_')
+                }
+            }), 200
+        else:
+            return jsonify({'error': 'Failed to update preferences'}), 400
+    
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
@@ -57,11 +61,20 @@ def mark_notification_read(notification_id):
     """
     Mark a notification as read
     """
+    user_id = get_jwt_identity()
+    
     try:
-        notification = NotificationService.mark_notification_as_read(notification_id)
-        return jsonify({
-            'message': 'Notification marked as read',
-            'notification_id': notification_id
-        }), 200
+        notification = NotificationService.mark_notification_as_read(
+            notification_id, 
+            user_id
+        )
+        
+        if notification:
+            return jsonify({
+                'message': 'Notification marked as read',
+                'notification_id': notification_id
+            }), 200
+        else:
+            return jsonify({'error': 'Notification not found'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 400

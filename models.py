@@ -119,10 +119,26 @@ class WineReview(db.Model):
     comment = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
+class WineRestock(db.Model):
+    __tablename__ = 'wine_restocks'
+
+    id = db.Column(db.Integer, primary_key=True)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=False)
+    requested_quantity = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String(50), default='pending')  # pending, approved, completed
+    
+    # Timestamps
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    wine = db.relationship('Wine', backref='restock_requests')
+
 class WineInventory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), unique=True)
     quantity = db.Column(db.Integer, nullable=False, default=0)
+    min_threshold = db.Column(db.Integer, default=20)  # Add minimum threshold
     last_updated = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 class Order(db.Model):
@@ -141,7 +157,6 @@ class OrderItem(db.Model):
     wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
-
 
 
 class NotificationType(Enum):

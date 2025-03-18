@@ -2,7 +2,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from services.order_service import OrderService
-from services.inventory_service import InventoryService
+from services.inventory_service import inventory_service
 
 order_bp = Blueprint('order', __name__)
 
@@ -10,24 +10,35 @@ order_bp = Blueprint('order', __name__)
 @jwt_required()
 def create_order():
     """
-    Create a new order
+    Create a new order with inventory management
     """
     user_id = get_jwt_identity()
     data = request.get_json()
     
     try:
+        # Create order
         order = OrderService.create_order(
             user_id=user_id,
             order_items=data.get('items', []),
             shipping_address=data.get('shipping_address')
         )
         
+        # Update inventory for each ordered item
+        for item in data.get('items', []):
+            inventory_service.update_inventory(
+                wine_id=item['wine_id'], 
+                quantity_change=-item['quantity']
+            )
+        
         return jsonify({
             'message': 'Order created successfully',
             'order_number': order.order_number
         }), 201
+    
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': 'An unexpected error occurred'}), 500
 
 @order_bp.route('/my-orders', methods=['GET'])
 @jwt_required()

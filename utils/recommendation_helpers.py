@@ -1,39 +1,74 @@
 import numpy as np
-from typing import List, Dict
+from typing import List, Dict, Any
+import scipy.spatial.distance as distance
 
 class RecommendationHelper:
+    """
+    Recommendation and Similarity Calculation Utilities
+    """
+    
     @staticmethod
-    def calculate_similarity_score(wine1: Dict, wine2: Dict):
+    def cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
         """
-        Calculate similarity between two wines
+        Calculate cosine similarity between two vectors
+        
+        :param vec1: First vector
+        :param vec2: Second vector
+        :return: Cosine similarity score
         """
-        features = ['type', 'region', 'price', 'alcohol_percentage']
-        
-        # Normalize features
-        def normalize(value):
-            return (value - np.mean(value)) / np.std(value)
-        
-        similarity_score = 0
-        for feature in features:
-            if feature in wine1 and feature in wine2:
-                similarity_score += 1 - abs(
-                    normalize(wine1[feature]) - normalize(wine2[feature])
-                )
-        
-        return similarity_score / len(features)
+        return 1 - distance.cosine(vec1, vec2)
 
     @staticmethod
-    def filter_recommendations(
-        recommendations: List[Dict], 
-        max_recommendations: int = 10,
-        min_rating: float = 3.5
-    ):
+    def pearson_correlation(vec1: np.ndarray, vec2: np.ndarray) -> float:
         """
-        Filter and refine recommendations
-        """
-        filtered_recommendations = [
-            wine for wine in recommendations 
-            if wine.get('rating', 0) >= min_rating
-        ]
+        Calculate Pearson correlation between two vectors
         
-        return filtered_recommendations[:max_recommendations]
+        :param vec1: First vector
+        :param vec2: Second vector
+        :return: Pearson correlation coefficient
+        """
+        return np.corrcoef(vec1, vec2)[0, 1]
+
+    @staticmethod
+    def jaccard_similarity(set1: set, set2: set) -> float:
+        """
+        Calculate Jaccard similarity between two sets
+        
+        :param set1: First set
+        :param set2: Second set
+        :return: Jaccard similarity score
+        """
+        intersection = len(set1.intersection(set2))
+        union = len(set1.union(set2))
+        return intersection / union if union != 0 else 0
+
+    @staticmethod
+    def normalize_vector(vector: np.ndarray) -> np.ndarray:
+        """
+        Normalize a vector to unit length
+        
+        :param vector: Input vector
+        :return: Normalized vector
+        """
+        return vector / np.linalg.norm(vector)
+
+    @staticmethod
+    def calculate_weighted_score(
+        items: List[Dict[str, Any]], 
+        weights: Dict[str, float]
+    ) -> List[Dict[str, Any]]:
+        """
+        Calculate weighted recommendation scores
+        
+        :param items: List of recommendation items
+        :param weights: Scoring weights
+        :return: Scored and sorted recommendations
+        """
+        for item in items:
+            score = sum(
+                item.get(key, 0) * weight 
+                for key, weight in weights.items()
+            )
+            item['recommendation_score'] = score
+        
+        return sorted(items, key=lambda x: x['recommendation_score'], reverse=True)
