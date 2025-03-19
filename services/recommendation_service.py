@@ -1,14 +1,20 @@
+import logging
 import numpy as np
 import pandas as pd
-import pickle
-import os
-from typing import List, Dict, Any
+from typing import List, Optional, Dict, Any
 
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from flask import current_app
+from sqlalchemy import func
 
 from extensions import db
-from models import Wine, UserPreference, WineReview
+from models import (
+    Wine, 
+    WineReview, 
+    User, 
+    UserWineInteraction, 
+    WineVarietal, 
+    WineRegion
+)
 
 class RecommendationEngine:
     _instance = None
@@ -16,169 +22,182 @@ class RecommendationEngine:
     def __new__(cls):
         if not cls._instance:
             cls._instance = super(RecommendationEngine, cls).__new__(cls)
+            cls._instance.logger = logging.getLogger(__name__)
+            cls._instance.wine_df = None
+            cls._instance.interaction_matrix = None
+            cls._instance.initialized = False
         return cls._instance
-
-    def __init__(self, data_folder='./data'):
-        if not hasattr(self, 'initialized'):
-            self.data_folder = data_folder
-            os.makedirs(data_folder, exist_ok=True)
-            self.initialized = False
-            self.wine_df = None
-            self.tfidf_matrix = None
 
     def initialize(self):
         """
-        Lazy initialization method with application context handling
+        Initialize recommendation engine
         """
-        from flask import current_app
-        
         try:
-            # Ensure we're in an application context
             with current_app.app_context():
-                self.load_wine_data()
+                self._load_wine_data()
+                self._create_interaction_matrix()
                 self.initialized = True
-                print("Recommendation engine initialized successfully")
+                self.logger.info("Recommendation engine initialized successfully")
         except Exception as e:
-            print(f"Failed to initialize recommendation engine: {e}")
+            self.logger.error(f"Recommendation engine initialization failed: {e}")
             self.initialized = False
+        return self
 
-    def load_wine_data(self):
+    def _load_wine_data(self):
         """
-        Load wine data from database and prepare for recommendations
-        Must be called within an application context
+        Load comprehensive wine data
         """
-        # Fetch all wines
         wines = Wine.query.all()
         
-        # Convert wines to DataFrame
         self.wine_df = pd.DataFrame([
             {
                 'id': wine.id,
                 'name': wine.name,
                 'type': wine.type,
-                'region': wine.region,
+                'varietal': wine.varietal.name if wine.varietal else 'Unknown',
+                'region': wine.region.name if wine.region else 'Unknown',
                 'description': wine.description or '',
                 'price': wine.price,
-                'avg_rating': self._calculate_average_rating(wine)
+                'alcohol_percentage': wine.alcohol_percentage,
+                'avg_rating': self._calculate_average_rating(wine),
+                'total_reviews': WineReview.query.filter_by(wine_id=wine.id).count()
             } for wine in wines
         ])
-        
-        # Prepare TF-IDF vectorizer
-        tfidf_vectorizer = TfidfVectorizer(stop_words='english')
-        self.tfidf_matrix = tfidf_vectorizer.fit_transform(
-            self.wine_df['description'].fillna('')
-        )
-
-    def extract_wine_traits(self):
-        """
-        Extract unique traits from wines
-        """
-        # Collect all traits from wines
-        all_traits_set = set()
-        for traits_str in self.wine_df['traits'].dropna():
-            if isinstance(traits_str, str):
-                traits = [trait.strip() for trait in traits_str.split(',')]
-                all_traits_set.update(traits)
-        
-        self.all_traits = list(all_traits_set)
 
     def _calculate_average_rating(self, wine):
         """
         Calculate average rating for a wine
         """
-        reviews = WineReview.query.filter_by(wine_id=wine.id).all()
-        if not reviews:
-            return 0
-        return sum(review.rating for review in reviews) / len(reviews)
+        avg_rating = db.session.query(func.avg(WineReview.rating))\
+            .filter(WineReview.wine_id == wine.id)\
+            .scalar() or 0
+        return round(avg_rating, 2)
 
-    def recommend_by_traits(self, selected_traits=None, top_n=10):
+    def _create_interaction_matrix(self):
         """
-        Recommend wines based on selected traits
-        
-        :param selected_traits: List of traits to filter by
-        :param top_n: Number of recommendations to return
-        :return: DataFrame of recommended wines
+        Create user-wine interaction matrix
         """
-        if not self.initialized:
-            self.initialize()
+        interactions = UserWineInteraction.query.all()
+        
+        # Create interaction matrix
+        user_ids = sorted(set(interaction.user_id for interaction in interactions))
+        wine_ids = sorted(set(interaction.wine_id for interaction in interactions))
+        
+        interaction_matrix = np.zeros((len(user_ids), len(wine_ids)))
+        
+        user_id_to_index = {user_id: idx for idx, user_id in enumerate(user_ids)}
+        wine_id_to_index = {wine_id: idx for idx, wine_id in enumerate(wine_ids)}
+        
+        for interaction in interactions:
+            user_idx = user_id_to_index[interaction.user_id]
+            wine_idx = wine_id_to_index[interaction.wine_id]
+            interaction_matrix[user_idx, wine_idx] = interaction.interaction_weight
 
-        # If no traits specified, return popular wines
-        if not selected_traits:
-            return self.wine_df.nlargest(top_n, 'avg_rating')
+        self.interaction_matrix = interaction_matrix
+        self.user_ids = user_ids
+        self.wine_ids = wine_ids
 
-        # Filter wines that match the selected traits
-        def traits_match(wine_traits):
-            if not isinstance(wine_traits, str):
-                return False
-            wine_trait_list = [trait.strip() for trait in wine_traits.split(',')]
-            return any(trait in wine_trait_list for trait in selected_traits)
-
-        trait_matched_wines = self.wine_df[
-            self.wine_df['traits'].apply(traits_match)
-        ]
-
-        # If no wines match, return popular wines
-        if trait_matched_wines.empty:
-            return self.wine_df.nlargest(top_n, 'avg_rating')
-
-        # Sort by average rating and return top N
-        return trait_matched_wines.nlargest(top_n, 'avg_rating')
-
-    def hybrid_recommendations(self, user_id, top_n=5):
+    def get_personalized_recommendations(
+        self, 
+        user_id: int, 
+        top_n: int = 10
+    ) -> List[Dict[str, Any]]:
         """
-        Generate hybrid recommendations
+        Generate personalized wine recommendations
         """
-        if not self.initialized:
-            self.initialize()
+        try:
+            # Content-based filtering
+            user_interactions = UserWineInteraction.query\
+                .filter_by(user_id=user_id)\
+                .order_by(UserWineInteraction.interaction_weight.desc())\
+                .limit(5)\
+                .all()
+            
+            if not user_interactions:
+                return self.get_popular_wines(top_n)
+            
+            # Get liked wine IDs
+            liked_wine_ids = [interaction.wine_id for interaction in user_interactions]
+            
+            # Fetch similar wines based on interactions
+            recommended_wines = self._find_similar_wines(liked_wine_ids, top_n)
+            
+            return recommended_wines
+        
+        except Exception as e:
+            self.logger.error(f"Personalized recommendation error: {e}")
+            return self.get_popular_wines(top_n)
 
-        # Get user's past reviews
-        user_reviews = WineReview.query.filter_by(user_id=user_id).all()
+    def _find_similar_wines(self, wine_ids: List[int], top_n: int = 10) -> List[Dict[str, Any]]:
+        """
+        Find similar wines based on multiple wine IDs
+        """
+        try:
+            # Filter wines similar to liked wines
+            base_wines = Wine.query.filter(Wine.id.in_(wine_ids)).all()
+            
+            # Criteria for similarity
+            similar_wines = Wine.query.filter(
+                (Wine.type.in_([wine.type for wine in base_wines])) |
+                (Wine.varietal_id.in_([wine.varietal_id for wine in base_wines])) |
+                (Wine.region_id.in_([wine.region_id for wine in base_wines]))
+            ).filter(~Wine.id.in_(wine_ids))\
+             .order_by(func.random())\
+             .limit(top_n)\
+             .all()
+            
+            return [
+                {
+                    'id': wine.id,
+                    'name': wine.name,
+                    'type': wine.type,
+                    'varietal': wine.varietal.name if wine.varietal else 'Unknown',
+                    'region': wine.region.name if wine.region else 'Unknown',
+                    'price': wine.price,
+                    'avg_rating': self._calculate_average_rating(wine)
+                } for wine in similar_wines
+            ]
         
-        if not user_reviews:
-            return self._get_popular_wines(top_n)
-        
-        # Get liked wines
-        liked_wine_ids = [review.wine_id for review in user_reviews if review.rating >= 4]
-        
-        if not liked_wine_ids:
-            return self._get_popular_wines(top_n)
-        
-        # Generate recommendations
-        recommended_wines = []
-        for wine_id in liked_wine_ids:
-            content_based_recs = self._content_based_recommendations(wine_id)
-            recommended_wines.extend(content_based_recs)
-        
-        # Remove duplicates and already reviewed wines
-        recommended_wines = list(set(recommended_wines))
-        recommended_wines = [
-            wine_id for wine_id in recommended_wines 
-            if wine_id not in [review.wine_id for review in user_reviews]
-        ]
-        
-        return recommended_wines[:top_n]
+        except Exception as e:
+            self.logger.error(f"Similar wine search error: {e}")
+            return []
 
-    def _content_based_recommendations(self, wine_id, top_n=5):
+    def get_popular_wines(self, top_n: int = 10) -> List[Dict[str, Any]]:
         """
-        Generate content-based recommendations
+        Get most popular wines based on ratings and interactions
         """
-        wine_index = self.wine_df[self.wine_df['id'] == wine_id].index[0]
+        try:
+            popular_wines = Wine.query\
+                .join(WineReview, Wine.id == WineReview.wine_id, isouter=True)\
+                .group_by(Wine.id)\
+                .order_by(
+                    func.avg(WineReview.rating).desc(), 
+                    func.count(WineReview.id).desc()
+                )\
+                .limit(top_n)\
+                .all()
+            
+            return [
+                {
+                    'id': wine.id,
+                    'name': wine.name,
+                    'type': wine.type,
+                    'varietal': wine.varietal.name if wine.varietal else 'Unknown',
+                    'region': wine.region.name if wine.region else 'Unknown',
+                    'price': wine.price,
+                    'avg_rating': self._calculate_average_rating(wine)
+                } for wine in popular_wines
+            ]
         
-        similarity_scores = cosine_similarity(
-            self.tfidf_matrix[wine_index], 
-            self.tfidf_matrix
-        ).flatten()
-        
-        similar_indices = similarity_scores.argsort()[::-1][1:top_n+1]
-        
-        return self.wine_df.iloc[similar_indices]['id'].tolist()
+        except Exception as e:
+            self.logger.error(f"Popular wines retrieval error: {e}")
+            return []
 
-    def _get_popular_wines(self, top_n=5):
-        """
-        Get most popular wines
-        """
-        popular_wines = self.wine_df.nlargest(top_n, 'avg_rating')
-        return popular_wines['id'].tolist()
+def create_recommendation_engine():
+    """
+    Create and initialize recommendation engine
+    """
+    return RecommendationEngine().initialize()
 
 # Global instance
-recommendation_engine = RecommendationEngine()
+recommendation_engine = create_recommendation_engine()

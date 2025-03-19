@@ -1,3 +1,4 @@
+from flask import current_app
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
@@ -8,27 +9,62 @@ from extensions import db
 from datetime import datetime, timedelta
 from extensions import db
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import relationship
+from sqlalchemy import ForeignKey, Column, Integer, String, Float, Boolean, DateTime, Text, func
 
 db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String(100), unique=True, nullable=False)
+    email = Column(String(120), unique=True, nullable=False)
+    password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
-    orders = db.relationship('Order', backref='user', lazy='dynamic')
-    reviews = db.relationship('WineReview', backref='user', lazy='dynamic')
+    reviews = relationship('WineReview', back_populates='user')
+    interactions = relationship('UserWineInteraction', back_populates='user')
+    notification_preferences = relationship(
+        'UserNotificationPreference', 
+        back_populates='user', 
+        uselist=False,
+        cascade='all, delete-orphan'
+    )
+    interactions_made = relationship(
+        'UserInteraction', 
+        foreign_keys='UserInteraction.user_id', 
+        back_populates='user'
+    )
+    interactions_received = relationship(
+        'UserInteraction', 
+        foreign_keys='UserInteraction.target_user_id', 
+        back_populates='target_user'
+    )
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+class WineVarietal(db.Model):
+    __tablename__ = 'wine_varietals'
 
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), unique=True, nullable=False)
+    description = Column(Text)
     
+    # Relationship with Wines
+    wines = relationship('Wine', back_populates='varietal')
+
+class WineRegion(db.Model):
+    __tablename__ = 'wine_regions'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), unique=True, nullable=False)
+    country = Column(String(100))
+    description = Column(Text)
+    
+    # Relationship with Wines
+    wines = relationship('Wine', back_populates='region')
+
 class UserRole(str, Enum):
     CUSTOMER = 'customer'
     ADMIN = 'admin'
@@ -67,57 +103,137 @@ class UserPreference(db.Model):
     
 
 class Wine(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    type = db.Column(db.String(50), nullable=False)
-    region = db.Column(db.String(100), nullable=False)
-    vintage = db.Column(db.Integer)
-    price = db.Column(db.Float, nullable=False)
-    description = db.Column(db.Text)
-    alcohol_percentage = db.Column(db.Float)
-    image_url = db.Column(db.String(255))
+    __tablename__ = 'wines'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(200), nullable=False)
+    description = Column(Text)
+    type = Column(String(50))  # e.g., Red, White, Rose
+    price = Column(Float)
+    alcohol_percentage = Column(Float)
+    
+    # Foreign Keys
+    varietal_id = Column(Integer, ForeignKey('wine_varietals.id'))
+    region_id = Column(Integer, ForeignKey('wine_regions.id'))
     
     # Relationships
-    reviews = db.relationship('WineReview', backref='wine', lazy='dynamic')
-    inventory = db.relationship('WineInventory', backref='wine', uselist=False)
+    varietal = relationship('WineVarietal', back_populates='wines')
+    region = relationship('WineRegion', back_populates='wines')
+    reviews = relationship('WineReview', back_populates='wine')
+    interactions = relationship('UserWineInteraction', back_populates='wine')
 
 class UserInteraction(db.Model):
     __tablename__ = 'user_interactions'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    target_user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=True)
     
     # Interaction types
-    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=True)
-    interaction_type = db.Column(db.String(50), nullable=False)  # e.g., view, like, recommend
+    interaction_type = db.Column(db.String(50), nullable=False)  # e.g., view, like, recommend, share
     
-    # Metadata
+    # Additional metadata
     interaction_details = db.Column(db.JSON, nullable=True)
     
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
-    user = db.relationship('User', backref='interactions')
+    user = db.relationship('User', foreign_keys=[user_id], backref='interactions_made')
+    target_user = db.relationship('User', foreign_keys=[target_user_id], backref='interactions_received')
     wine = db.relationship('Wine', backref='interactions')
 
     def to_dict(self):
+        """
+        Convert interaction to dictionary for easy serialization
+        """
         return {
             'id': self.id,
             'user_id': self.user_id,
+            'target_user_id': self.target_user_id,
             'wine_id': self.wine_id,
             'interaction_type': self.interaction_type,
             'interaction_details': self.interaction_details,
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
 
+    @classmethod
+    def log_interaction(
+        cls, 
+        user_id, 
+        interaction_type, 
+        target_user_id=None, 
+        wine_id=None, 
+        details=None
+    ):
+        """
+        Class method to easily log interactions
+        
+        :param user_id: ID of the user performing the interaction
+        :param interaction_type: Type of interaction
+        :param target_user_id: Optional ID of the target user
+        :param wine_id: Optional ID of the wine involved
+        :param details: Optional additional details about the interaction
+        :return: Created interaction instance
+        """
+        interaction = cls(
+            user_id=user_id,
+            target_user_id=target_user_id,
+            wine_id=wine_id,
+            interaction_type=interaction_type,
+            interaction_details=details or {}
+        )
+        
+        try:
+            db.session.add(interaction)
+            db.session.commit()
+            return interaction
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Failed to log interaction: {e}")
+            return None
+
+    @classmethod
+    def get_user_interactions(
+        cls, 
+        user_id, 
+        interaction_type=None, 
+        limit=50, 
+        offset=0
+    ):
+        """
+        Retrieve user interactions with optional filtering
+        
+        :param user_id: ID of the user
+        :param interaction_type: Optional specific interaction type
+        :param limit: Number of interactions to retrieve
+        :param offset: Pagination offset
+        :return: List of interactions
+        """
+        query = cls.query.filter_by(user_id=user_id)
+        
+        if interaction_type:
+            query = query.filter_by(interaction_type=interaction_type)
+        
+        return query.order_by(cls.created_at.desc())\
+                   .limit(limit)\
+                   .offset(offset)\
+                   .all()
+    
 class WineReview(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
-    comment = db.Column(db.Text)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
+    __tablename__ = 'wine_reviews'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    wine_id = Column(Integer, ForeignKey('wines.id'), nullable=False)
+    rating = Column(Float, nullable=False)
+    comment = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship('User', back_populates='reviews')
+    wine = relationship('Wine', back_populates='reviews')
 
 class WineRestock(db.Model):
     __tablename__ = 'wine_restocks'
@@ -185,20 +301,25 @@ class Notification(db.Model):
 class UserNotificationPreference(db.Model):
     __tablename__ = 'user_notification_preferences'
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    id = Column(Integer, primary_key=True)
+    user_id = Column(
+        Integer, 
+        ForeignKey('users.id', ondelete='CASCADE'), 
+        nullable=False, 
+        unique=True
+    )
     
-    # Email notification preferences
-    email_connection_requests = db.Column(db.Boolean, default=True)
-    email_wine_recommendations = db.Column(db.Boolean, default=True)
-    email_community_updates = db.Column(db.Boolean, default=True)
+    # Notification preferences
+    email_connection_requests = Column(Boolean, default=True)
+    email_wine_recommendations = Column(Boolean, default=True)
+    email_community_updates = Column(Boolean, default=True)
     
-    # Push notification preferences
-    push_connection_requests = db.Column(db.Boolean, default=True)
-    push_wine_recommendations = db.Column(db.Boolean, default=True)
-    push_community_updates = db.Column(db.Boolean, default=True)
+    push_connection_requests = Column(Boolean, default=True)
+    push_wine_recommendations = Column(Boolean, default=True)
+    push_community_updates = Column(Boolean, default=True)
     
-    user = db.relationship('User', backref='notification_preferences')
+    # Relationship with User
+    user = relationship('User', back_populates='notification_preferences')
 
 # models/subscription.py
 
@@ -674,3 +795,20 @@ class ModelRetrainingLog(db.Model):
     # Timestamps
     started_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_at = db.Column(db.DateTime, nullable=True)
+
+# Optional: Add some utility methods
+def calculate_wine_average_rating(wine_id):
+    """
+    Calculate average rating for a specific wine
+    """
+    return db.session.query(func.avg(WineReview.rating))\
+        .filter(WineReview.wine_id == wine_id)\
+        .scalar() or 0
+
+def get_wine_review_count(wine_id):
+    """
+    Get total number of reviews for a wine
+    """
+    return db.session.query(func.count(WineReview.id))\
+        .filter(WineReview.wine_id == wine_id)\
+        .scalar() or 0
