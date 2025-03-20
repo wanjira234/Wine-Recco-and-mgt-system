@@ -4,7 +4,12 @@ from models import db, Wine, Order, OrderItem
 from services.payment_service import PaymentService
 
 cart_bp = Blueprint('cart', __name__)
-payment_service = PaymentService()
+
+# Create a function to get the payment service instance
+def get_payment_service():
+    if not hasattr(current_app, 'payment_service'):
+        current_app.payment_service = PaymentService()
+    return current_app.payment_service
 
 @cart_bp.route('/checkout', methods=['POST'])
 @login_required
@@ -22,6 +27,9 @@ def checkout():
         return jsonify({"error": "Cart is empty"}), 400
 
     try:
+        # Get payment service instance
+        payment_service = get_payment_service()
+        
         # Complete order processing
         order_completed = payment_service.complete_order(
             order, 

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request, current_app, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func
 
@@ -193,3 +193,72 @@ def add_wine_review():
         db.session.rollback()
         current_app.logger.error(f"Wine review error: {e}")
         return jsonify({'error': 'Failed to add review'}), 500
+
+@wines_bp.route('/catalog', methods=['GET'])
+def catalog():
+    """
+    Render the wine catalog page with filtering, pagination, and personalized recommendations
+    """
+    try:
+        # Pagination parameters
+        page = request.args.get('page', 1, type=int)
+        per_page = 12  # Number of wines per page
+        
+        # Filtering parameters
+        wine_type = request.args.get('wine_type')
+        price_range = request.args.get('price_range')
+        region = request.args.get('region')
+        
+        # Base query
+        query = Wine.query
+        
+        # If user is logged in, prioritize wines matching their preferences
+        if current_user.is_authenticated:
+            # Get user's preferred traits
+            user_traits = set(current_user.preferred_traits)
+            
+            # Join with wine traits and count matches
+            query = query.outerjoin(wine_traits)\
+                .outerjoin(WineTrait)\
+                .group_by(Wine.id)\
+                .order_by(
+                    func.count(case([(WineTrait.id.in_([t.id for t in user_traits]), 1)], else_=0)).desc()
+                )
+        
+        # Apply filters
+        if wine_type:
+            query = query.filter(Wine.type == wine_type)
+        
+        if price_range:
+            if price_range == '0-20':
+                query = query.filter(Wine.price <= 20)
+            elif price_range == '20-50':
+                query = query.filter(Wine.price > 20, Wine.price <= 50)
+            elif price_range == '50-100':
+                query = query.filter(Wine.price > 50, Wine.price <= 100)
+            elif price_range == '100+':
+                query = query.filter(Wine.price > 100)
+        
+        if region:
+            query = query.join(WineRegion).filter(WineRegion.name.ilike(f'%{region}%'))
+        
+        # Get paginated results
+        pagination = query.paginate(page=page, per_page=per_page)
+        
+        # Get similar users' favorite wines if user is authenticated
+        similar_wines = []
+        if current_user.is_authenticated:
+            similar_wines = recommendation_engine.get_similar_user_recommendations(
+                current_user.id,
+                limit=6
+            )
+        
+        return render_template('catalog.html', 
+                             wines=pagination.items,
+                             pagination=pagination,
+                             similar_wines=similar_wines)
+    
+    except Exception as e:
+        current_app.logger.error(f"Catalog page error: {e}")
+        return render_template('error.html', 
+                             message="An error occurred while loading the catalog"), 500

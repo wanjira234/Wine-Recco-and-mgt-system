@@ -5,6 +5,7 @@ Flask-Migrate==3.1.0
 Flask-SQLAlchemy==2.5.1
 Flask-Cors==3.0.10
 flask-marshmallow==0.14.0
+email_validator==2.0.0
 
 # Database
 SQLAlchemy==1.4.32
@@ -56,7 +57,6 @@ gevent==21.12.0
 
 # Optional: Monitoring
 sentry-sdk[flask]==1.5.8
-
 # Optional: Email
 Flask-Mail==0.9.1
 

@@ -1,12 +1,15 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from services.recommendation_service import recommendation_engine
+from services.recommendation_service import get_recommendation_engine
 from models import Wine
 
 recommendation_bp = Blueprint('recommendation', __name__)
 
-# Initialize the recommendation engine
-recommendation_engine.initialize()
+def get_engine():
+    """
+    Get the recommendation engine instance
+    """
+    return get_recommendation_engine()
 
 @recommendation_bp.route('/by-traits', methods=['GET'])
 def recommend_by_traits():
@@ -18,8 +21,9 @@ def recommend_by_traits():
     top_n = request.args.get('top_n', default=10, type=int)
 
     try:
+        engine = get_engine()
         # Get recommendations
-        recommendations = recommendation_engine.recommend_by_traits(
+        recommendations = engine.recommend_by_traits(
             selected_traits=traits if traits[0] else None, 
             top_n=top_n
         )
@@ -43,7 +47,8 @@ def get_personalized_recommendations():
     top_n = request.args.get('top_n', default=5, type=int)
 
     try:
-        recommendations = recommendation_engine.hybrid_recommendations(
+        engine = get_engine()
+        recommendations = engine.hybrid_recommendations(
             user_id, 
             top_n
         )
@@ -71,8 +76,9 @@ def get_available_traits():
     Get list of available wine traits
     """
     try:
+        engine = get_engine()
         return jsonify({
-            'traits': recommendation_engine.all_traits
+            'traits': engine.all_traits
         }), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

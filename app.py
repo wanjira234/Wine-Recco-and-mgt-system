@@ -1,7 +1,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -9,11 +9,16 @@ from flask_socketio import SocketIO, join_room, leave_room
 from flask_cors import CORS
 from flask_mail import Mail
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Import extensions
 from extensions import db, socketio, mail, celery, cache
 
 # Import Blueprints
+from blueprints.main import main_bp
 from blueprints.auth import auth_bp
 from blueprints.wines import wines_bp
 from blueprints.cart import cart_bp
@@ -27,6 +32,7 @@ from blueprints.inventory import inventory_bp
 from blueprints.community import community_bp
 from blueprints.notification import notification_bp
 from blueprints.search import search_bp
+from blueprints.account import account_bp
 
 # Import Utilities and Services
 from utils.error_handlers import register_error_handlers
@@ -35,7 +41,7 @@ from services.recommendation_service import create_recommendation_engine, Recomm
 from services.wine_discovery_service import create_wine_discovery_service
 
 # Import Models
-from models import User
+from models import User, WineTrait
 
 def configure_logging(app):
     """
@@ -76,6 +82,9 @@ def create_app():
     # Load configuration
     app.config.from_object('config.Config')
     
+    # Set secret key for CSRF protection
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-please-change-in-production')
+    
     # Configure Logging
     configure_logging(app)
     logger = app.logger
@@ -99,6 +108,29 @@ def create_app():
                 ]
             }
         })
+        
+        # Root route
+        @app.route('/')
+        def index():
+            return render_template('home.html')
+        
+        # API Documentation route
+        @app.route('/api')
+        def api_docs():
+            return jsonify({
+                "message": "Welcome to the Wine Recommender API",
+                "version": "1.0.0",
+                "endpoints": {
+                    "auth": "/api/auth/",
+                    "wines": "/api/wines/",
+                    "recommendations": "/api/recommendations/",
+                    "cart": "/api/cart/",
+                    "orders": "/api/orders/",
+                    "community": "/api/community/",
+                    "search": "/api/search/"
+                },
+                "documentation": "Please refer to the API documentation for detailed information about each endpoint."
+            })
         
         # Cache Initialization with Fallback
         try:
@@ -130,6 +162,7 @@ def create_app():
         
         # Register Blueprints
         blueprints = [
+            (main_bp, ''),  # Main blueprint for frontend pages
             (auth_bp, '/api/auth'),
             (cart_bp, '/api/cart'),
             (admin_bp, '/api/admin'),
@@ -142,7 +175,8 @@ def create_app():
             (community_bp, '/api/community'),
             (notification_bp, '/api/notifications'),
             (search_bp, '/api/search'),
-            (wines_bp, '/api/wines')
+            (wines_bp, '/api/wines'),
+            (account_bp, '/account')  # Account management routes
         ]
         
         for blueprint, url_prefix in blueprints:
@@ -151,21 +185,32 @@ def create_app():
         # Initialize Services within Application Context
         with app.app_context():
             # Create database tables
-            db.create_all()
+            try:
+                db.create_all()
+                logger.info("Database tables created successfully")
+            except Exception as db_error:
+                logger.error(f"Failed to create database tables: {db_error}")
+                raise
             
             # Initialize Recommendation Engine
             try:
-                recommendation_engine = create_recommendation_engine()
-                logger.info("Recommendation engine initialized successfully")
+                from services.recommendation_service import get_recommendation_engine
+                # Only initialize if not already initialized
+                if not hasattr(app, 'recommendation_engine'):
+                    app.recommendation_engine = get_recommendation_engine()
+                    logger.info("Recommendation engine initialized successfully")
             except Exception as recommendation_error:
                 logger.error(f"Failed to initialize recommendation engine: {recommendation_error}")
+                app.recommendation_engine = None
             
             # Initialize Wine Discovery Service
             try:
-                wine_discovery_service = create_wine_discovery_service()
-                logger.info("Wine discovery service initialized successfully")
+                if not hasattr(app, 'wine_discovery_service'):
+                    app.wine_discovery_service = create_wine_discovery_service()
+                    logger.info("Wine discovery service initialized successfully")
             except Exception as discovery_error:
                 logger.error(f"Failed to initialize wine discovery service: {discovery_error}")
+                app.wine_discovery_service = None
         
         # WebSocket Authentication and Event Handlers
         @socketio.on('connect')
@@ -206,6 +251,95 @@ def create_app():
                 clear_all_caches()
                 print("All caches cleared.")
         
+        @app.cli.command("create-admin")
+        def create_admin():
+            """Create an admin user"""
+            try:
+                username = input("Enter admin username: ")
+                email = input("Enter admin email: ")
+                password = input("Enter admin password: ")
+                
+                user = User(
+                    username=username,
+                    email=email,
+                    is_admin=True
+                )
+                user.set_password(password)
+                
+                db.session.add(user)
+                db.session.commit()
+                
+                print(f"Admin user '{username}' created successfully!")
+            except Exception as e:
+                print(f"Error creating admin user: {e}")
+                db.session.rollback()
+        
+        @app.cli.command("populate-traits")
+        def populate_traits():
+            """Populate wine traits in the database"""
+            try:
+                # Define trait categories
+                trait_categories = {
+                    'taste': ['sweet', 'dry', 'tart', 'crisp', 'tangy', 'juicy', 'rich', 'smooth', 'soft', 'sharp'],
+                    'aroma': ['almond', 'anise', 'apple', 'apricot', 'berry', 'black_cherry', 'blackberry', 'blueberry', 
+                             'citrus', 'peach', 'pear', 'plum', 'raspberry', 'strawberry', 'tropical_fruit', 'vanilla',
+                             'chocolate', 'coffee', 'caramel', 'honey', 'spice', 'cinnamon', 'nutmeg', 'pepper'],
+                    'body': ['light_bodied', 'medium_bodied', 'full_bodied', 'dense', 'thick', 'weight', 'robust', 'hearty'],
+                    'texture': ['silky', 'velvety', 'smooth', 'round', 'plush', 'supple', 'firm', 'tannin', 'gripping'],
+                    'character': ['complex', 'elegant', 'fresh', 'vibrant', 'bright', 'powerful', 'concentrated', 'refined'],
+                    'notes': ['floral', 'herbal', 'earthy', 'mineral', 'oak', 'smoke', 'leather', 'tobacco', 'cedar']
+                }
+
+                # Create traits for each category
+                for category, traits in trait_categories.items():
+                    for trait_name in traits:
+                        # Check if trait already exists
+                        existing_trait = WineTrait.query.filter_by(name=trait_name).first()
+                        if not existing_trait:
+                            trait = WineTrait(
+                                name=trait_name,
+                                category=category,
+                                description=f"{trait_name.replace('_', ' ').title()} characteristic in wines"
+                            )
+                            db.session.add(trait)
+                
+                # Add remaining traits as 'other'
+                all_traits = ['almond', 'anise', 'apple', 'apricot', 'baked', 'baking_spices', 'berry', 'black_cherry', 
+                            'black_currant', 'black_pepper', 'black_tea', 'blackberry', 'blueberry', 'boysenberry', 
+                            'bramble', 'bright', 'butter', 'candy', 'caramel', 'cardamom', 'cassis', 'cedar', 'chalk', 
+                            'cherry', 'chocolate', 'cinnamon', 'citrus', 'clean', 'closed', 'clove', 'cocoa', 'coffee', 
+                            'cola', 'complex', 'concentrated', 'cranberry', 'cream', 'crisp', 'dark', 'dark_chocolate', 
+                            'dense', 'depth', 'dried_herb', 'dry', 'dust', 'earth', 'edgy', 'elderberry', 'elegant', 
+                            'fennel', 'firm', 'flower', 'forest_floor', 'french_oak', 'fresh', 'fruit', 'full_bodied', 
+                            'game', 'grapefruit', 'graphite', 'green', 'gripping', 'grippy', 'hearty', 'herb', 'honey', 
+                            'honeysuckle', 'jam', 'juicy', 'lavender', 'leafy', 'lean', 'leather', 'lemon', 'lemon_peel', 
+                            'length', 'licorice', 'light_bodied', 'lime', 'lush', 'meaty', 'medium_bodied', 'melon', 
+                            'milk_chocolate', 'minerality', 'mint', 'nutmeg', 'oak', 'olive', 'orange', 'orange_peel', 
+                            'peach', 'pear', 'pencil_lead', 'pepper', 'pine', 'pineapple', 'plum', 'plush', 'polished', 
+                            'pomegranate', 'powerful', 'purple', 'purple_flower', 'raspberry', 'refreshing', 'restrained', 
+                            'rich', 'ripe', 'robust', 'rose', 'round', 'sage', 'salt', 'savory', 'sharp', 'silky', 
+                            'smoke', 'smoked_meat', 'smooth', 'soft', 'sparkling', 'spice', 'steel', 'stone', 'strawberry', 
+                            'succulent', 'supple', 'sweet', 'tangy', 'tannin', 'tar', 'tart', 'tea', 'thick', 'thyme', 
+                            'tight', 'toast', 'tobacco', 'tropical_fruit', 'vanilla', 'velvety', 'vibrant', 'violet', 
+                            'warm', 'weight', 'wet_rocks', 'white', 'white_pepper', 'wood']
+
+                existing_traits = {t.name for t in WineTrait.query.all()}
+                for trait_name in all_traits:
+                    if trait_name not in existing_traits:
+                        trait = WineTrait(
+                            name=trait_name,
+                            category='other',
+                            description=f"{trait_name.replace('_', ' ').title()} characteristic in wines"
+                        )
+                        db.session.add(trait)
+
+                db.session.commit()
+                print("Wine traits populated successfully!")
+                
+            except Exception as e:
+                print(f"Error populating wine traits: {e}")
+                db.session.rollback()
+        
         return app
     
     except Exception as app_init_error:
@@ -216,6 +350,19 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
+    print("\nStarting Flask development server...")
+    print("Access the application at: http://127.0.0.1:5000")
+    print("API endpoints are available at: http://127.0.0.1:5000/api/")
+    print("\nAvailable API endpoints:")
+    print("- /api/auth/ - Authentication endpoints")
+    print("- /api/wines/ - Wine management")
+    print("- /api/recommendations/ - Wine recommendations")
+    print("- /api/cart/ - Shopping cart")
+    print("- /api/orders/ - Order management")
+    print("- /api/community/ - Community features")
+    print("- /api/search/ - Search functionality")
+    print("\nPress CTRL+C to quit\n")
+    
     socketio.run(
         app, 
         host='0.0.0.0', 

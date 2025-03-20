@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FloatField, TextAreaField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, FloatField, TextAreaField, SelectField, BooleanField, SelectMultipleField
 from wtforms.validators import DataRequired, Email, EqualTo, Length, ValidationError
 from models import User
 
@@ -40,6 +40,7 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[
         DataRequired()
     ])
+    remember_me = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
 class WineForm(FlaskForm):
@@ -67,3 +68,27 @@ class ReviewForm(FlaskForm):
     ], coerce=int)
     comment = TextAreaField('Review')
     submit = SubmitField('Submit Review')
+
+class SignupForm(FlaskForm):
+    username = StringField('Username', validators=[
+        DataRequired(),
+        Length(min=3, max=50)
+    ])
+    email = StringField('Email', validators=[
+        DataRequired(),
+        Email()
+    ])
+    password = PasswordField('Password', validators=[
+        DataRequired(),
+        Length(min=6)
+    ])
+    confirm_password = PasswordField('Confirm Password', validators=[
+        DataRequired(),
+        EqualTo('password', message='Passwords must match')
+    ])
+    traits = SelectMultipleField('Wine Preferences', coerce=int)
+
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    remember = BooleanField('Remember Me')

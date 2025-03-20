@@ -4,15 +4,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from datetime import datetime, UTC
 from extensions import db
-from enum import Enum
-from extensions import db
+from enum import Enum as PyEnum
 from datetime import datetime, timedelta
-from extensions import db
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey, Column, Integer, String, Float, Boolean, DateTime, Text, func
+from sqlalchemy import ForeignKey, Column, Integer, String, Float, Boolean, DateTime, Text, func, JSON, Enum
 
-db = SQLAlchemy()
+class UserRole(str, PyEnum):
+    CUSTOMER = 'customer'
+    ADMIN = 'admin'
+    SOMMELIER = 'sommelier'
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -22,11 +22,12 @@ class User(UserMixin, db.Model):
     email = Column(String(120), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True)
+    role = Column(String(20), nullable=False, default=UserRole.CUSTOMER.value)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships
     reviews = relationship('WineReview', back_populates='user')
-    interactions = relationship('UserWineInteraction', back_populates='user')
+    wine_interactions = relationship('UserWineInteraction', back_populates='user')
     notification_preferences = relationship(
         'UserNotificationPreference', 
         back_populates='user', 
@@ -43,6 +44,11 @@ class User(UserMixin, db.Model):
         foreign_keys='UserInteraction.target_user_id', 
         back_populates='target_user'
     )
+    
+    # Add relationship to traits
+    preferred_traits = db.relationship('WineTrait', secondary=user_traits,
+                                     backref=db.backref('users', lazy='dynamic'))
+    is_admin = db.Column(db.Boolean, default=False)
 
 class WineVarietal(db.Model):
     __tablename__ = 'wine_varietals'
@@ -65,14 +71,9 @@ class WineRegion(db.Model):
     # Relationship with Wines
     wines = relationship('Wine', back_populates='region')
 
-class UserRole(str, Enum):
-    CUSTOMER = 'customer'
-    ADMIN = 'admin'
-    SOMMELIER = 'sommelier'
-    
 class UserPreference(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Wine preference fields
     preferred_wine_types = db.Column(db.JSON, nullable=True)
@@ -120,7 +121,12 @@ class Wine(db.Model):
     varietal = relationship('WineVarietal', back_populates='wines')
     region = relationship('WineRegion', back_populates='wines')
     reviews = relationship('WineReview', back_populates='wine')
-    interactions = relationship('UserWineInteraction', back_populates='wine')
+    wine_interactions = relationship('UserWineInteraction', back_populates='wine')
+    user_interactions = relationship('UserInteraction', back_populates='wine')
+    
+    # Add relationship to traits
+    traits = db.relationship('WineTrait', secondary=wine_traits,
+                           backref=db.backref('wines', lazy='dynamic'))
 
 class UserInteraction(db.Model):
     __tablename__ = 'user_interactions'
@@ -140,9 +146,9 @@ class UserInteraction(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Relationships
-    user = db.relationship('User', foreign_keys=[user_id], backref='interactions_made')
-    target_user = db.relationship('User', foreign_keys=[target_user_id], backref='interactions_received')
-    wine = db.relationship('Wine', backref='interactions')
+    user = relationship('User', foreign_keys=[user_id], back_populates='interactions_made')
+    target_user = relationship('User', foreign_keys=[target_user_id], back_populates='interactions_received')
+    wine = relationship('Wine', back_populates='user_interactions')
 
     def to_dict(self):
         """
@@ -235,11 +241,25 @@ class WineReview(db.Model):
     user = relationship('User', back_populates='reviews')
     wine = relationship('Wine', back_populates='reviews')
 
+class UserWineInteraction(db.Model):
+    __tablename__ = 'user_wine_interactions'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    wine_id = Column(Integer, ForeignKey('wines.id'), nullable=False)
+    interaction_type = Column(String(50), nullable=False)  # e.g., view, like, favorite, share
+    interaction_weight = Column(Float, default=1.0)  # Weight of the interaction (e.g., 1.0 for view, 2.0 for like, 3.0 for favorite)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship('User', back_populates='wine_interactions')
+    wine = relationship('Wine', back_populates='wine_interactions')
+
 class WineRestock(db.Model):
     __tablename__ = 'wine_restocks'
 
     id = db.Column(db.Integer, primary_key=True)
-    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=False)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=False)
     requested_quantity = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(50), default='pending')  # pending, approved, completed
     
@@ -252,14 +272,14 @@ class WineRestock(db.Model):
 
 class WineInventory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), unique=True)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), unique=True)
     quantity = db.Column(db.Integer, nullable=False, default=0)
     min_threshold = db.Column(db.Integer, default=20)  # Add minimum threshold
     last_updated = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(50), default='Pending')
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
@@ -270,12 +290,12 @@ class Order(db.Model):
 class OrderItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
-    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=False)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
 
 
-class NotificationType(Enum):
+class NotificationType(PyEnum):
     RECOMMENDATION = 'recommendation'
     WINE_REVIEW = 'wine_review'
     COMMUNITY_POST = 'community_post'
@@ -289,10 +309,10 @@ class Notification(db.Model):
     __tablename__ = 'notifications'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)  # Changed from 'users.id'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     type = db.Column(db.String(50), nullable=False)  
     content = db.Column(db.Text, nullable=False)
-    notification_details = db.Column(JSONB, nullable=True)  # Renamed from notification_metadata
+    notification_details = db.Column(JSON, nullable=True)
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
@@ -323,7 +343,7 @@ class UserNotificationPreference(db.Model):
 
 # models/subscription.py
 
-class SubscriptionTier(Enum):
+class SubscriptionTier(PyEnum):
     BASIC = 'basic'
     PREMIUM = 'premium'
     ELITE = 'elite'
@@ -332,7 +352,7 @@ class Subscription(db.Model):
     __tablename__ = 'subscriptions'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     tier = db.Column(db.Enum(SubscriptionTier), nullable=False, default=SubscriptionTier.BASIC)
     start_date = db.Column(db.DateTime, default=datetime.utcnow)
     end_date = db.Column(db.DateTime, nullable=True)
@@ -356,7 +376,7 @@ class SubscriptionTransaction(db.Model):
     __tablename__ = 'subscription_transactions'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     plan_id = db.Column(db.Integer, db.ForeignKey('subscription_plans.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     transaction_date = db.Column(db.DateTime, default=datetime.utcnow)
@@ -366,12 +386,12 @@ class SubscriptionTransaction(db.Model):
     user = db.relationship('User', backref='subscription_transactions')
     plan = db.relationship('SubscriptionPlan')
 
-class EventType(Enum):
+class EventType(PyEnum):
     VIRTUAL = 'virtual'
     PHYSICAL = 'physical'
     HYBRID = 'hybrid'
 
-class EventCategory(Enum):
+class EventCategory(PyEnum):
     WINE_TASTING = 'wine_tasting'
     WINE_PAIRING = 'wine_pairing'
     SOMMELIER_WORKSHOP = 'sommelier_workshop'
@@ -403,7 +423,7 @@ class Event(db.Model):
     ticket_price = db.Column(db.Float, nullable=False)
     
     # Event host and organization
-    host_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    host_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     organization = db.Column(db.String(200), nullable=True)
     
     # Additional event metadata
@@ -423,7 +443,7 @@ class EventAttendee(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('events.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # Ticket and payment details
     ticket_type = db.Column(db.String(50), nullable=False)
@@ -440,7 +460,7 @@ class EventAttendee(db.Model):
 
 # models/community.py
 
-class PostType(Enum):
+class PostType(PyEnum):
     REVIEW = 'review'
     DISCUSSION = 'discussion'
     RECOMMENDATION = 'recommendation'
@@ -450,12 +470,12 @@ class CommunityPost(db.Model):
     __tablename__ = 'community_posts'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     post_type = db.Column(db.Enum(PostType), nullable=False)
     content = db.Column(db.Text, nullable=False)
     
     # Optional references
-    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=True)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=True)
     event_id = db.Column(db.Integer, db.ForeignKey('events.id'), nullable=True)
     
     # Media and attachments
@@ -479,7 +499,7 @@ class PostComment(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('community_posts.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     content = db.Column(db.Text, nullable=False)
     
@@ -494,8 +514,8 @@ class UserConnection(db.Model):
     __tablename__ = 'user_connections'
 
     id = db.Column(db.Integer, primary_key=True)
-    requester_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    requester_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     status = db.Column(db.String(20), default='pending')  # pending, accepted, rejected
     
@@ -511,7 +531,7 @@ class UserConnection(db.Model):
 
 # models/cellar.py
 
-class WineCellarStatus(Enum):
+class WineCellarStatus(PyEnum):
     IN_STOCK = 'in_stock'
     AGING = 'aging'
     CONSUMED = 'consumed'
@@ -522,8 +542,8 @@ class WineCellar(db.Model):
     __tablename__ = 'wine_cellars'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    wine_id = db.Column(db.Integer, db.ForeignKey('wine.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    wine_id = db.Column(db.Integer, db.ForeignKey('wines.id'), nullable=False)
     
     # Inventory details
     quantity = db.Column(db.Integer, default=1)
@@ -560,7 +580,7 @@ class WineCellarTransaction(db.Model):
     
     # Optional financial details
     price = db.Column(db.Float, nullable=True)
-    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    recipient_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     
     # Relationships
     cellar_entry = db.relationship('WineCellar', backref='transactions')
@@ -568,13 +588,13 @@ class WineCellarTransaction(db.Model):
 
 # models/education.py
 
-class CourseCategory(Enum):
+class CourseCategory(PyEnum):
     BEGINNER = 'beginner'
     INTERMEDIATE = 'intermediate'
     ADVANCED = 'advanced'
     SOMMELIER = 'sommelier'
 
-class CourseType(Enum):
+class CourseType(PyEnum):
     VIDEO = 'video'
     TEXT = 'text'
     INTERACTIVE = 'interactive'
@@ -657,7 +677,7 @@ class UserCourseProgress(db.Model):
     __tablename__ = 'user_course_progress'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('wine_courses.id'), nullable=False)
     
     # Progress tracking
@@ -677,7 +697,7 @@ class UserCourseProgress(db.Model):
 # models/education_content.py
 
 
-class ContentType(Enum):
+class ContentType(PyEnum):
     ARTICLE = 'article'
     INTERACTIVE_GUIDE = 'interactive_guide'
     INFOGRAPHIC = 'infographic'
@@ -699,7 +719,7 @@ class WineKnowledgeContent(db.Model):
     main_content = db.Column(db.Text, nullable=False)
     
     # Metadata
-    author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     tags = db.Column(db.JSON, nullable=True)
     
     # Multimedia
@@ -738,7 +758,7 @@ class UserContentInteraction(db.Model):
     __tablename__ = 'user_content_interactions'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     content_id = db.Column(db.Integer, db.ForeignKey('wine_knowledge_content.id'), nullable=False)
     
     # Interaction types
@@ -812,3 +832,23 @@ def get_wine_review_count(wine_id):
     return db.session.query(func.count(WineReview.id))\
         .filter(WineReview.wine_id == wine_id)\
         .scalar() or 0
+
+class WineTrait(db.Model):
+    __tablename__ = 'wine_traits'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    category = db.Column(db.String(50), nullable=False)  # e.g., 'taste', 'body', 'aroma'
+    description = db.Column(db.String(200))
+
+# User-Trait Association Table
+user_traits = db.Table('user_traits',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('trait_id', db.Integer, db.ForeignKey('wine_traits.id'), primary_key=True)
+)
+
+# Wine-Trait Association Table
+wine_traits = db.Table('wine_traits_association',
+    db.Column('wine_id', db.Integer, db.ForeignKey('wines.id'), primary_key=True),
+    db.Column('trait_id', db.Integer, db.ForeignKey('wine_traits.id'), primary_key=True)
+)

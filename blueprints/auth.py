@@ -1,41 +1,102 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_login import login_user, logout_user, login_required
 from services.auth_service import AuthService
+from forms import LoginForm, RegistrationForm, SignupForm
+from werkzeug.security import generate_password_hash
+from models import User, WineTrait
+from extensions import db
+from sqlalchemy import func
 
 auth_bp = Blueprint('auth', __name__)
 
-@auth_bp.route('/register', methods=['POST'])
-def register():
+@auth_bp.route('/signup', methods=['GET', 'POST'])
+def signup():
     """
-    User registration endpoint
+    User signup page and endpoint
     """
-    data = request.get_json()
+    form = SignupForm()
     
-    try:
-        user = AuthService.register_user(
-            email=data.get('email'),
-            password=data.get('password'),
-            username=data.get('username')
+    # Get all traits grouped by category
+    traits_by_category = {}
+    traits = WineTrait.query.order_by(WineTrait.category, WineTrait.name).all()
+    for trait in traits:
+        if trait.category not in traits_by_category:
+            traits_by_category[trait.category] = []
+        traits_by_category[trait.category].append(trait)
+    
+    if request.method == 'GET':
+        return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
+    
+    if form.validate_on_submit():
+        # Check if user already exists
+        if User.query.filter_by(username=form.username.data).first():
+            flash('Username already exists', 'error')
+            return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
+        
+        if User.query.filter_by(email=form.email.data).first():
+            flash('Email already registered', 'error')
+            return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
+        
+        # Create new user
+        user = User(
+            username=form.username.data,
+            email=form.email.data
         )
-        return jsonify(user.to_dict()), 201
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
+        user.set_password(form.password.data)
+        
+        # Add selected traits
+        selected_traits = request.form.getlist('traits')
+        if selected_traits:
+            traits = WineTrait.query.filter(WineTrait.id.in_(selected_traits)).all()
+            user.preferred_traits.extend(traits)
+        
+        try:
+            db.session.add(user)
+            db.session.commit()
+            
+            # Log the user in
+            login_user(user)
+            flash('Account created successfully!', 'success')
+            return redirect(url_for('main.home'))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred while creating your account', 'error')
+            return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
+    
+    return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     """
-    User login endpoint
+    User login page and endpoint
     """
-    data = request.get_json()
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        remember = request.form.get('remember', False)
+        
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
+            login_user(user, remember=remember)
+            flash('Logged in successfully!', 'success')
+            return redirect(url_for('main.home'))
+        else:
+            flash('Invalid username or password', 'error')
     
-    try:
-        login_result = AuthService.login(
-            email=data.get('email'),
-            password=data.get('password')
-        )
-        return jsonify(login_result), 200
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 401
+    return render_template('auth/login.html')
+
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    """
+    User logout endpoint
+    """
+    logout_user()
+    flash('Logged out successfully!', 'success')
+    return redirect(url_for('main.home'))
 
 @auth_bp.route('/reset-password-request', methods=['POST'])
 def reset_password_request():

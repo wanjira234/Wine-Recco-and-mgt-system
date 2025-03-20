@@ -4,7 +4,7 @@ import pandas as pd
 from typing import List, Optional, Dict, Any
 
 from flask import current_app
-from sqlalchemy import func
+from sqlalchemy import func, case
 
 from extensions import db
 from models import (
@@ -13,7 +13,8 @@ from models import (
     User, 
     UserWineInteraction, 
     WineVarietal, 
-    WineRegion
+    WineRegion,
+    WineTrait
 )
 
 class RecommendationEngine:
@@ -97,107 +98,93 @@ class RecommendationEngine:
         self.user_ids = user_ids
         self.wine_ids = wine_ids
 
-    def get_personalized_recommendations(
-        self, 
-        user_id: int, 
-        top_n: int = 10
-    ) -> List[Dict[str, Any]]:
+    def get_personalized_recommendations(self, user_id, limit=10):
         """
-        Generate personalized wine recommendations
+        Get personalized wine recommendations for a user based on their preferences and interactions
         """
-        try:
-            # Content-based filtering
-            user_interactions = UserWineInteraction.query\
-                .filter_by(user_id=user_id)\
-                .order_by(UserWineInteraction.interaction_weight.desc())\
-                .limit(5)\
-                .all()
-            
-            if not user_interactions:
-                return self.get_popular_wines(top_n)
-            
-            # Get liked wine IDs
-            liked_wine_ids = [interaction.wine_id for interaction in user_interactions]
-            
-            # Fetch similar wines based on interactions
-            recommended_wines = self._find_similar_wines(liked_wine_ids, top_n)
-            
-            return recommended_wines
-        
-        except Exception as e:
-            self.logger.error(f"Personalized recommendation error: {e}")
-            return self.get_popular_wines(top_n)
-
-    def _find_similar_wines(self, wine_ids: List[int], top_n: int = 10) -> List[Dict[str, Any]]:
-        """
-        Find similar wines based on multiple wine IDs
-        """
-        try:
-            # Filter wines similar to liked wines
-            base_wines = Wine.query.filter(Wine.id.in_(wine_ids)).all()
-            
-            # Criteria for similarity
-            similar_wines = Wine.query.filter(
-                (Wine.type.in_([wine.type for wine in base_wines])) |
-                (Wine.varietal_id.in_([wine.varietal_id for wine in base_wines])) |
-                (Wine.region_id.in_([wine.region_id for wine in base_wines]))
-            ).filter(~Wine.id.in_(wine_ids))\
-             .order_by(func.random())\
-             .limit(top_n)\
-             .all()
-            
-            return [
-                {
-                    'id': wine.id,
-                    'name': wine.name,
-                    'type': wine.type,
-                    'varietal': wine.varietal.name if wine.varietal else 'Unknown',
-                    'region': wine.region.name if wine.region else 'Unknown',
-                    'price': wine.price,
-                    'avg_rating': self._calculate_average_rating(wine)
-                } for wine in similar_wines
-            ]
-        
-        except Exception as e:
-            self.logger.error(f"Similar wine search error: {e}")
+        user = User.query.get(user_id)
+        if not user:
             return []
-
-    def get_popular_wines(self, top_n: int = 10) -> List[Dict[str, Any]]:
-        """
-        Get most popular wines based on ratings and interactions
-        """
-        try:
-            popular_wines = Wine.query\
-                .join(WineReview, Wine.id == WineReview.wine_id, isouter=True)\
+        
+        # Get user's preferred traits
+        user_traits = set(user.preferred_traits)
+        
+        # Base query for wines
+        query = Wine.query
+        
+        if user_traits:
+            # Join with wine traits and count matches with user preferences
+            query = query.outerjoin(wine_traits)\
+                .outerjoin(WineTrait)\
                 .group_by(Wine.id)\
                 .order_by(
-                    func.avg(WineReview.rating).desc(), 
-                    func.count(WineReview.id).desc()
-                )\
-                .limit(top_n)\
-                .all()
-            
-            return [
-                {
-                    'id': wine.id,
-                    'name': wine.name,
-                    'type': wine.type,
-                    'varietal': wine.varietal.name if wine.varietal else 'Unknown',
-                    'region': wine.region.name if wine.region else 'Unknown',
-                    'price': wine.price,
-                    'avg_rating': self._calculate_average_rating(wine)
-                } for wine in popular_wines
-            ]
+                    func.count(case([(WineTrait.id.in_([t.id for t in user_traits]), 1)], else_=0)).desc()
+                )
         
-        except Exception as e:
-            self.logger.error(f"Popular wines retrieval error: {e}")
+        # Get wines the user has already interacted with
+        interacted_wines = db.session.query(UserWineInteraction.wine_id)\
+            .filter_by(user_id=user_id).all()
+        interacted_wine_ids = [w[0] for w in interacted_wines]
+        
+        # Exclude wines the user has already interacted with
+        if interacted_wine_ids:
+            query = query.filter(~Wine.id.in_(interacted_wine_ids))
+        
+        return query.limit(limit).all()
+
+    def get_similar_user_recommendations(self, user_id, limit=6):
+        """
+        Get recommendations based on similar users' preferences
+        """
+        user = User.query.get(user_id)
+        if not user:
             return []
+        
+        # Get users with similar trait preferences
+        similar_users = User.query\
+            .join(user_traits)\
+            .filter(User.id != user_id)\
+            .filter(WineTrait.id.in_([t.id for t in user.preferred_traits]))\
+            .group_by(User.id)\
+            .order_by(func.count(WineTrait.id).desc())\
+            .limit(5)\
+            .all()
+        
+        # Get wines that similar users have interacted with positively
+        similar_user_ids = [u.id for u in similar_users]
+        recommended_wines = Wine.query\
+            .join(UserWineInteraction)\
+            .filter(
+                UserWineInteraction.user_id.in_(similar_user_ids),
+                UserWineInteraction.interaction_weight > 0
+            )\
+            .group_by(Wine.id)\
+            .order_by(func.avg(UserWineInteraction.interaction_weight).desc())\
+            .limit(limit)\
+            .all()
+        
+        return recommended_wines
 
 def create_recommendation_engine():
     """
     Create and initialize recommendation engine
     """
-    return RecommendationEngine().initialize()
+    engine = RecommendationEngine()
+    try:
+        engine.initialize()
+    except Exception as e:
+        logging.error(f"Failed to initialize recommendation engine: {e}")
+        # Don't raise the exception, just return the uninitialized engine
+    return engine
 
 # Global instance
-recommendation_engine = create_recommendation_engine()
+recommendation_engine = None
+
+def get_recommendation_engine():
+    """
+    Get or create recommendation engine instance
+    """
+    global recommendation_engine
+    if recommendation_engine is None:
+        recommendation_engine = create_recommendation_engine()
+    return recommendation_engine

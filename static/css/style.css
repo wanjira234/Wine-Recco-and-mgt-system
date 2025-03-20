@@ -1,0 +1,107 @@
+:root {
+    --wine-red: #722F37;
+    --wine-dark: #4A1D24;
+    --wine-light: #9E4F58;
+    --cream: #F5F5F5;
+    --gold: #D4AF37;
+}
+
+body {
+    background-color: var(--cream);
+}
+
+.navbar {
+    background-color: var(--wine-dark) !important;
+}
+
+.navbar-brand, .nav-link {
+    color: var(--cream) !important;
+}
+
+.btn-primary {
+    background-color: var(--wine-red);
+    border-color: var(--wine-red);
+}
+
+.btn-primary:hover {
+    background-color: var(--wine-dark);
+    border-color: var(--wine-dark);
+}
+
+.btn-outline-primary {
+    color: var(--wine-red);
+    border-color: var(--wine-red);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--wine-red);
+    color: var(--cream);
+}
+
+.card {
+    border-color: var(--wine-light);
+}
+
+.card-header {
+    background-color: var(--wine-red);
+    color: var(--cream);
+}
+
+.wine-card {
+    transition: transform 0.2s;
+}
+
+.wine-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.wine-image {
+    height: 250px;
+    object-fit: cover;
+}
+
+.trait-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.trait-item {
+    padding: 1rem;
+    border: 2px solid var(--wine-light);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.trait-item.selected {
+    background-color: var(--wine-red);
+    color: var(--cream);
+}
+
+.account-sidebar {
+    background-color: var(--wine-dark);
+    color: var(--cream);
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+.account-content {
+    padding: 2rem;
+}
+
+.rating-stars {
+    color: var(--gold);
+}
+
+.pagination .page-link {
+    color: var(--wine-red);
+}
+
+.pagination .active .page-link {
+    background-color: var(--wine-red);
+    border-color: var(--wine-red);
+} 

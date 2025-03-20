@@ -6,7 +6,14 @@ from services.email_service import send_order_confirmation_email
 
 class PaymentService:
     def __init__(self):
-        stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+        try:
+            # Initialize Stripe with the secret key from Flask config
+            stripe.api_key = current_app.config.get('STRIPE_SECRET_KEY')
+            if not stripe.api_key:
+                raise ValueError("STRIPE_SECRET_KEY not found in application configuration")
+        except Exception as e:
+            current_app.logger.error(f"Failed to initialize Stripe: {str(e)}")
+            raise
 
     def process_payment(self, order, payment_method_id):
         try:
