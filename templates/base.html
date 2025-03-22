@@ -11,14 +11,15 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     {% block styles %}{% endblock %}
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.home') }}">
-                <i class="fas fa-wine-glass-alt me-2"></i>Wine Recommender
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                <i class="fas fa-wine-glass-alt"></i> Wine Recommender
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -26,7 +27,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.home') }}">Home</a>
+                        <a class="nav-link" href="{{ url_for('main.index') }}">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('wines.catalog') }}">Catalog</a>
@@ -76,7 +77,7 @@
                             <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.signup') }}">Sign Up</a>
+                            <a href="{{ url_for('auth.signup') }}" class="nav-link">Sign Up</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -102,9 +103,9 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer mt-auto py-3 bg-dark text-light">
+    <footer class="footer mt-auto py-3 bg-dark text-white">
         <div class="container text-center">
-            <span>&copy; {{ now.year }} Wine Recommender. All Rights Reserved.</span>
+            <p>&copy; {{ now.year }} Wine Recommender. All Rights Reserved.</p>
         </div>
     </footer>
 

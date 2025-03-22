@@ -1,71 +1,108 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from services.auth_service import AuthService
 from forms import LoginForm, RegistrationForm, SignupForm
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from models import User, WineTrait
 from extensions import db
 from sqlalchemy import func
+from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
-    """
-    User signup page and endpoint
-    """
-    form = SignupForm()
-    
-    # Get all traits grouped by category
-    traits_by_category = {}
-    traits = WineTrait.query.order_by(WineTrait.category, WineTrait.name).all()
-    for trait in traits:
-        if trait.category not in traits_by_category:
-            traits_by_category[trait.category] = []
-        traits_by_category[trait.category].append(trait)
-    
     if request.method == 'GET':
-        return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
+        step = request.args.get('step', '1')
+        traits_by_category = {}
+        
+        if step == '3':
+            all_traits = WineTrait.query.all()
+            for trait in all_traits:
+                if trait.category not in traits_by_category:
+                    traits_by_category[trait.category] = []
+                traits_by_category[trait.category].append(trait)
+        
+        template_name = f'auth/signup_step{step}.html'
+        return render_template(template_name, traits_by_category=traits_by_category)
     
-    if form.validate_on_submit():
-        # Check if user already exists
-        if User.query.filter_by(username=form.username.data).first():
-            flash('Username already exists', 'error')
-            return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
-        
-        if User.query.filter_by(email=form.email.data).first():
-            flash('Email already registered', 'error')
-            return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
-        
-        # Create new user
-        user = User(
-            username=form.username.data,
-            email=form.email.data
-        )
-        user.set_password(form.password.data)
-        
-        # Add selected traits
-        selected_traits = request.form.getlist('traits')
-        if selected_traits:
-            traits = WineTrait.query.filter(WineTrait.id.in_(selected_traits)).all()
-            user.preferred_traits.extend(traits)
-        
+    step = request.form.get('step', '1')
+    
+    if step == '1':
         try:
+            email = request.form.get('email')
+            if User.query.filter_by(email=email).first():
+                flash('Email already registered', 'error')
+                return redirect(url_for('auth.signup'))
+            
+            session['signup_data'] = {
+                'email': email,
+                'name': request.form.get('name'),
+                'password': request.form.get('password')
+            }
+            return redirect(url_for('auth.signup', step='2'))
+            
+        except Exception as e:
+            app.logger.error(f"Error in signup step 1: {str(e)}")
+            flash('Error during signup. Please try again.', 'error')
+            return redirect(url_for('auth.signup'))
+    
+    elif step == '2':
+        try:
+            if 'signup_data' not in session:
+                flash('Please start from the beginning', 'error')
+                return redirect(url_for('auth.signup'))
+                
+            session['signup_data']['preferred_types'] = request.form.getlist('wine_types')
+            return redirect(url_for('auth.signup', step='3'))
+            
+        except Exception as e:
+            app.logger.error(f"Error in signup step 2: {str(e)}")
+            flash('Error during signup. Please try again.', 'error')
+            return redirect(url_for('auth.signup'))
+    
+    elif step == '3':
+        try:
+            if 'signup_data' not in session:
+                flash('Please start from the beginning', 'error')
+                return redirect(url_for('auth.signup'))
+                
+            signup_data = session.pop('signup_data', {})
+            
+            # Create the user
+            user = User(
+                username=signup_data['name'],
+                email=signup_data['email']
+            )
+            user.set_password(signup_data['password'])
+            
+            # Add wine type preferences
+            if 'preferred_types' in signup_data:
+                user.preferred_wine_types = signup_data['preferred_types']
+            
+            # Add trait preferences
+            trait_ids = request.form.getlist('traits')
+            if trait_ids:
+                traits = WineTrait.query.filter(WineTrait.id.in_(trait_ids)).all()
+                user.preferred_traits.extend(traits)
+            
+            # Save to database
             db.session.add(user)
             db.session.commit()
             
             # Log the user in
             login_user(user)
             flash('Account created successfully!', 'success')
-            return redirect(url_for('main.home'))
+            return redirect(url_for('main.welcome'))
             
         except Exception as e:
             db.session.rollback()
-            flash('An error occurred while creating your account', 'error')
-            return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
-    
-    return render_template('auth/signup.html', form=form, wine_traits=traits_by_category)
+            app.logger.error(f"Error in signup step 3: {str(e)}")
+            flash('Error creating account. Please try again.', 'error')
+            return redirect(url_for('auth.signup'))
+
+    return redirect(url_for('auth.signup'))
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -73,19 +110,16 @@ def login():
     User login page and endpoint
     """
     if request.method == 'POST':
-        username = request.form.get('username')
+        email = request.form.get('email')
         password = request.form.get('password')
-        remember = request.form.get('remember', False)
         
-        user = User.query.filter_by(username=username).first()
-        
+        user = User.query.filter_by(email=email).first()
         if user and user.check_password(password):
-            login_user(user, remember=remember)
+            login_user(user)
             flash('Logged in successfully!', 'success')
-            return redirect(url_for('main.home'))
-        else:
-            flash('Invalid username or password', 'error')
-    
+            return redirect(url_for('main.index'))
+        
+        flash('Invalid email or password', 'error')
     return render_template('auth/login.html')
 
 @auth_bp.route('/logout')
@@ -96,7 +130,7 @@ def logout():
     """
     logout_user()
     flash('Logged out successfully!', 'success')
-    return redirect(url_for('main.home'))
+    return redirect(url_for('main.index'))
 
 @auth_bp.route('/reset-password-request', methods=['POST'])
 def reset_password_request():

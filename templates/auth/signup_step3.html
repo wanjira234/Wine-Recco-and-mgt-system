@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<style>
+.signup-page {
+    min-height: 100vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+                url("{{ url_for('static', filename='images/backgrounds/Tuscany-Italy.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 2rem;
+}
+
+.signup-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2.5rem;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.95),
+        rgba(255, 245, 235, 0.95)
+    );
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+    color: #722F37;
+    font-size: 2.8rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+    font-weight: 600;
+}
+
+.subtitle {
+    color: #666;
+    text-align: center;
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+}
+
+.trait-category {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    cursor: pointer;
+}
+
+.category-title {
+    color: #722F37;
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+.traits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.trait-category.expanded .traits-grid {
+    max-height: 1000px;
+}
+
+.trait-option {
+    position: relative;
+}
+
+.trait-checkbox {
+    display: none;
+}
+
+.trait-label {
+    display: block;
+    padding: 0.8rem 1rem;
+    background: white;
+    border: 2px solid #722F37;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #722F37;
+}
+
+.trait-checkbox:checked + .trait-label {
+    background: #722F37;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(114, 47, 55, 0.2);
+}
+
+.see-more {
+    color: #722F37;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.see-more i {
+    transition: transform 0.3s ease;
+}
+
+.trait-category.expanded .see-more i {
+    transform: rotate(180deg);
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.step {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    border: 2px solid #722F37;
+    position: relative;
+    background: white;
+}
+
+.step.active {
+    background: #722F37;
+    color: white;
+}
+
+.btn-continue {
+    background: #722F37;
+    color: white;
+    padding: 1rem 3rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: block;
+    margin: 2rem auto 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-continue:hover {
+    background: #8B3741;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(114, 47, 55, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="signup-page">
+    <div class="signup-container">
+        <h1 class="page-title">Taste Preferences</h1>
+        <p class="subtitle">Select your preferred wine characteristics</p>
+        
+        <div class="progress-steps">
+            <div class="step">1</div>
+            <div class="step">2</div>
+            <div class="step active">3</div>
+        </div>
+        
+        <form method="POST" action="{{ url_for('auth.signup') }}" class="signup-form">
+            <input type="hidden" name="step" value="3">
+            
+            {% for category, traits in traits_by_category.items() %}
+            <div class="trait-category" id="category-{{ category }}">
+                <div class="category-header" onclick="toggleCategory('{{ category }}')">
+                    <h3 class="category-title">{{ category|title }}</h3>
+                    <span class="see-more">
+                        See More <i class="fas fa-chevron-down"></i>
+                    </span>
+                </div>
+                <div class="traits-grid">
+                    {% for trait in traits %}
+                    <div class="trait-option">
+                        <input type="checkbox" 
+                               name="traits" 
+                               value="{{ trait.id }}" 
+                               id="trait-{{ trait.id }}"
+                               class="trait-checkbox">
+                        <label for="trait-{{ trait.id }}" class="trait-label">
+                            {{ trait.name|replace('_', ' ')|title }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn-continue">
+                Complete Profile
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+function toggleCategory(categoryId) {
+    const category = document.getElementById(`category-${categoryId}`);
+    category.classList.toggle('expanded');
+}
+
+// Expand the first category by default
+document.querySelector('.trait-category').classList.add('expanded');
+</script>
+{% endblock %} 

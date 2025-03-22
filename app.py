@@ -109,11 +109,6 @@ def create_app():
             }
         })
         
-        # Root route
-        @app.route('/')
-        def index():
-            return render_template('home.html')
-        
         # API Documentation route
         @app.route('/api')
         def api_docs():
@@ -148,6 +143,7 @@ def create_app():
         login_manager = LoginManager()
         login_manager.init_app(app)
         login_manager.login_view = 'auth.login'
+        login_manager.login_message_category = 'info'
 
         @login_manager.user_loader
         def load_user(user_id):
@@ -163,7 +159,7 @@ def create_app():
         # Register Blueprints
         blueprints = [
             (main_bp, ''),  # Main blueprint for frontend pages
-            (auth_bp, '/api/auth'),
+            (auth_bp, '/auth'),  # Changed from '/api/auth' to '/auth'
             (cart_bp, '/api/cart'),
             (admin_bp, '/api/admin'),
             (recommendation_bp, '/api/recommendations'),
@@ -176,7 +172,7 @@ def create_app():
             (notification_bp, '/api/notifications'),
             (search_bp, '/api/search'),
             (wines_bp, '/api/wines'),
-            (account_bp, '/account')  # Account management routes
+            (account_bp, '/account')
         ]
         
         for blueprint, url_prefix in blueprints:
@@ -339,6 +335,12 @@ def create_app():
             except Exception as e:
                 print(f"Error populating wine traits: {e}")
                 db.session.rollback()
+        
+        # Add template context processor
+        @app.context_processor
+        def inject_now():
+            from datetime import datetime
+            return {'now': datetime.utcnow()}
         
         return app
     

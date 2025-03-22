@@ -576,3 +576,624 @@ jinja2.exceptions.TemplateNotFound: catalog.html
 2025-03-22 08:54:30,808 - app - INFO - Database tables created successfully
 2025-03-22 08:54:30,987 - app - INFO - Recommendation engine initialized successfully
 2025-03-22 08:54:30,990 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 09:43:26,432 - app - INFO - Cache initialized successfully
+2025-03-22 09:43:31,261 - app - INFO - Database tables created successfully
+2025-03-22 09:43:31,720 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 09:43:31,723 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 09:44:05,499 - app - INFO - Cache initialized successfully
+2025-03-22 09:44:08,527 - app - INFO - Database tables created successfully
+2025-03-22 09:44:08,899 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 09:44:08,902 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 09:44:48,990 - app - ERROR - Error occurred: 'now' is undefined
+2025-03-22 09:44:49,009 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\app.py", line 115, in index
+    return render_template('home.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\home.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\base.html", line 107, in top-level template code
+    <span>&copy; {{ now.year }} Wine Recommender. All Rights Reserved.</span>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'now' is undefined
+
+2025-03-22 09:44:58,415 - app - ERROR - Error occurred: 'now' is undefined
+2025-03-22 09:44:58,419 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\app.py", line 115, in index
+    return render_template('home.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\home.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\base.html", line 107, in top-level template code
+    <span>&copy; {{ now.year }} Wine Recommender. All Rights Reserved.</span>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'now' is undefined
+
+2025-03-22 09:44:58,947 - app - ERROR - Error occurred: 'now' is undefined
+2025-03-22 09:44:58,951 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\app.py", line 115, in index
+    return render_template('home.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\home.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\base.html", line 107, in top-level template code
+    <span>&copy; {{ now.year }} Wine Recommender. All Rights Reserved.</span>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'now' is undefined
+
+2025-03-22 09:46:29,298 - app - INFO - Cache initialized successfully
+2025-03-22 09:46:30,607 - app - INFO - Database tables created successfully
+2025-03-22 09:46:30,791 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 09:46:30,792 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 09:46:39,481 - app - ERROR - Error occurred: 'now' is undefined
+2025-03-22 09:46:39,493 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\app.py", line 115, in index
+    return render_template('home.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\home.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\base.html", line 107, in top-level template code
+    <span>&copy; {{ now.year }} Wine Recommender. All Rights Reserved.</span>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 490, in getattr
+    return getattr(obj, attribute)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+jinja2.exceptions.UndefinedError: 'now' is undefined
+
+2025-03-22 09:48:47,316 - app - INFO - Cache initialized successfully
+2025-03-22 09:48:48,525 - app - INFO - Database tables created successfully
+2025-03-22 09:48:48,643 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 09:48:48,645 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 09:57:15,623 - app - ERROR - Catalog page error: name 'current_user' is not defined
+2025-03-22 09:57:22,378 - app - ERROR - Error occurred: auth/login.html
+2025-03-22 09:57:22,660 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 101, in login
+    return render_template('auth/login.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: auth/login.html
+
+2025-03-22 10:00:44,251 - app - INFO - Cache initialized successfully
+2025-03-22 10:00:45,966 - app - INFO - Database tables created successfully
+2025-03-22 10:00:46,102 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:00:46,103 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:01:02,350 - app - INFO - Cache initialized successfully
+2025-03-22 10:01:03,395 - app - INFO - Database tables created successfully
+2025-03-22 10:01:03,510 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:01:03,511 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:02:35,753 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 10:02:35,867 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 44, in signup
+    return redirect(url_for('auth.signup_step2'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 10:35:33,416 - app - INFO - Cache initialized successfully
+2025-03-22 10:35:34,990 - app - INFO - Database tables created successfully
+2025-03-22 10:35:35,109 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:35:35,110 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:35:54,819 - app - INFO - Cache initialized successfully
+2025-03-22 10:35:56,188 - app - INFO - Database tables created successfully
+2025-03-22 10:35:56,380 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:35:56,382 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:36:23,688 - app - INFO - Cache initialized successfully
+2025-03-22 10:36:26,489 - app - INFO - Database tables created successfully
+2025-03-22 10:36:28,113 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:36:28,289 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:36:55,333 - app - INFO - Cache initialized successfully
+2025-03-22 10:36:57,243 - app - INFO - Database tables created successfully
+2025-03-22 10:36:57,389 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:36:57,391 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:38:08,260 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 10:38:08,399 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 44, in signup
+    return redirect(url_for('auth.signup_step2'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 10:39:41,820 - app - INFO - Cache initialized successfully
+2025-03-22 10:39:43,667 - app - INFO - Database tables created successfully
+2025-03-22 10:39:43,889 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:39:43,891 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:42:41,811 - app - INFO - Cache initialized successfully
+2025-03-22 10:42:42,920 - app - INFO - Database tables created successfully
+2025-03-22 10:42:43,043 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:42:43,044 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:42:55,146 - app - INFO - Cache initialized successfully
+2025-03-22 10:42:56,207 - app - INFO - Database tables created successfully
+2025-03-22 10:42:56,356 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:42:56,357 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:43:04,485 - app - ERROR - Error occurred: Could not build url for endpoint 'main.index'. Did you mean 'index' instead?
+2025-03-22 10:43:04,584 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\app.py", line 116, in index
+    return render_template('home.html', now=datetime.utcnow())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\home.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\base.html", line 21, in top-level template code
+    <a class="navbar-brand" href="{{ url_for('main.index') }}">
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.index'. Did you mean 'index' instead?
+
+2025-03-22 10:46:37,809 - app - INFO - Cache initialized successfully
+2025-03-22 10:46:38,860 - app - INFO - Database tables created successfully
+2025-03-22 10:46:38,974 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:46:38,975 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:47:00,227 - app - INFO - Cache initialized successfully
+2025-03-22 10:47:02,590 - app - INFO - Database tables created successfully
+2025-03-22 10:47:02,832 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:47:02,834 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:47:55,299 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 10:47:55,312 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 51, in signup
+    return redirect(url_for('auth.signup_step2'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 10:48:57,118 - app - INFO - Cache initialized successfully
+2025-03-22 10:48:57,118 - app - INFO - Cache initialized successfully
+2025-03-22 10:48:57,256 - app - INFO - Database tables created successfully
+2025-03-22 10:48:57,463 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:48:57,467 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:48:58,730 - app - INFO - Database tables created successfully
+2025-03-22 10:48:58,887 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:48:58,889 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:49:42,169 - app - INFO - Cache initialized successfully
+2025-03-22 10:49:42,286 - app - INFO - Database tables created successfully
+2025-03-22 10:49:42,425 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:49:42,426 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:50:38,278 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 10:50:38,305 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 51, in signup
+    return redirect(url_for('auth.signup_step2'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 10:51:18,442 - app - ERROR - Error occurred: auth/login.html
+2025-03-22 10:51:18,496 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 108, in login
+    return render_template('auth/login.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1087, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1016, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 975, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\loaders.py", line 126, in load
+    source, filename, uptodate = self.get_source(environment, name)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: auth/login.html
+
+2025-03-22 10:52:15,529 - app - INFO - Cache initialized successfully
+2025-03-22 10:52:16,651 - app - INFO - Database tables created successfully
+2025-03-22 10:52:16,800 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:52:16,801 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:53:56,844 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 10:53:56,850 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 51, in signup
+    elif step == '3':
+                      
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 10:56:55,109 - app - INFO - Cache initialized successfully
+2025-03-22 10:56:56,224 - app - INFO - Database tables created successfully
+2025-03-22 10:56:56,330 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:56:56,331 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:57:12,002 - app - INFO - Cache initialized successfully
+2025-03-22 10:57:14,057 - app - INFO - Database tables created successfully
+2025-03-22 10:57:14,268 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 10:57:14,270 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 10:57:26,928 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 10:57:26,941 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 51, in signup
+    elif step == '3':
+                      
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 11:01:11,186 - app - INFO - Cache initialized successfully
+2025-03-22 11:01:12,157 - app - INFO - Database tables created successfully
+2025-03-22 11:01:12,252 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:01:12,253 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:01:24,089 - app - INFO - Cache initialized successfully
+2025-03-22 11:01:25,687 - app - INFO - Database tables created successfully
+2025-03-22 11:01:25,839 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:01:25,842 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:01:41,555 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 11:01:41,563 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 51, in signup
+    elif step == '3':
+                      
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 11:02:27,450 - app - INFO - Cache initialized successfully
+2025-03-22 11:02:29,279 - app - INFO - Database tables created successfully
+2025-03-22 11:02:29,425 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:02:29,427 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:02:52,693 - app - INFO - Cache initialized successfully
+2025-03-22 11:02:53,742 - app - INFO - Database tables created successfully
+2025-03-22 11:02:53,869 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:02:53,871 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:03:43,886 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 11:03:43,907 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 51, in signup
+    elif step == '3':
+                      
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 11:08:03,024 - app - INFO - Cache initialized successfully
+2025-03-22 11:08:04,317 - app - INFO - Database tables created successfully
+2025-03-22 11:08:04,493 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:08:04,495 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:08:49,525 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 11:08:49,533 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 51, in signup
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 11:12:10,596 - app - INFO - Cache initialized successfully
+2025-03-22 11:12:11,407 - app - INFO - Database tables created successfully
+2025-03-22 11:12:11,511 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:12:11,512 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:12:23,396 - app - INFO - Cache initialized successfully
+2025-03-22 11:12:25,079 - app - INFO - Database tables created successfully
+2025-03-22 11:12:25,263 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:12:25,265 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:12:36,446 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 11:12:36,453 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 51, in signup
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 11:16:38,351 - app - INFO - Cache initialized successfully
+2025-03-22 11:16:39,352 - app - INFO - Database tables created successfully
+2025-03-22 11:16:39,466 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:16:39,468 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:17:02,404 - app - INFO - Cache initialized successfully
+2025-03-22 11:17:03,493 - app - INFO - Database tables created successfully
+2025-03-22 11:17:03,605 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:17:03,608 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:17:34,762 - app - ERROR - Error occurred: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+2025-03-22 11:17:34,777 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 51, in signup
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\helpers.py", line 232, in url_for
+    return current_app.url_for(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.signup_step2'. Did you mean 'auth.signup' instead?
+
+2025-03-22 11:22:02,526 - app - INFO - Cache initialized successfully
+2025-03-22 11:22:03,692 - app - INFO - Database tables created successfully
+2025-03-22 11:22:03,824 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:22:03,826 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:23:19,154 - app - INFO - Cache initialized successfully
+2025-03-22 11:23:20,467 - app - INFO - Database tables created successfully
+2025-03-22 11:23:20,669 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:23:20,672 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:35:16,657 - app - INFO - Cache initialized successfully
+2025-03-22 11:35:17,813 - app - INFO - Database tables created successfully
+2025-03-22 11:35:17,982 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:35:17,983 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 11:35:32,130 - app - INFO - Cache initialized successfully
+2025-03-22 11:35:34,067 - app - INFO - Database tables created successfully
+2025-03-22 11:35:34,245 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 11:35:34,247 - app - INFO - Wine discovery service initialized successfully
