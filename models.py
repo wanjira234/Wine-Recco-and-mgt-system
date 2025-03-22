@@ -7,7 +7,29 @@ from extensions import db
 from enum import Enum as PyEnum
 from datetime import datetime, timedelta
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey, Column, Integer, String, Float, Boolean, DateTime, Text, func, JSON, Enum
+from sqlalchemy import ForeignKey, Column, Integer, String, Float, Boolean, DateTime, Text, func, JSON, Enum, Table
+
+# Association tables
+user_traits = Table('user_traits', db.Model.metadata,
+    Column('user_id', Integer, ForeignKey('users.id'), primary_key=True),
+    Column('trait_id', Integer, ForeignKey('wine_traits.id'), primary_key=True),
+    extend_existing=True
+)
+
+wine_traits = Table('wine_traits_association', db.Model.metadata,
+    Column('wine_id', Integer, ForeignKey('wines.id'), primary_key=True),
+    Column('trait_id', Integer, ForeignKey('wine_traits.id'), primary_key=True),
+    extend_existing=True
+)
+
+class WineTrait(db.Model):
+    __tablename__ = 'wine_traits'
+    __table_args__ = {'extend_existing': True}
+    
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False, unique=True)
+    category = db.Column(db.String(50), nullable=False)  # e.g., 'taste', 'body', 'aroma'
+    description = db.Column(db.String(200))
 
 class UserRole(str, PyEnum):
     CUSTOMER = 'customer'
@@ -832,23 +854,3 @@ def get_wine_review_count(wine_id):
     return db.session.query(func.count(WineReview.id))\
         .filter(WineReview.wine_id == wine_id)\
         .scalar() or 0
-
-class WineTrait(db.Model):
-    __tablename__ = 'wine_traits'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50), nullable=False, unique=True)
-    category = db.Column(db.String(50), nullable=False)  # e.g., 'taste', 'body', 'aroma'
-    description = db.Column(db.String(200))
-
-# User-Trait Association Table
-user_traits = db.Table('user_traits',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-    db.Column('trait_id', db.Integer, db.ForeignKey('wine_traits.id'), primary_key=True)
-)
-
-# Wine-Trait Association Table
-wine_traits = db.Table('wine_traits_association',
-    db.Column('wine_id', db.Integer, db.ForeignKey('wines.id'), primary_key=True),
-    db.Column('trait_id', db.Integer, db.ForeignKey('wine_traits.id'), primary_key=True)
-)

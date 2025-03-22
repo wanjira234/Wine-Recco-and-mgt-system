@@ -564,3 +564,15 @@ jinja2.exceptions.TemplateNotFound: catalog.html
 2025-03-20 19:42:51,187 - app - INFO - Database tables created successfully
 2025-03-20 19:42:51,348 - app - INFO - Recommendation engine initialized successfully
 2025-03-20 19:42:51,350 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 08:53:09,505 - app - INFO - Cache initialized successfully
+2025-03-22 08:53:10,067 - app - INFO - Database tables created successfully
+2025-03-22 08:53:10,770 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 08:53:10,775 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 08:54:03,011 - app - INFO - Cache initialized successfully
+2025-03-22 08:54:03,121 - app - INFO - Database tables created successfully
+2025-03-22 08:54:03,275 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 08:54:03,277 - app - INFO - Wine discovery service initialized successfully
+2025-03-22 08:54:30,694 - app - INFO - Cache initialized successfully
+2025-03-22 08:54:30,808 - app - INFO - Database tables created successfully
+2025-03-22 08:54:30,987 - app - INFO - Recommendation engine initialized successfully
+2025-03-22 08:54:30,990 - app - INFO - Wine discovery service initialized successfully
