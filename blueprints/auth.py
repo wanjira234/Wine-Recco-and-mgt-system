@@ -8,6 +8,7 @@ from models import User, WineTrait
 from extensions import db
 from sqlalchemy import func
 from datetime import datetime
+from flask import current_app as app
 
 auth_bp = Blueprint('auth', __name__)
 

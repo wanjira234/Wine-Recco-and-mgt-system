@@ -1197,3 +1197,25 @@ werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'auth.s
 2025-03-22 11:35:34,067 - app - INFO - Database tables created successfully
 2025-03-22 11:35:34,245 - app - INFO - Recommendation engine initialized successfully
 2025-03-22 11:35:34,247 - app - INFO - Wine discovery service initialized successfully
+2025-03-23 08:08:40,108 - app - INFO - Cache initialized successfully
+2025-03-23 08:08:43,155 - app - INFO - Database tables created successfully
+2025-03-23 08:08:43,331 - app - INFO - Recommendation engine initialized successfully
+2025-03-23 08:08:43,332 - app - INFO - Wine discovery service initialized successfully
+2025-03-23 08:09:34,187 - app - INFO - Cache initialized successfully
+2025-03-23 08:09:36,824 - app - INFO - Database tables created successfully
+2025-03-23 08:09:37,042 - app - INFO - Recommendation engine initialized successfully
+2025-03-23 08:09:37,045 - app - INFO - Wine discovery service initialized successfully
+2025-03-23 08:11:47,686 - app - ERROR - Error in signup step 1: (sqlite3.OperationalError) no such column: users.password_hash
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.password_hash AS users_password_hash, users.is_active AS users_is_active, users.role AS users_role, users.created_at AS users_created_at, users.is_admin AS users_is_admin 
+FROM users 
+WHERE users.email = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('eppydev21@gmail.com', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-23 08:12:33,196 - app - ERROR - Error in signup step 1: (sqlite3.OperationalError) no such column: users.password_hash
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.password_hash AS users_password_hash, users.is_active AS users_is_active, users.role AS users_role, users.created_at AS users_created_at, users.is_admin AS users_is_admin 
+FROM users 
+WHERE users.email = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('eppydev21@gmail.com', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
