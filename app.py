@@ -1,21 +1,24 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_socketio import SocketIO, join_room, leave_room
 from flask_cors import CORS
 from flask_mail import Mail
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
+from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Import extensions
-from extensions import db, socketio, mail, celery, cache
+from extensions import db, socketio, mail, celery, cache, csrf
 
 # Import Blueprints
 from blueprints.main import main_bp
@@ -77,13 +80,21 @@ def create_app():
     """
     Application Factory Function
     """
-    app = Flask(__name__)
+    app = Flask(__name__, 
+        static_folder='static',
+        static_url_path='/static'
+    )
     
     # Load configuration
     app.config.from_object('config.Config')
     
     # Set secret key for CSRF protection
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-please-change-in-production')
+    
+    # Initialize CSRF protection
+    csrf.init_app(app)
+    app.config['WTF_CSRF_SECRET_KEY'] = os.getenv('WTF_CSRF_SECRET_KEY', 'your-csrf-secret-key')
+    app.config['WTF_CSRF_ENABLED'] = True
     
     # Configure Logging
     configure_logging(app)
@@ -350,6 +361,22 @@ def create_app():
 
 # Create App Instance
 app = create_app()
+
+@app.route('/')
+def home():
+    return render_template('home.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/learn')
+def learn():
+    return render_template('learn.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
 
 if __name__ == '__main__':
     print("\nStarting Flask development server...")

@@ -3,17 +3,39 @@
 {% block title %}Home | Wine Store{% endblock %}
 
 {% block content %}
-<header class="hero-header">
-    <div class="container text-center py-5">
-        <h1 class="display-4">Discover Your Favorite Wines</h1>
-        <form action="/search" method="GET" class="mt-4">
-            <div class="input-group">
-                <input type="text" class="form-control" name="query" placeholder="Search for wines..." required>
-                <button class="btn btn-primary" type="submit">Search</button>
-            </div>
-        </form>
+<!-- Hero Section -->
+<section class="min-h-screen flex items-center justify-center hero-bg relative">
+    <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-wine-900/50"></div>
+    <div class="container mx-auto px-6 relative z-10 text-center max-w-4xl">
+        <h1 class="text-6xl md:text-7xl font-bold text-white mb-8 font-playfair leading-tight animate-fade-in">
+            Discover Your Perfect Wine Match
+        </h1>
+        <p class="text-xl md:text-2xl text-white/90 mb-12 font-light max-w-2xl mx-auto">
+            Let our expert system guide you through the world of wines, 
+            from rich reds to crisp whites, we'll help you find your ideal bottle.
+        </p>
+        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6">
+            <a href="{{ url_for('auth.signup') }}" 
+               class="btn-animate px-10 py-4 bg-wine-800 text-white text-lg rounded-lg transition transform hover:scale-105 hover:bg-wine-700">
+                <span class="flex items-center justify-center">
+                    Start Your Journey
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                    </svg>
+                </span>
+            </a>
+            <a href="{{ url_for('learn') }}" 
+               class="btn-animate px-10 py-4 border-2 border-white text-white text-lg rounded-lg hover:bg-white hover:text-wine-800 transition transform hover:scale-105">
+                <span class="flex items-center justify-center">
+                    Explore More
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </span>
+            </a>
+        </div>
     </div>
-</header>
+</section>
 
 <section class="section container">
     <h2 class="text-center">Welcome to Our Website</h2>

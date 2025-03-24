@@ -7,6 +7,7 @@ from enum import Enum as PyEnum
 from datetime import datetime, timedelta
 from sqlalchemy.orm import relationship
 from sqlalchemy import ForeignKey, Column, Integer, String, Float, Boolean, DateTime, Text, func, JSON, Enum, Table
+from flask import current_app
 
 # Association tables
 user_traits = Table('user_traits', db.Model.metadata,
@@ -41,10 +42,11 @@ class User(UserMixin, db.Model):
     id = Column(Integer, primary_key=True)
     username = Column(String(80), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
-    password_hash = Column(String(128))
+    password_hash = Column(String(256), nullable=False)
     is_active = Column(Boolean, default=True)
     role = Column(String(20), nullable=False, default=UserRole.CUSTOMER.value)
     created_at = Column(DateTime, default=datetime.utcnow)
+    preferred_wine_types = Column(JSON, nullable=True)
     
     # Relationships
     reviews = relationship('WineReview', back_populates='user')

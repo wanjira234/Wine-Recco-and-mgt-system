@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_login import login_user, logout_user, login_required, current_user
 from services.auth_service import AuthService
@@ -8,7 +8,6 @@ from models import User, WineTrait
 from extensions import db
 from sqlalchemy import func
 from datetime import datetime
-from flask import current_app as app
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -29,47 +28,72 @@ def signup():
         return render_template(template_name, traits_by_category=traits_by_category)
     
     step = request.form.get('step', '1')
+    current_app.logger.info(f"Processing signup step {step}")
     
     if step == '1':
         try:
             email = request.form.get('email')
+            name = request.form.get('name')
+            password = request.form.get('password')
+            
+            current_app.logger.info(f"Step 1 data received - email: {email}, name: {name}")
+            
+            # Validate required fields
+            if not all([email, name, password]):
+                flash('All fields are required', 'error')
+                return redirect(url_for('auth.signup'))
+            
+            # Check if email exists
             if User.query.filter_by(email=email).first():
                 flash('Email already registered', 'error')
                 return redirect(url_for('auth.signup'))
             
+            # Store in session
             session['signup_data'] = {
                 'email': email,
-                'name': request.form.get('name'),
-                'password': request.form.get('password')
+                'name': name,
+                'password': password
             }
+            current_app.logger.info("Step 1 data stored in session")
+            
             return redirect(url_for('auth.signup', step='2'))
             
         except Exception as e:
-            app.logger.error(f"Error in signup step 1: {str(e)}")
+            current_app.logger.error(f"Error in signup step 1: {str(e)}")
             flash('Error during signup. Please try again.', 'error')
             return redirect(url_for('auth.signup'))
     
     elif step == '2':
         try:
             if 'signup_data' not in session:
+                current_app.logger.error("No signup data in session for step 2")
                 flash('Please start from the beginning', 'error')
                 return redirect(url_for('auth.signup'))
-                
-            session['signup_data']['preferred_types'] = request.form.getlist('wine_types')
+            
+            wine_types = request.form.getlist('wine_types')
+            current_app.logger.info(f"Step 2 wine types selected: {wine_types}")
+            
+            if not wine_types:
+                flash('Please select at least one wine type', 'error')
+                return redirect(url_for('auth.signup', step='2'))
+            
+            session['signup_data']['preferred_types'] = wine_types
             return redirect(url_for('auth.signup', step='3'))
             
         except Exception as e:
-            app.logger.error(f"Error in signup step 2: {str(e)}")
+            current_app.logger.error(f"Error in signup step 2: {str(e)}")
             flash('Error during signup. Please try again.', 'error')
-            return redirect(url_for('auth.signup'))
+            return redirect(url_for('auth.signup', step='2'))
     
     elif step == '3':
         try:
             if 'signup_data' not in session:
+                current_app.logger.error("No signup data in session for step 3")
                 flash('Please start from the beginning', 'error')
                 return redirect(url_for('auth.signup'))
-                
-            signup_data = session.pop('signup_data', {})
+            
+            signup_data = session.get('signup_data', {})
+            current_app.logger.info(f"Processing final signup step with data: {signup_data}")
             
             # Create the user
             user = User(
@@ -91,6 +115,10 @@ def signup():
             # Save to database
             db.session.add(user)
             db.session.commit()
+            current_app.logger.info(f"User created successfully: {user.username}")
+            
+            # Clear session after successful commit
+            session.pop('signup_data', None)
             
             # Log the user in
             login_user(user)
@@ -99,7 +127,7 @@ def signup():
             
         except Exception as e:
             db.session.rollback()
-            app.logger.error(f"Error in signup step 3: {str(e)}")
+            current_app.logger.error(f"Error in signup step 3: {str(e)}")
             flash('Error creating account. Please try again.', 'error')
             return redirect(url_for('auth.signup'))
 

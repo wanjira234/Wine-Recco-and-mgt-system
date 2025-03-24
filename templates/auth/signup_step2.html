@@ -137,6 +137,7 @@
         </div>
         
         <form method="POST" action="{{ url_for('auth.signup') }}" class="signup-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="step" value="2">
             
             <div class="wine-type-grid">

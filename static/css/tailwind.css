@@ -1,3 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom styles */
+.hero-bg {
+    background-image: url('../images/backgrounds/home-page.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Custom Font Settings */
+.font-playfair {
+    font-family: 'Playfair Display', serif;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+}

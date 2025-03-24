@@ -183,6 +183,7 @@
         </div>
         
         <form method="POST" action="{{ url_for('auth.signup') }}" class="signup-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="step" value="3">
             
             {% for category, traits in traits_by_category.items() %}
@@ -225,5 +226,14 @@ function toggleCategory(categoryId) {
 
 // Expand the first category by default
 document.querySelector('.trait-category').classList.add('expanded');
+
+// Add form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const selectedTraits = document.querySelectorAll('input[name="traits"]:checked');
+    if (selectedTraits.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one trait preference');
+    }
+});
 </script>
 {% endblock %} 
