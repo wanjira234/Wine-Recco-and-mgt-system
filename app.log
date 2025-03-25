@@ -1588,3 +1588,63 @@ jinja2.exceptions.TemplateNotFound: auth/login.html
     raise TemplateNotFound(template)
 jinja2.exceptions.TemplateNotFound: auth/login.html
 
+2025-03-25 05:33:51,464 - app - INFO - Cache initialized successfully
+2025-03-25 05:33:53,117 - app - INFO - Database tables created successfully
+2025-03-25 05:33:53,229 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 05:33:53,231 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 05:34:53,047 - app - ERROR - Error occurred: Could not build url for endpoint 'home'. Did you mean 'main.welcome' instead?
+2025-03-25 05:34:53,156 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\app.py", line 371, in about
+    return render_template('about.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\about.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\base.html", line 39, in top-level template code
+    <a href="{{ url_for('home') }}" class="nav-link text-gray-700 hover:text-wine-800 transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-wine-800 after:transition-all after:duration-300">Home</a>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'home'. Did you mean 'main.welcome' instead?
+
+2025-03-25 05:41:07,892 - app - INFO - Cache initialized successfully
+2025-03-25 05:41:09,703 - app - INFO - Database tables created successfully
+2025-03-25 05:41:09,839 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 05:41:09,840 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 05:43:14,872 - app - INFO - Cache initialized successfully
+2025-03-25 05:43:16,586 - app - INFO - Database tables created successfully
+2025-03-25 05:43:16,800 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 05:43:16,801 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 05:46:22,854 - app - INFO - Cache initialized successfully
+2025-03-25 05:46:23,670 - app - INFO - Database tables created successfully
+2025-03-25 05:46:23,773 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 05:46:23,775 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 05:53:02,509 - app - INFO - Cache initialized successfully
+2025-03-25 05:53:05,247 - app - INFO - Database tables created successfully
+2025-03-25 05:53:05,634 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 05:53:05,637 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 05:55:49,413 - app - INFO - Cache initialized successfully
+2025-03-25 05:55:51,010 - app - INFO - Database tables created successfully
+2025-03-25 05:55:51,148 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 05:55:51,149 - app - INFO - Wine discovery service initialized successfully

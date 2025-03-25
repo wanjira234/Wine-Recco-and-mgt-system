@@ -13,153 +13,97 @@ auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if request.method == 'GET':
-        step = request.args.get('step', '1')
-        traits_by_category = {}
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
         
-        if step == '3':
-            all_traits = WineTrait.query.all()
-            for trait in all_traits:
-                if trait.category not in traits_by_category:
-                    traits_by_category[trait.category] = []
-                traits_by_category[trait.category].append(trait)
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
         
-        template_name = f'auth/signup_step{step}.html'
-        return render_template(template_name, traits_by_category=traits_by_category)
-    
-    step = request.form.get('step', '1')
-    current_app.logger.info(f"Processing signup step {step}")
-    
-    if step == '1':
-        try:
-            email = request.form.get('email')
-            name = request.form.get('name')
-            password = request.form.get('password')
-            
-            current_app.logger.info(f"Step 1 data received - email: {email}, name: {name}")
-            
-            # Validate required fields
-            if not all([email, name, password]):
-                flash('All fields are required', 'error')
-                return redirect(url_for('auth.signup'))
-            
-            # Check if email exists
-            if User.query.filter_by(email=email).first():
-                flash('Email already registered', 'error')
-                return redirect(url_for('auth.signup'))
-            
-            # Store in session
-            session['signup_data'] = {
-                'email': email,
-                'name': name,
-                'password': password
-            }
-            current_app.logger.info("Step 1 data stored in session")
-            
-            return redirect(url_for('auth.signup', step='2'))
-            
-        except Exception as e:
-            current_app.logger.error(f"Error in signup step 1: {str(e)}")
-            flash('Error during signup. Please try again.', 'error')
+        # Validation
+        if not username or not email or not password or not confirm_password:
+            flash('All fields are required', 'error')
             return redirect(url_for('auth.signup'))
-    
-    elif step == '2':
+            
+        if password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return redirect(url_for('auth.signup'))
+            
+        if len(password) < 6:
+            flash('Password must be at least 6 characters long', 'error')
+            return redirect(url_for('auth.signup'))
+            
+        # Check if user already exists
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists', 'error')
+            return redirect(url_for('auth.signup'))
+            
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered', 'error')
+            return redirect(url_for('auth.signup'))
+            
+        # Create new user
         try:
-            if 'signup_data' not in session:
-                current_app.logger.error("No signup data in session for step 2")
-                flash('Please start from the beginning', 'error')
-                return redirect(url_for('auth.signup'))
-            
-            wine_types = request.form.getlist('wine_types')
-            current_app.logger.info(f"Step 2 wine types selected: {wine_types}")
-            
-            if not wine_types:
-                flash('Please select at least one wine type', 'error')
-                return redirect(url_for('auth.signup', step='2'))
-            
-            session['signup_data']['preferred_types'] = wine_types
-            return redirect(url_for('auth.signup', step='3'))
-            
-        except Exception as e:
-            current_app.logger.error(f"Error in signup step 2: {str(e)}")
-            flash('Error during signup. Please try again.', 'error')
-            return redirect(url_for('auth.signup', step='2'))
-    
-    elif step == '3':
-        try:
-            if 'signup_data' not in session:
-                current_app.logger.error("No signup data in session for step 3")
-                flash('Please start from the beginning', 'error')
-                return redirect(url_for('auth.signup'))
-            
-            signup_data = session.get('signup_data', {})
-            current_app.logger.info(f"Processing final signup step with data: {signup_data}")
-            
-            # Create the user
-            user = User(
-                username=signup_data['name'],
-                email=signup_data['email']
+            new_user = User(
+                username=username,
+                email=email,
+                created_at=datetime.utcnow()
             )
-            user.set_password(signup_data['password'])
+            new_user.set_password(password)
             
-            # Add wine type preferences
-            if 'preferred_types' in signup_data:
-                user.preferred_wine_types = signup_data['preferred_types']
-            
-            # Add trait preferences
-            trait_ids = request.form.getlist('traits')
-            if trait_ids:
-                traits = WineTrait.query.filter(WineTrait.id.in_(trait_ids)).all()
-                user.preferred_traits.extend(traits)
-            
-            # Save to database
-            db.session.add(user)
+            db.session.add(new_user)
             db.session.commit()
-            current_app.logger.info(f"User created successfully: {user.username}")
             
-            # Clear session after successful commit
-            session.pop('signup_data', None)
-            
-            # Log the user in
-            login_user(user)
+            # Log in the new user
+            login_user(new_user)
+            current_app.logger.info(f"New user registered: {username}")
             flash('Account created successfully!', 'success')
-            return redirect(url_for('main.welcome'))
+            return redirect(url_for('home'))
             
         except Exception as e:
             db.session.rollback()
-            current_app.logger.error(f"Error in signup step 3: {str(e)}")
-            flash('Error creating account. Please try again.', 'error')
+            current_app.logger.error(f"Error creating user: {str(e)}")
+            flash('An error occurred while creating your account. Please try again.', 'error')
             return redirect(url_for('auth.signup'))
-
-    return redirect(url_for('auth.signup'))
+            
+    return render_template('auth/signup.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    """
-    User login page and endpoint
-    """
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
+        
     if request.method == 'POST':
-        email = request.form.get('email')
+        username = request.form.get('username')
         password = request.form.get('password')
+        remember = request.form.get('remember', False)
         
-        user = User.query.filter_by(email=email).first()
+        if not username or not password:
+            flash('Please enter both username and password', 'error')
+            return redirect(url_for('auth.login'))
+            
+        user = User.query.filter_by(username=username).first()
+        
         if user and user.check_password(password):
-            login_user(user)
-            flash('Logged in successfully!', 'success')
-            return redirect(url_for('main.index'))
-        
-        flash('Invalid email or password', 'error')
+            login_user(user, remember=remember)
+            current_app.logger.info(f"User logged in: {username}")
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('home'))
+        else:
+            current_app.logger.warning(f"Failed login attempt for username: {username}")
+            flash('Invalid username or password', 'error')
+            
     return render_template('auth/login.html')
 
 @auth_bp.route('/logout')
 @login_required
 def logout():
-    """
-    User logout endpoint
-    """
+    current_app.logger.info(f"User logged out: {current_user.username}")
     logout_user()
-    flash('Logged out successfully!', 'success')
-    return redirect(url_for('main.index'))
+    flash('You have been logged out', 'success')
+    return redirect(url_for('home'))
 
 @auth_bp.route('/reset-password-request', methods=['POST'])
 def reset_password_request():
@@ -225,3 +169,64 @@ def change_password():
         return jsonify(user.to_dict()), 200
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
+
+# API endpoints for authentication
+@auth_bp.route('/api/register', methods=['POST'])
+def api_register():
+    data = request.get_json()
+    
+    if not all(k in data for k in ('username', 'email', 'password')):
+        return jsonify({'error': 'Missing required fields'}), 400
+        
+    if User.query.filter_by(username=data['username']).first():
+        return jsonify({'error': 'Username already exists'}), 409
+        
+    if User.query.filter_by(email=data['email']).first():
+        return jsonify({'error': 'Email already registered'}), 409
+        
+    try:
+        new_user = User(
+            username=data['username'],
+            email=data['email'],
+            created_at=datetime.utcnow()
+        )
+        new_user.set_password(data['password'])
+        
+        db.session.add(new_user)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'User registered successfully',
+            'user': {
+                'id': new_user.id,
+                'username': new_user.username,
+                'email': new_user.email
+            }
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"API registration error: {str(e)}")
+        return jsonify({'error': 'Internal server error'}), 500
+
+@auth_bp.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    
+    if not all(k in data for k in ('username', 'password')):
+        return jsonify({'error': 'Missing username or password'}), 400
+        
+    user = User.query.filter_by(username=data['username']).first()
+    
+    if user and user.check_password(data['password']):
+        login_user(user)
+        return jsonify({
+            'message': 'Login successful',
+            'user': {
+                'id': user.id,
+                'username': user.username,
+                'email': user.email
+            }
+        })
+    
+    return jsonify({'error': 'Invalid username or password'}), 401

@@ -38,15 +38,19 @@ class UserRole(str, PyEnum):
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
-
-    id = Column(Integer, primary_key=True)
-    username = Column(String(80), unique=True, nullable=False)
-    email = Column(String(120), unique=True, nullable=False)
-    password_hash = Column(String(256), nullable=False)
-    is_active = Column(Boolean, default=True)
-    role = Column(String(20), nullable=False, default=UserRole.CUSTOMER.value)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    preferred_wine_types = Column(JSON, nullable=True)
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    is_admin = db.Column(db.Boolean, default=False)
+    
+    # Profile fields
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
+    bio = db.Column(db.Text)
     
     # Relationships
     reviews = relationship('WineReview', back_populates='user')
@@ -71,13 +75,15 @@ class User(UserMixin, db.Model):
     # Add relationship to traits
     preferred_traits = db.relationship('WineTrait', secondary=user_traits,
                                      backref=db.backref('users', lazy='dynamic'))
-    is_admin = db.Column(db.Boolean, default=False)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
-
+        
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def __repr__(self):
+        return f'<User {self.username}>'
 
 class WineVarietal(db.Model):
     __tablename__ = 'wine_varietals'
