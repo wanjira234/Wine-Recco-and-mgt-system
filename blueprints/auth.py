@@ -177,3 +177,31 @@ def api_signup_handler():
         db.session.rollback()
         current_app.logger.error(f"Error during signup step {step}: {str(e)}")
         return jsonify({'success': False, 'message': f'Error during signup step {step}'}), 500
+
+@auth_bp.route('/api/auth/delete-account', methods=['POST'])
+@jwt_required()
+def delete_account():
+    """Delete the current user's account"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        if not user:
+            return jsonify({'success': False, 'message': 'User not found'}), 404
+        
+        # Log out the user
+        logout_user()
+        
+        # Delete the user
+        db.session.delete(user)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Account deleted successfully'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error deleting account: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error deleting account'}), 500

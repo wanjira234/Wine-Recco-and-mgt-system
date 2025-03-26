@@ -213,28 +213,101 @@
             
             <!-- Signup Form -->
             <form id="signup-form" style="display: none;">
-                <div style="margin-bottom: 16px;">
-                    <label for="signup-name" style="display: block; margin-bottom: 6px; font-weight: 500;">Full Name</label>
-                    <input type="text" id="signup-name" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                <!-- Step 1: Account Creation -->
+                <div id="signup-step-1">
+                    <div style="margin-bottom: 16px;">
+                        <label for="signup-name" style="display: block; margin-bottom: 6px; font-weight: 500;">Full Name</label>
+                        <input type="text" id="signup-name" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label for="signup-email" style="display: block; margin-bottom: 6px; font-weight: 500;">Email</label>
+                        <input type="email" id="signup-email" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label for="signup-password" style="display: block; margin-bottom: 6px; font-weight: 500;">Password</label>
+                        <input type="password" id="signup-password" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label for="signup-confirm-password" style="display: block; margin-bottom: 6px; font-weight: 500;">Confirm Password</label>
+                        <input type="password" id="signup-confirm-password" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" required style="margin-right: 8px;"> I agree to the <a href="#" style="color: #8b5cf6; text-decoration: none; margin-left: 4px;">Terms of Service</a> and <a href="#" style="color: #8b5cf6; text-decoration: none; margin-left: 4px;">Privacy Policy</a>
+                        </label>
+                    </div>
                 </div>
-                <div style="margin-bottom: 16px;">
-                    <label for="signup-email" style="display: block; margin-bottom: 6px; font-weight: 500;">Email</label>
-                    <input type="email" id="signup-email" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+
+                <!-- Step 2: Wine Preferences -->
+                <div id="signup-step-2" style="display: none;">
+                    <h3 style="font-size: 18px; margin-bottom: 16px;">What types of wine do you enjoy?</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="wine_type" value="red" style="margin-right: 8px;"> Red Wine
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="wine_type" value="white" style="margin-right: 8px;"> White Wine
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="wine_type" value="rose" style="margin-right: 8px;"> Rosé Wine
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="wine_type" value="sparkling" style="margin-right: 8px;"> Sparkling Wine
+                        </label>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <label for="price-range" style="display: block; margin-bottom: 6px; font-weight: 500;">Price Range Preference</label>
+                        <select id="price-range" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                            <option value="">Select a price range</option>
+                            <option value="budget">Budget ($10-20)</option>
+                            <option value="moderate">Moderate ($20-50)</option>
+                            <option value="premium">Premium ($50-100)</option>
+                            <option value="luxury">Luxury ($100+)</option>
+                        </select>
+                    </div>
                 </div>
-                <div style="margin-bottom: 16px;">
-                    <label for="signup-password" style="display: block; margin-bottom: 6px; font-weight: 500;">Password</label>
-                    <input type="password" id="signup-password" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+
+                <!-- Step 3: Taste Profile -->
+                <div id="signup-step-3" style="display: none;">
+                    <h3 style="font-size: 18px; margin-bottom: 16px;">What flavors do you enjoy most?</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="flavor" value="fruity" style="margin-right: 8px;"> Fruity
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="flavor" value="earthy" style="margin-right: 8px;"> Earthy
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="flavor" value="floral" style="margin-right: 8px;"> Floral
+                        </label>
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" name="flavor" value="spicy" style="margin-right: 8px;"> Spicy
+                        </label>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <label for="body-preference" style="display: block; margin-bottom: 6px; font-weight: 500;">Wine Body Preference</label>
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <span>Light</span>
+                            <span>Full</span>
+                        </div>
+                        <input type="range" id="body-preference" min="1" max="5" value="3" style="width: 100%;">
+                    </div>
                 </div>
-                <div style="margin-bottom: 16px;">
-                    <label for="signup-confirm-password" style="display: block; margin-bottom: 6px; font-weight: 500;">Confirm Password</label>
-                    <input type="password" id="signup-confirm-password" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+
+                <!-- Progress Indicator -->
+                <div style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span id="step-text">Step 1 of 3</span>
+                        <span id="step-description">Account Creation</span>
+                    </div>
+                    <div style="background-color: #e5e7eb; height: 4px; border-radius: 2px;">
+                        <div id="progress-bar" style="background-color: #8b5cf6; height: 100%; width: 33%; border-radius: 2px; transition: width 0.3s ease;"></div>
+                    </div>
                 </div>
-                <div style="margin-bottom: 16px;">
-                    <label style="display: flex; align-items: center; cursor: pointer;">
-                        <input type="checkbox" required style="margin-right: 8px;"> I agree to the <a href="#" style="color: #8b5cf6; text-decoration: none; margin-left: 4px;">Terms of Service</a> and <a href="#" style="color: #8b5cf6; text-decoration: none; margin-left: 4px;">Privacy Policy</a>
-                    </label>
-                </div>
-                <button type="submit" class="btn" style="width: 100%;">Sign Up</button>
+
+                <button type="submit" class="btn" style="width: 100%;">Continue</button>
             </form>
         </div>
     </div>
@@ -282,6 +355,12 @@
                             <input type="password" id="confirm-password" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 4px;">
                         </div>
                         <button type="button" id="change-password-btn" class="btn" style="width: 100%;">Update Password</button>
+                    </div>
+
+                    <div style="margin-top: 32px; border-top: 1px solid #e5e7eb; padding-top: 24px;">
+                        <h3 style="font-size: 18px; margin-bottom: 16px; color: #ef4444;">Delete Account</h3>
+                        <p style="color: #6b7280; margin-bottom: 16px;">Warning: This action cannot be undone. All your data will be permanently deleted.</p>
+                        <button type="button" id="delete-account-btn" class="btn" style="width: 100%; background-color: #ef4444;">Delete My Account</button>
                     </div>
                 </form>
             </div>
@@ -656,59 +735,129 @@
                 });
             });
             
-            // Handle signup form submission
+            // Signup form handling
+            let currentStep = 1;
+            let accessToken = null;
+
+            function updateProgressBar(step) {
+                const progressBar = document.getElementById('progress-bar');
+                const stepText = document.getElementById('step-text');
+                const stepDescription = document.getElementById('step-description');
+                
+                progressBar.style.width = `${(step / 3) * 100}%`;
+                stepText.textContent = `Step ${step} of 3`;
+                
+                switch(step) {
+                    case 1:
+                        stepDescription.textContent = 'Account Creation';
+                        break;
+                    case 2:
+                        stepDescription.textContent = 'Wine Preferences';
+                        break;
+                    case 3:
+                        stepDescription.textContent = 'Taste Profile';
+                        break;
+                }
+            }
+
+            function showStep(step) {
+                document.getElementById(`signup-step-1`).style.display = 'none';
+                document.getElementById(`signup-step-2`).style.display = 'none';
+                document.getElementById(`signup-step-3`).style.display = 'none';
+                document.getElementById(`signup-step-${step}`).style.display = 'block';
+                updateProgressBar(step);
+            }
+
             signupForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const name = document.getElementById('signup-name').value;
-                const email = document.getElementById('signup-email').value;
-                const password = document.getElementById('signup-password').value;
-                const confirmPassword = document.getElementById('signup-confirm-password').value;
-                
-                // Validate passwords match
-                if (password !== confirmPassword) {
-                    alert('Passwords do not match!');
-                    return;
-                }
-                
-                // Display loading state
                 const submitBtn = signupForm.querySelector('button[type="submit"]');
                 const originalText = submitBtn.textContent;
-                submitBtn.textContent = 'Creating account...';
                 submitBtn.disabled = true;
+
+                let data = {};
                 
-                // Send API request
+                switch(currentStep) {
+                    case 1:
+                        const password = document.getElementById('signup-password').value;
+                        const confirmPassword = document.getElementById('signup-confirm-password').value;
+                        
+                        if (password !== confirmPassword) {
+                            alert('Passwords do not match!');
+                            submitBtn.disabled = false;
+                            return;
+                        }
+
+                        data = {
+                            step: 1,
+                            name: document.getElementById('signup-name').value,
+                            email: document.getElementById('signup-email').value,
+                            password: password
+                        };
+                        submitBtn.textContent = 'Creating account...';
+                        break;
+
+                    case 2:
+                        data = {
+                            step: 2,
+                            wine_types: Array.from(document.querySelectorAll('input[name="wine_type"]:checked')).map(cb => cb.value),
+                            price_range: document.getElementById('price-range').value
+                        };
+                        submitBtn.textContent = 'Saving preferences...';
+                        break;
+
+                    case 3:
+                        data = {
+                            step: 3,
+                            flavors: Array.from(document.querySelectorAll('input[name="flavor"]:checked')).map(cb => cb.value),
+                            body: document.getElementById('body-preference').value
+                        };
+                        submitBtn.textContent = 'Completing profile...';
+                        break;
+                }
+
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                };
+
+                if (accessToken) {
+                    headers['Authorization'] = `Bearer ${accessToken}`;
+                }
+
                 fetch('/api/auth/signup', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ name, email, password })
+                    headers: headers,
+                    body: JSON.stringify(data)
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Update UI to show logged in state
-                        loginButton.textContent = data.user.name || 'My Account';
-                        
-                        // Reset and close modal
-                        signupForm.reset();
-                        authModal.style.display = 'none';
-                        
-                        // Reload page to reflect logged in state
-                        window.location.reload();
+                        if (data.access_token) {
+                            accessToken = data.access_token;
+                        }
+
+                        if (data.completed) {
+                            // Profile complete, redirect to home
+                            window.location.reload();
+                        } else {
+                            // Move to next step
+                            currentStep = data.next_step;
+                            showStep(currentStep);
+                            submitBtn.textContent = currentStep === 3 ? 'Complete Profile' : 'Continue';
+                        }
                     } else {
-                        alert(data.message || 'Signup failed. Please try again.');
+                        alert(data.message || 'An error occurred');
                     }
                 })
                 .catch(error => {
                     console.error('Signup error:', error);
-                    alert('An error occurred during signup. Please try again.');
+                    alert('An error occurred during signup');
                 })
                 .finally(() => {
-                    // Reset button state
-                    submitBtn.textContent = originalText;
                     submitBtn.disabled = false;
+                    if (!data.success) {
+                        submitBtn.textContent = originalText;
+                    }
                 });
             });
             
@@ -748,23 +897,36 @@
             const closeProfileModal = document.getElementById('close-profile-modal');
             
             if (profileLink && profileModal) {
+                console.log('Profile functionality initialized'); // Debug log
+                
                 profileLink.addEventListener('click', function(e) {
                     e.preventDefault();
+                    e.stopPropagation(); // Prevent event bubbling
+                    console.log('Profile link clicked'); // Debug log
                     profileModal.style.display = 'flex';
                     // Close the dropdown menu when opening the profile
-                    if (dropdownMenu) dropdownMenu.style.display = 'none';
+                    if (dropdownMenu) {
+                        dropdownMenu.style.display = 'none';
+                    }
                 });
                 
                 // Close modal
-                closeProfileModal.addEventListener('click', function() {
-                    profileModal.style.display = 'none';
-                });
+                if (closeProfileModal) {
+                    closeProfileModal.addEventListener('click', function() {
+                        profileModal.style.display = 'none';
+                    });
+                }
                 
                 // Close modal when clicking outside
                 profileModal.addEventListener('click', function(e) {
                     if (e.target === profileModal) {
                         profileModal.style.display = 'none';
                     }
+                });
+                
+                // Prevent modal from closing when clicking inside it
+                profileModal.querySelector('div').addEventListener('click', function(e) {
+                    e.stopPropagation();
                 });
                 
                 // Profile tab switching
@@ -956,6 +1118,37 @@
                         console.error('Error updating taste profile:', error);
                         alert('An error occurred while updating taste profile');
                     });
+                });
+            }
+
+            const deleteAccountBtn = document.getElementById('delete-account-btn');
+            if (deleteAccountBtn) {
+                deleteAccountBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                        fetch('/api/auth/delete-account', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token() }}',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Account deleted successfully');
+                                localStorage.removeItem('access_token');
+                                localStorage.removeItem('isLoggedIn');
+                                window.location.href = '/';
+                            } else {
+                                alert(data.message || 'Error deleting account');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while deleting your account');
+                        });
+                    }
                 });
             }
         });

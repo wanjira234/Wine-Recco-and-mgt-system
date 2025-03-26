@@ -2978,3 +2978,11 @@ werkzeug.exceptions.MethodNotAllowed: 405 Method Not Allowed: The method is not 
 2025-03-26 22:05:59,044 - app - INFO - Database tables created successfully
 2025-03-26 22:05:59,189 - app - INFO - Recommendation engine initialized successfully
 2025-03-26 22:05:59,191 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 22:08:59,896 - app - INFO - Cache initialized successfully
+2025-03-26 22:09:01,863 - app - INFO - Database tables created successfully
+2025-03-26 22:09:02,048 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 22:09:02,049 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 22:11:27,758 - app - INFO - Cache initialized successfully
+2025-03-26 22:11:29,488 - app - INFO - Database tables created successfully
+2025-03-26 22:11:29,706 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 22:11:29,708 - app - INFO - Wine discovery service initialized successfully
