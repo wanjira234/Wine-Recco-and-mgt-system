@@ -174,6 +174,7 @@ def create_app():
     csrf.init_app(app)
     app.config['WTF_CSRF_SECRET_KEY'] = os.getenv('WTF_CSRF_SECRET_KEY', 'your-csrf-secret-key')
     app.config['WTF_CSRF_ENABLED'] = True
+    app.config['WTF_CSRF_CHECK_DEFAULT'] = False  # Disable default CSRF checking
     
     # Configure Logging
     configure_logging(app)
@@ -191,11 +192,17 @@ def create_app():
         CORS(app, resources={
             r"/api/*": {
                 "origins": "*",
+                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                 "allow_headers": [
                     "Content-Type", 
                     "Authorization", 
-                    "Access-Control-Allow-Credentials"
-                ]
+                    "X-CSRFToken",
+                    "Access-Control-Allow-Credentials",
+                    "Access-Control-Allow-Headers",
+                    "Access-Control-Allow-Methods",
+                    "Access-Control-Allow-Origin"
+                ],
+                "supports_credentials": True
             }
         })
         
@@ -263,7 +270,7 @@ def create_app():
         blueprints = [
             # React Routes
             (main_bp, ''),  # Main blueprint for React pages
-            (auth_bp, '/auth'),  # Auth blueprint for React pages
+            (auth_bp, ''),  # Auth blueprint for both React pages and API endpoints
             (wines_bp, '/wines'),  # Wines blueprint for React pages
             (account_bp, '/account'),  # Account blueprint for React pages
             
@@ -517,6 +524,15 @@ def create_app():
         def inject_now():
             from datetime import datetime
             return {'now': datetime.utcnow()}
+        
+        # CSRF Protection for API routes
+        @app.before_request
+        def csrf_protect():
+            if request.path.startswith('/api/'):
+                if request.method != 'OPTIONS':  # Skip CSRF check for preflight requests
+                    csrf_token = request.headers.get('X-CSRFToken')
+                    if not csrf_token and request.method not in ['GET', 'HEAD', 'OPTIONS']:
+                        return jsonify({'error': 'CSRF token missing'}), 400
         
         return app
     
