@@ -190,6 +190,28 @@ class Wine(db.Model):
     traits = relationship('WineTrait', secondary=wine_traits,
                            backref=db.backref('wines', lazy='dynamic'))
 
+    def to_dict(self):
+        """Convert wine object to dictionary"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'type': self.type,
+            'price': self.price,
+            'alcohol_percentage': self.alcohol_percentage,
+            'varietal': self.varietal.name if self.varietal else None,
+            'region': self.region.name if self.region else None,
+            'traits': [trait.name for trait in self.traits],
+            'average_rating': self.calculate_average_rating(),
+            'review_count': len(self.reviews)
+        }
+
+    def calculate_average_rating(self):
+        """Calculate average rating for the wine"""
+        if not self.reviews:
+            return 0.0
+        return sum(review.rating for review in self.reviews) / len(self.reviews)
+
 class UserInteraction(db.Model):
     __tablename__ = 'user_interactions'
 
@@ -894,3 +916,17 @@ def get_wine_review_count(wine_id):
     return db.session.query(func.count(WineReview.id))\
         .filter(WineReview.wine_id == wine_id)\
         .scalar() or 0
+
+class WineCategory(db.Model):
+    """Model for wine categories"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    wines = db.relationship('Wine', backref='category', lazy=True)
+
+    def __repr__(self):
+        return f'<WineCategory {self.name}>'

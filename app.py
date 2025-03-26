@@ -13,6 +13,13 @@ from flask_wtf.csrf import CSRFProtect
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from models import User, WineTrait, WineCategory, Wine, WineReview, Order, OrderItem, WineInventory
+
+# // ...existing code...
+from blueprints.notification import notification_bp
+from blueprints.search import search_bp
+from blueprints.account import account_bp
+# // ...existing code...
 
 # Load environment variables from .env file
 load_dotenv()
@@ -33,18 +40,12 @@ from blueprints.analytics import analytics_bp
 from blueprints.order import order_bp
 from blueprints.inventory import inventory_bp
 from blueprints.community import community_bp
-from blueprints.notification import notification_bp
-from blueprints.search import search_bp
-from blueprints.account import account_bp
 
 # Import Utilities and Services
 from utils.error_handlers import register_error_handlers
 from utils.cache_utils import clear_all_caches
 from services.recommendation_service import create_recommendation_engine, RecommendationEngine
 from services.wine_discovery_service import create_wine_discovery_service
-
-# Import Models
-from models import User, WineTrait
 
 def configure_logging(app):
     """
@@ -246,10 +247,36 @@ def create_app():
         # CLI Commands
         @app.cli.command("init-db")
         def init_db():
-            """Initialize the database"""
-            with app.app_context():
+            """Initialize the database with all tables and initial data"""
+            try:
+                # Create all tables
                 db.create_all()
-                print("Database initialized.")
+                
+                # Check if we need to populate initial data
+                if not WineCategory.query.first():
+                    # Populate wine categories
+                    categories = [
+                        {'name': 'Red Wine', 'description': 'Wines made from red or black grapes'},
+                        {'name': 'White Wine', 'description': 'Wines made from white grapes'},
+                        {'name': 'Rosé Wine', 'description': 'Wines with a pink color, made from red grapes'},
+                        {'name': 'Sparkling Wine', 'description': 'Wines with significant levels of carbon dioxide'},
+                        {'name': 'Dessert Wine', 'description': 'Sweet wines typically served with dessert'},
+                        {'name': 'Fortified Wine', 'description': 'Wines with added distilled spirit'}
+                    ]
+                    
+                    for category_data in categories:
+                        category = WineCategory(**category_data)
+                        db.session.add(category)
+                    
+                    db.session.commit()
+                    print("Wine categories populated successfully!")
+                
+                print("Database initialized successfully!")
+                
+            except Exception as e:
+                print(f"Error initializing database: {e}")
+                db.session.rollback()
+                raise
         
         @app.cli.command("clear-caches")
         def clear_caches():
@@ -345,6 +372,50 @@ def create_app():
                 
             except Exception as e:
                 print(f"Error populating wine traits: {e}")
+                db.session.rollback()
+        
+        @app.cli.command("populate-categories")
+        def populate_categories():
+            """Populate wine categories in the database"""
+            try:
+                categories = [
+                    {
+                        'name': 'Red Wine',
+                        'description': 'Wines made from red or black grapes'
+                    },
+                    {
+                        'name': 'White Wine',
+                        'description': 'Wines made from white grapes'
+                    },
+                    {
+                        'name': 'Rosé Wine',
+                        'description': 'Wines with a pink color, made from red grapes'
+                    },
+                    {
+                        'name': 'Sparkling Wine',
+                        'description': 'Wines with significant levels of carbon dioxide'
+                    },
+                    {
+                        'name': 'Dessert Wine',
+                        'description': 'Sweet wines typically served with dessert'
+                    },
+                    {
+                        'name': 'Fortified Wine',
+                        'description': 'Wines with added distilled spirit'
+                    }
+                ]
+
+                for category_data in categories:
+                    category = WineCategory.query.filter_by(name=category_data['name']).first()
+                    if not category:
+                        category = WineCategory(**category_data)
+                        db.session.add(category)
+
+                db.session.commit()
+                print("Wine categories populated successfully!")
+                
+            except Exception as e:
+                print(f"Error populating wine categories: {e}")
                 db.session.rollback()
         
         # Add template context processor

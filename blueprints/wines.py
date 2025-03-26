@@ -1,10 +1,10 @@
 from flask import Blueprint, jsonify, request, current_app, render_template
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from sqlalchemy import func
+from flask_login import current_user
+from sqlalchemy import func, case
 
 from extensions import db
-from models import Wine, WineReview, WineVarietal, WineRegion, User, UserWineInteraction
-
+from models import Wine, WineReview, WineVarietal, WineRegion, User, UserWineInteraction, WineTrait, wine_traits
 from services.recommendation_service import recommendation_engine
 
 # Create Blueprint

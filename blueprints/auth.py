@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash, session, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token
 from flask_login import login_user, logout_user, login_required, current_user
 from services.auth_service import AuthService
 from forms import LoginForm, RegistrationForm, SignupForm
@@ -137,40 +137,28 @@ def signup_step3():
     }
     return render_template('auth/signup_step3.html', traits_by_category=traits_by_category)
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
+@auth_bp.route('/login', methods=['POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('home'))
-        
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        remember = request.form.get('remember', False)
-        
-        if not username or not password:
-            flash('Please enter both username and password', 'error')
-            return redirect(url_for('auth.login'))
-            
-        user = User.query.filter_by(username=username).first()
-        
-        if user and user.check_password(password):
-            login_user(user, remember=remember)
-            current_app.logger.info(f"User logged in: {username}")
-            next_page = request.args.get('next')
-            return redirect(next_page or url_for('home'))
-        else:
-            current_app.logger.warning(f"Failed login attempt for username: {username}")
-            flash('Invalid username or password', 'error')
-            
-    return render_template('auth/login.html')
+    """User login endpoint"""
+    data = request.get_json()
+    user = User.query.filter_by(email=data.get('email')).first()
+    
+    if user and user.check_password(data.get('password')):
+        login_user(user)
+        access_token = create_access_token(identity=user.id)
+        return jsonify({
+            'access_token': access_token,
+            'user': user.to_dict()
+        })
+    
+    return jsonify({'error': 'Invalid credentials'}), 401
 
 @auth_bp.route('/logout')
 @login_required
 def logout():
-    current_app.logger.info(f"User logged out: {current_user.username}")
+    """User logout endpoint"""
     logout_user()
-    flash('You have been logged out', 'success')
-    return redirect(url_for('home'))
+    return jsonify({'message': 'Logged out successfully'})
 
 @auth_bp.route('/reset-password-request', methods=['POST'])
 def reset_password_request():
@@ -299,7 +287,9 @@ def api_login():
     return jsonify({'error': 'Invalid username or password'}), 401
 
 @auth_bp.route('/me')
-@login_required
+@jwt_required()
 def get_current_user():
-    """Get current user data"""
-    return jsonify(current_user.to_dict())
+    """Get current user information"""
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    return jsonify(user.to_dict())

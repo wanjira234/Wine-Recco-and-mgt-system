@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app
 from flask_login import login_required, current_user
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import User, WineTrait, WineReview, Order
 from extensions import db
 
@@ -76,26 +77,41 @@ def update_preferences():
     return redirect(url_for('account.my_account'))
 
 @account_bp.route('/profile', methods=['GET'])
-@login_required
+@jwt_required()
 def get_profile():
     """Get user profile"""
-    return jsonify(current_user.to_dict())
+    user_id = get_jwt_identity()
+    user = User.query.get_or_404(user_id)
+    return jsonify(user.to_dict())
 
 @account_bp.route('/profile', methods=['PUT'])
-@login_required
+@jwt_required()
 def update_profile():
     """Update user profile"""
-    data = request.get_json()
-    
-    if 'first_name' in data:
-        current_user.first_name = data['first_name']
-    if 'last_name' in data:
-        current_user.last_name = data['last_name']
-    if 'email' in data:
-        current_user.email = data['email']
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get_or_404(user_id)
+        data = request.get_json()
         
-    db.session.commit()
-    return jsonify(current_user.to_dict())
+        # Update fields
+        if 'first_name' in data:
+            user.first_name = data['first_name']
+        if 'last_name' in data:
+            user.last_name = data['last_name']
+        if 'bio' in data:
+            user.bio = data['bio']
+        if 'wine_preferences' in data:
+            user.wine_preferences = data['wine_preferences']
+        if 'taste_preferences' in data:
+            user.taste_preferences = data['taste_preferences']
+        
+        db.session.commit()
+        return jsonify(user.to_dict())
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Profile update error: {e}")
+        return jsonify({'error': 'Failed to update profile'}), 500
 
 @account_bp.route('/preferences', methods=['GET'])
 @login_required

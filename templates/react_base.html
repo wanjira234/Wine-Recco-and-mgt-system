@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Wine Recommendation App</title>
     <!-- Tailwind CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
@@ -19,12 +20,16 @@
     <script src="{{ url_for('static', filename='js/react/bundle.js') }}"></script>
     
     <!-- Initialize React App -->
+    <script type="application/json" id="initial-data">
+        {
+            "user": {{ (current_user.to_dict() | tojson | safe) if current_user.is_authenticated else "null" }},
+            "csrf_token": {{ csrf_token()|tojson|safe }},
+            "api_base_url": {{ url_for('main.index', _external=True)|tojson|safe }}
+        }
+    </script>
     <script>
-        // Initialize data from Flask to React
-        window.INITIAL_DATA = {
-            user: JSON.parse('{{ current_user.to_dict()|tojson|safe if current_user else "null" }}'),
-            csrf_token: "{{ csrf_token() }}"
-        };
+        const initialData = JSON.parse(document.getElementById('initial-data').textContent);
+        window.INITIAL_DATA = initialData;
     </script>
 </body>
-</html> 
+</html>

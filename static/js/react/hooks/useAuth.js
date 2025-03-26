@@ -1,98 +1,131 @@
 import { useState, useEffect, useContext, createContext } from 'react';
-import axios from 'axios';
+import { authService } from '../services/api';
 
-const AuthContext = createContext();
+// Create an auth context
+const AuthContext = createContext(null);
 
-export const AuthProvider = ({ children }) => {
+// Provider component that wraps your app and makes auth object available to any child component that calls useAuth().
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Check if user is authenticated on mount
   useEffect(() => {
-    // Check if user is already logged in
-    checkUserAuthentication();
+    const checkAuthStatus = async () => {
+      try {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          setIsAuthenticated(false);
+          setUser(null);
+          return;
+        }
+        
+        // Verify token and get user data
+        const userData = await authService.getCurrentUser();
+        setUser(userData);
+        setIsAuthenticated(true);
+      } catch (err) {
+        console.error('Auth error:', err);
+        setError(err);
+        setIsAuthenticated(false);
+        setUser(null);
+        // Clear invalid token
+        localStorage.removeItem('token');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuthStatus();
   }, []);
 
-  const checkUserAuthentication = async () => {
+  // Login function
+  const login = async (credentials) => {
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const response = await axios.get('/api/validate-token', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        
-        if (response.data.valid) {
-          setUser(response.data.user);
-          setIsAuthenticated(true);
-        }
-      }
-    } catch (error) {
-      // Token is invalid or expired
-      logout();
+      setIsLoading(true);
+      const response = await authService.login(credentials);
+      localStorage.setItem('token', response.data.token);
+      
+      // Get user data
+      const userData = await authService.getCurrentUser();
+      setUser(userData);
+      setIsAuthenticated(true);
+      setError(null);
+      
+      return userData;
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err);
+      throw err;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const login = async (email, password) => {
+  // Signup function
+  const signup = async (userData) => {
     try {
-      const response = await axios.post('/api/login', { email, password });
-      const { token, user } = response.data;
+      setIsLoading(true);
+      const response = await authService.signup(userData);
+      localStorage.setItem('token', response.data.token);
       
-      localStorage.setItem('token', token);
+      // Get user data
+      const user = await authService.getCurrentUser();
       setUser(user);
       setIsAuthenticated(true);
+      setError(null);
       
       return user;
-    } catch (error) {
-      throw error;
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError(err);
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const signup = async (email, password, traits) => {
+  // Logout function
+  const logout = async () => {
     try {
-      const response = await axios.post('/api/signup', { 
-        email, 
-        password, 
-        traits 
-      });
-      
-      const { token, user } = response.data;
-      
-      localStorage.setItem('token', token);
-      setUser(user);
-      setIsAuthenticated(true);
-      
-      return user;
-    } catch (error) {
-      throw error;
+      setIsLoading(true);
+      await authService.logout();
+      localStorage.removeItem('token');
+      setUser(null);
+      setIsAuthenticated(false);
+    } catch (err) {
+      console.error('Logout error:', err);
+      setError(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    setIsAuthenticated(false);
+  // Update user data
+  const updateUser = (userData) => {
+    setUser(userData);
   };
 
-  return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
-      loading, 
-      login, 
-      signup, 
-      logout 
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  // Return the auth context value
+  const value = {
+    user,
+    isAuthenticated,
+    isLoading,
+    error,
+    login,
+    signup,
+    logout,
+    updateUser
+  };
 
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+// Hook for components to get the auth object and re-render when it changes
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return useContext(AuthContext);
 };
