@@ -8,33 +8,38 @@ from models import User, WineTrait
 from extensions import db
 from sqlalchemy import func
 from datetime import datetime
+import re
 
 auth_bp = Blueprint('auth', __name__)
 
+# Form validation regex
+EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+PASSWORD_REGEX = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$')
+
 # React Routes - These serve the React application
-@auth_bp.route('/login')
+@auth_bp.route('/react/login')
 def react_login():
     """Serve the React-based login page."""
     return render_template('react_base.html')
 
-@auth_bp.route('/signup')
+@auth_bp.route('/react/signup')
 def react_signup():
     """Serve the React-based signup page."""
     return render_template('react_base.html')
 
-@auth_bp.route('/signup/step2')
+@auth_bp.route('/react/signup/step2')
 def react_signup_step2():
     """Serve the React-based signup step 2 page."""
     return render_template('react_base.html')
 
-@auth_bp.route('/signup/step3')
+@auth_bp.route('/react/signup/step3')
 def react_signup_step3():
     """Serve the React-based signup step 3 page."""
     return render_template('react_base.html')
 
 # Traditional Flask Routes - These serve Flask templates
-@auth_bp.route('/signup', methods=['GET', 'POST'])
-def signup():
+@auth_bp.route('/flask/signup', methods=['GET', 'POST'])
+def flask_signup():
     """Traditional Flask-based signup"""
     if current_user.is_authenticated:
         return redirect(url_for('home'))
@@ -45,8 +50,8 @@ def signup():
     
     return render_template('auth/signup.html')
 
-@auth_bp.route('/signup/step2', methods=['GET', 'POST'])
-def signup_step2():
+@auth_bp.route('/flask/signup/step2', methods=['GET', 'POST'])
+def flask_signup_step2():
     """Traditional Flask-based signup step 2"""
     if 'signup_data' not in session:
         return redirect(url_for('auth.signup'))
@@ -56,6 +61,20 @@ def signup_step2():
         pass
         
     return render_template('auth/signup_step2.html')
+
+@auth_bp.route('/flask/signup/step3', methods=['GET'])
+def flask_signup_step3():
+    if 'signup_data' not in session:
+        return redirect(url_for('auth.signup'))
+    # Get traits for the form
+    traits_by_category = {
+        'Body': ['light', 'medium', 'full'],
+        'Sweetness': ['dry', 'off_dry', 'sweet'],
+        'Tannin': ['low', 'medium', 'high'],
+        'Acidity': ['low', 'medium', 'high'],
+        'Age': ['young', 'medium', 'aged']
+    }
+    return render_template('auth/signup_step3.html', traits_by_category=traits_by_category)
 
 # API Endpoints - These serve the React frontend
 @auth_bp.route('/api/signup', methods=['POST'])
@@ -249,22 +268,127 @@ def generate_username(first_name, last_name):
     
     return username
 
-@auth_bp.route('/signup/step3', methods=['GET'])
-def signup_step3():
-    if 'signup_data' not in session:
-        return redirect(url_for('auth.signup'))
-    # Get traits for the form
-    traits_by_category = {
-        'Body': ['light', 'medium', 'full'],
-        'Sweetness': ['dry', 'off_dry', 'sweet'],
-        'Tannin': ['low', 'medium', 'high'],
-        'Acidity': ['low', 'medium', 'high'],
-        'Age': ['young', 'medium', 'aged']
-    }
-    return render_template('auth/signup_step3.html', traits_by_category=traits_by_category)
+# Routes for server-rendered pages
+@auth_bp.route('/login')
+def login_page():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    return render_template('react_base.html')
 
-@auth_bp.route('/login', methods=['POST'])
-def login():
+@auth_bp.route('/signup')
+def signup_page():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    return render_template('react_base.html')
+
+@auth_bp.route('/logout')
+@login_required
+def logout_page():
+    logout_user()
+    flash('You have been logged out.', 'info')
+    return redirect(url_for('main.index'))
+
+# API endpoints for authentication
+@auth_bp.route('/api/auth/login', methods=['POST'])
+def api_login_handler():
+    data = request.get_json()
+    
+    # Validate input
+    if not data or not data.get('email') or not data.get('password'):
+        return jsonify({'success': False, 'message': 'Missing email or password'}), 400
+    
+    # Find user
+    user = User.query.filter_by(email=data.get('email')).first()
+    
+    # Check credentials
+    if not user or not check_password_hash(user.password_hash, data.get('password')):
+        return jsonify({'success': False, 'message': 'Invalid email or password'}), 401
+    
+    # Log in user
+    login_user(user, remember=data.get('remember', False))
+    
+    return jsonify({
+        'success': True, 
+        'message': 'Login successful',
+        'user': {
+            'id': user.id,
+            'email': user.email,
+            'name': user.username
+        }
+    })
+
+@auth_bp.route('/api/auth/signup', methods=['POST'])
+def api_signup_handler():
+    data = request.get_json()
+    
+    # Validate input
+    if not data:
+        return jsonify({'success': False, 'message': 'No data provided'}), 400
+    
+    required_fields = ['email', 'password', 'name']
+    for field in required_fields:
+        if not data.get(field):
+            return jsonify({'success': False, 'message': f'Missing {field}'}), 400
+    
+    # Validate email format
+    if not EMAIL_REGEX.match(data.get('email')):
+        return jsonify({'success': False, 'message': 'Invalid email format'}), 400
+    
+    # Validate password strength
+    if not PASSWORD_REGEX.match(data.get('password')):
+        return jsonify({
+            'success': False, 
+            'message': 'Password must be at least 8 characters and contain both letters and numbers'
+        }), 400
+    
+    # Check if user already exists
+    if User.query.filter_by(email=data.get('email')).first():
+        return jsonify({'success': False, 'message': 'Email already registered'}), 409
+    
+    # Create new user
+    try:
+        new_user = User(
+            email=data.get('email'),
+            username=data.get('name'),
+            password_hash=generate_password_hash(data.get('password'))
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        
+        # Log in the new user
+        login_user(new_user)
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Signup successful',
+            'user': {
+                'id': new_user.id,
+                'email': new_user.email,
+                'name': new_user.username
+            }
+        })
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error during signup: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error creating account'}), 500
+
+@auth_bp.route('/api/auth/user', methods=['GET'])
+@login_required
+def api_user_info():
+    return jsonify({
+        'id': current_user.id,
+        'email': current_user.email,
+        'name': current_user.username
+    })
+
+@auth_bp.route('/api/auth/logout', methods=['POST'])
+@login_required
+def api_logout_handler():
+    logout_user()
+    return jsonify({'success': True, 'message': 'Logout successful'})
+
+@auth_bp.route('/api/old/login', methods=['POST'])
+def old_api_login():
     """User login endpoint"""
     data = request.get_json()
     user = User.query.filter_by(email=data.get('email')).first()
@@ -279,15 +403,15 @@ def login():
     
     return jsonify({'error': 'Invalid credentials'}), 401
 
-@auth_bp.route('/logout')
+@auth_bp.route('/api/old/logout')
 @login_required
-def logout():
+def old_api_logout():
     """User logout endpoint"""
     logout_user()
     return jsonify({'message': 'Logged out successfully'})
 
-@auth_bp.route('/reset-password-request', methods=['POST'])
-def reset_password_request():
+@auth_bp.route('/api/old/reset-password-request', methods=['POST'])
+def old_reset_password_request():
     """
     Request password reset
     """
@@ -302,8 +426,8 @@ def reset_password_request():
         return jsonify({'error': str(e)}), 400
 
 # API endpoints for React
-@auth_bp.route('/api/register', methods=['POST'])
-def api_register():
+@auth_bp.route('/api/old/register', methods=['POST'])
+def old_api_register():
     data = request.get_json()
     
     if not all(k in data for k in ('username', 'email', 'password')):
@@ -340,9 +464,9 @@ def api_register():
         current_app.logger.error(f"API registration error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
 
-@auth_bp.route('/me')
+@auth_bp.route('/api/old/me')
 @jwt_required()
-def get_current_user():
+def old_get_current_user():
     """Get current user information"""
     user_id = get_jwt_identity()
     user = User.query.get(user_id)

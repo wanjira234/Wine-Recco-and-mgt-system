@@ -2780,3 +2780,162 @@ TypeError: Object of type Undefined is not JSON serializable
 2025-03-26 20:12:03,945 - app - INFO - Database tables created successfully
 2025-03-26 20:12:04,047 - app - INFO - Recommendation engine initialized successfully
 2025-03-26 20:12:04,048 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:30:31,444 - app - INFO - Cache initialized successfully
+2025-03-26 20:30:32,555 - app - INFO - Database tables created successfully
+2025-03-26 20:30:32,653 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:30:32,654 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:30:46,339 - app - INFO - Cache initialized successfully
+2025-03-26 20:30:48,345 - app - INFO - Database tables created successfully
+2025-03-26 20:30:48,544 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:30:48,546 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:46:07,038 - app - INFO - Cache initialized successfully
+2025-03-26 20:46:08,327 - app - INFO - Database tables created successfully
+2025-03-26 20:46:08,424 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:46:08,425 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:47:20,031 - app - INFO - Cache initialized successfully
+2025-03-26 20:47:21,349 - app - INFO - Database tables created successfully
+2025-03-26 20:47:21,498 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:47:21,500 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:48:00,164 - app - INFO - Cache initialized successfully
+2025-03-26 20:48:00,948 - app - INFO - Database tables created successfully
+2025-03-26 20:48:01,041 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:48:01,042 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:49:16,656 - app - INFO - Cache initialized successfully
+2025-03-26 20:49:18,246 - app - INFO - Database tables created successfully
+2025-03-26 20:49:18,477 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:49:18,480 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:51:08,688 - app - INFO - Cache initialized successfully
+2025-03-26 20:51:10,076 - app - INFO - Database tables created successfully
+2025-03-26 20:51:10,253 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:51:10,255 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:13:44,927 - app - INFO - Cache initialized successfully
+2025-03-26 21:13:45,976 - app - INFO - Database tables created successfully
+2025-03-26 21:13:46,076 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:13:46,078 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:13:58,355 - app - INFO - Cache initialized successfully
+2025-03-26 21:14:00,451 - app - INFO - Database tables created successfully
+2025-03-26 21:14:00,663 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:14:00,665 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:14:35,755 - app - ERROR - Unhandled exception: 'CSRFProtect' object has no attribute '_get_token'
+2025-03-26 21:14:35,760 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\app.py", line 544, in serve
+    'csrfToken': generate_csrf() if csrf._get_token() else ''
+                                    ^^^^^^^^^^^^^^^
+AttributeError: 'CSRFProtect' object has no attribute '_get_token'
+
+2025-03-26 21:19:04,309 - app - INFO - Cache initialized successfully
+2025-03-26 21:19:05,659 - app - INFO - Database tables created successfully
+2025-03-26 21:19:05,780 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:19:05,781 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:21:26,689 - app - INFO - Cache initialized successfully
+2025-03-26 21:21:27,799 - app - INFO - Database tables created successfully
+2025-03-26 21:21:27,902 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:21:27,904 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:22:27,008 - app - INFO - Cache initialized successfully
+2025-03-26 21:22:28,776 - app - INFO - Database tables created successfully
+2025-03-26 21:22:28,938 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:22:28,939 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:22:52,114 - app - INFO - Cache initialized successfully
+2025-03-26 21:22:53,278 - app - INFO - Database tables created successfully
+2025-03-26 21:22:53,453 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:22:53,454 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:24:00,090 - app - INFO - Cache initialized successfully
+2025-03-26 21:24:00,274 - app - INFO - Database tables created successfully
+2025-03-26 21:24:00,505 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:24:00,506 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:24:49,080 - app - INFO - Cache initialized successfully
+2025-03-26 21:24:49,215 - app - INFO - Database tables created successfully
+2025-03-26 21:24:49,371 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:24:49,372 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:33:02,762 - app - INFO - Cache initialized successfully
+2025-03-26 21:33:04,898 - app - INFO - Database tables created successfully
+2025-03-26 21:33:05,198 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:33:05,200 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:43:35,198 - app - INFO - Cache initialized successfully
+2025-03-26 21:43:36,504 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: auth.login
+2025-03-26 21:48:03,116 - app - INFO - Cache initialized successfully
+2025-03-26 21:48:03,229 - app - INFO - Database tables created successfully
+2025-03-26 21:48:03,340 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:48:03,341 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:50:48,250 - app - INFO - Cache initialized successfully
+2025-03-26 21:50:49,179 - app - INFO - Database tables created successfully
+2025-03-26 21:50:49,274 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:50:49,275 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:50:59,147 - app - INFO - Cache initialized successfully
+2025-03-26 21:50:59,994 - app - INFO - Database tables created successfully
+2025-03-26 21:51:00,096 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 21:51:00,098 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 21:52:03,804 - app - ERROR - Unhandled exception: 405 Method Not Allowed: The method is not allowed for the requested URL.
+2025-03-26 21:52:03,869 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 624, in match
+    raise MethodNotAllowed(valid_methods=list(e.have_match_for)) from None
+werkzeug.exceptions.MethodNotAllowed: 405 Method Not Allowed: The method is not allowed for the requested URL.
+
+2025-03-26 21:52:19,951 - app - ERROR - Unhandled exception: 405 Method Not Allowed: The method is not allowed for the requested URL.
+2025-03-26 21:52:19,956 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 624, in match
+    raise MethodNotAllowed(valid_methods=list(e.have_match_for)) from None
+werkzeug.exceptions.MethodNotAllowed: 405 Method Not Allowed: The method is not allowed for the requested URL.
+
+2025-03-26 21:54:41,755 - app - ERROR - Unhandled exception: 405 Method Not Allowed: The method is not allowed for the requested URL.
+2025-03-26 21:54:41,758 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 624, in match
+    raise MethodNotAllowed(valid_methods=list(e.have_match_for)) from None
+werkzeug.exceptions.MethodNotAllowed: 405 Method Not Allowed: The method is not allowed for the requested URL.
+
+2025-03-26 21:55:14,360 - app - ERROR - Unhandled exception: 405 Method Not Allowed: The method is not allowed for the requested URL.
+2025-03-26 21:55:14,363 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 624, in match
+    raise MethodNotAllowed(valid_methods=list(e.have_match_for)) from None
+werkzeug.exceptions.MethodNotAllowed: 405 Method Not Allowed: The method is not allowed for the requested URL.
+

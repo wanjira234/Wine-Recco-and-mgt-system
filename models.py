@@ -207,10 +207,12 @@ class Wine(db.Model):
     # Foreign Keys
     varietal_id = Column(Integer, ForeignKey('wine_varietals.id'))
     region_id = Column(Integer, ForeignKey('wine_regions.id'))
+    category_id = Column(Integer, ForeignKey('wine_categories.id'))
     
     # Relationships
     varietal = relationship('WineVarietal', back_populates='wines')
     region = relationship('WineRegion', back_populates='wines')
+    category = relationship('WineCategory', back_populates='wines')
     reviews = relationship('WineReview', back_populates='wine')
     wine_interactions = relationship('UserWineInteraction', back_populates='wine')
     user_interactions = relationship('UserInteraction', back_populates='wine')
@@ -246,6 +248,8 @@ class Wine(db.Model):
             'varietal_id': self.varietal.id if self.varietal else None,
             'region': self.region.name if self.region else "",
             'region_id': self.region.id if self.region else None,
+            'category': self.category.name if self.category else "",
+            'category_id': self.category.id if self.category else None,
             'traits': traits_list,
             'average_rating': float(avg_rating),
             'review_count': review_count
@@ -1002,6 +1006,8 @@ def get_wine_review_count(wine_id):
 
 class WineCategory(db.Model):
     """Model for wine categories"""
+    __tablename__ = 'wine_categories'
+    
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text)
@@ -1009,7 +1015,17 @@ class WineCategory(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    wines = db.relationship('Wine', backref='category', lazy=True)
+    wines = db.relationship('Wine', back_populates='category', lazy='dynamic')
 
     def __repr__(self):
         return f'<WineCategory {self.name}>'
+
+    def to_dict(self):
+        """Convert category to dictionary"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }

@@ -56,30 +56,26 @@ from services.wine_discovery_service import create_wine_discovery_service
 # Function to sanitize data before JSON serialization
 def sanitize_for_json(obj):
     """Recursively sanitize data for JSON serialization"""
-    if isinstance(obj, dict):
-        return {k: sanitize_for_json(v) for k, v in obj.items()}
-    elif isinstance(obj, list):
-        return [sanitize_for_json(item) for item in obj]
-    elif isinstance(obj, tuple):
-        return [sanitize_for_json(item) for item in obj]
-    elif isinstance(obj, (datetime, date)):
-        return obj.isoformat()
-    elif isinstance(obj, Decimal):
-        return float(obj)
-    elif isinstance(obj, Undefined):
+    if obj is None or isinstance(obj, Undefined):
         return None
-    elif isinstance(obj, uuid.UUID):
+    if isinstance(obj, dict):
+        return {k: sanitize_for_json(v) for k, v in obj.items() if not isinstance(v, Undefined)}
+    if isinstance(obj, (list, tuple)):
+        return [sanitize_for_json(item) for item in obj if not isinstance(item, Undefined)]
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    if isinstance(obj, Decimal):
+        return float(obj)
+    if isinstance(obj, uuid.UUID):
         return str(obj)
-    elif hasattr(obj, 'to_dict') and callable(getattr(obj, 'to_dict')):
+    if hasattr(obj, 'to_dict') and callable(getattr(obj, 'to_dict')):
         return sanitize_for_json(obj.to_dict())
-    elif obj is None or isinstance(obj, (str, int, float, bool)):
+    if isinstance(obj, (str, int, float, bool)):
         return obj
-    else:
-        # Try string conversion as last resort
-        try:
-            return str(obj)
-        except:
-            return None
+    try:
+        return str(obj)
+    except:
+        return None
 
 # Decorator to apply JSON sanitization to return values
 def json_safe(f):
@@ -535,32 +531,74 @@ app = create_app()
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
+    # Extensive logging for debugging
+    current_app.logger.info(f"Serving path: {path}")
+    
     if path.startswith('api/'):
         return app.handle_request()
     if path.startswith('static/'):
         return app.send_static_file(path.replace('static/', '', 1))
-    config_data = {
-        'apiUrl': url_for('api_docs', _external=True),
-        'environment': app.config.get('ENV', 'development'),
-        'debug': app.config.get('DEBUG', False),
-        'csrfToken': generate_csrf()
-    }
-    # Sanitize config data before passing to template
-    sanitized_config = sanitize_for_json(config_data)
-    return render_template('react_base.html', config_data=sanitized_config)
+    
+    # Create config data with default values and extensive logging
+    try:
+        config_data = {
+            'apiUrl': url_for('api_docs', _external=True) if 'api_docs' in app.view_functions else '',
+            'environment': app.config.get('ENV', 'development'),
+            'debug': app.config.get('DEBUG', False),
+            'csrfToken': generate_csrf()
+        }
+        
+        # Log configuration details
+        current_app.logger.info(f"Generated config data: {config_data}")
+        
+        # Sanitize config data before passing to template
+        sanitized_config = sanitize_for_json(config_data)
+        
+        # Log sanitized configuration
+        current_app.logger.info(f"Sanitized config data: {sanitized_config}")
+        
+        return render_template('react_base.html', config_data=sanitized_config)
+    
+    except Exception as e:
+        # Log any errors during configuration generation
+        current_app.logger.error(f"Error in serve function: {str(e)}", exc_info=True)
+        
+        # Fallback configuration
+        fallback_config = {
+            'apiUrl': '',
+            'environment': 'development',
+            'debug': True,
+            'csrfToken': ''
+        }
+        
+        return render_template('react_base.html', config_data=fallback_config), 500
 
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
     if request.path.startswith('/api/'):
         return jsonify({'error': 'Not found'}), 404
-    return render_template('react_base.html'), 404
+    if request.path.startswith('/static/'):
+        return '', 404  # Return empty response for missing static files
+    return render_template('react_base.html', config_data=sanitize_for_json({
+        'apiUrl': url_for('api_docs', _external=True) if 'api_docs' in app.view_functions else '',
+        'environment': app.config.get('ENV', 'development'),
+        'debug': app.config.get('DEBUG', False),
+        'csrfToken': generate_csrf()
+    })), 404
 
 @app.errorhandler(500)
 def internal_error(error):
     if request.path.startswith('/api/'):
         return jsonify({'error': 'Internal server error'}), 500
-    return render_template('react_base.html'), 500
+    if request.path.startswith('/static/'):
+        return '', 500  # Return empty response for static file errors
+    return render_template('react_base.html', config_data=sanitize_for_json({
+        'apiUrl': url_for('api_docs', _external=True) if 'api_docs' in app.view_functions else '',
+        'environment': app.config.get('ENV', 'development'),
+        'debug': app.config.get('DEBUG', False),
+        'csrfToken': generate_csrf()
+    })), 500
 
 if __name__ == '__main__':
     print("\nStarting Flask development server...")

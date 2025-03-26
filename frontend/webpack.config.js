@@ -3,11 +3,12 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-    entry: './static/js/react/App.js',
+    entry: './src/index.js',
     output: {
-        path: path.resolve(__dirname, '../static/dist'),
-        filename: 'bundle.js',
-        publicPath: '/'
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'js/[name].[contenthash].js',
+        publicPath: '/',
+        clean: true
     },
     module: {
         rules: [
@@ -15,36 +16,87 @@ module.exports = {
                 test: /\.(js|jsx)$/,
                 exclude: /node_modules/,
                 use: {
-                    loader: 'babel-loader'
+                    loader: 'babel-loader',
+                    options: {
+                        cacheDirectory: true,
+                        cacheCompression: false
+                    }
                 }
             },
             {
                 test: /\.css$/,
-                use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader']
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    'css-loader',
+                    {
+                        loader: 'postcss-loader',
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    'tailwindcss',
+                                    'autoprefixer'
+                                ]
+                            }
+                        }
+                    }
+                ]
             },
             {
-                test: /\.(png|svg|jpg|jpeg|gif)$/i,
-                type: 'asset/resource'
+                test: /\.(png|jpg|gif|svg|ico)$/,
+                type: 'asset',
+                parser: {
+                    dataUrlCondition: {
+                        maxSize: 10 * 1024 // 10kb
+                    }
+                },
+                generator: {
+                    filename: 'images/[name].[hash][ext]'
+                }
             }
         ]
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: './public/index.html'
+            template: './public/index.html',
+            favicon: './public/favicon.ico'
         }),
         new MiniCssExtractPlugin({
-            filename: 'styles.css'
+            filename: 'css/[name].[contenthash].css'
         })
     ],
     resolve: {
-        extensions: ['.js', '.jsx']
+        extensions: ['.js', '.jsx'],
+        alias: {
+            '@components': path.resolve(__dirname, 'src/components'),
+            '@pages': path.resolve(__dirname, 'src/pages'),
+            '@context': path.resolve(__dirname, 'src/context'),
+            '@styles': path.resolve(__dirname, 'src/styles'),
+            '@utils': path.resolve(__dirname, 'src/utils')
+        }
+    },
+    optimization: {
+        moduleIds: 'deterministic',
+        runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'vendors',
+                    chunks: 'all'
+                }
+            }
+        }
     },
     devServer: {
-        static: path.join(__dirname, '../static/dist'),
-        compress: true,
+        historyApiFallback: true,
+        hot: true,
         port: 3000,
         proxy: {
-            '/api': 'http://localhost:5000'
+            '/api': {
+                target: 'http://localhost:5000',
+                changeOrigin: true,
+                secure: false
+            }
         }
     }
 };
