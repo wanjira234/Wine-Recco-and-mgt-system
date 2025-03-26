@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify
 from flask_login import login_required, current_user
 from models import User, WineTrait, WineReview, Order
 from extensions import db
@@ -73,4 +73,41 @@ def update_preferences():
         db.session.rollback()
         flash('Failed to update preferences', 'error')
     
-    return redirect(url_for('account.my_account')) 
+    return redirect(url_for('account.my_account'))
+
+@account_bp.route('/profile', methods=['GET'])
+@login_required
+def get_profile():
+    """Get user profile"""
+    return jsonify(current_user.to_dict())
+
+@account_bp.route('/profile', methods=['PUT'])
+@login_required
+def update_profile():
+    """Update user profile"""
+    data = request.get_json()
+    
+    if 'first_name' in data:
+        current_user.first_name = data['first_name']
+    if 'last_name' in data:
+        current_user.last_name = data['last_name']
+    if 'email' in data:
+        current_user.email = data['email']
+        
+    db.session.commit()
+    return jsonify(current_user.to_dict())
+
+@account_bp.route('/preferences', methods=['GET'])
+@login_required
+def get_preferences():
+    """Get user preferences"""
+    return jsonify(current_user.preferences)
+
+@account_bp.route('/preferences', methods=['PUT'])
+@login_required
+def update_preferences():
+    """Update user preferences"""
+    data = request.get_json()
+    current_user.preferences = data
+    db.session.commit()
+    return jsonify(current_user.preferences) 

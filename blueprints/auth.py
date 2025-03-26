@@ -297,3 +297,9 @@ def api_login():
         })
     
     return jsonify({'error': 'Invalid username or password'}), 401
+
+@auth_bp.route('/me')
+@login_required
+def get_current_user():
+    """Get current user data"""
+    return jsonify(current_user.to_dict())

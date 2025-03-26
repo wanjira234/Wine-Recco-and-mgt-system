@@ -378,6 +378,23 @@ def learn():
 def contact():
     return render_template('contact.html')
 
+# Serve React app for all routes except /api
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path.startswith('api/'):
+        return app.handle_request()
+    return render_template('react_base.html')
+
+# Error handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('react_base.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template('react_base.html'), 500
+
 if __name__ == '__main__':
     print("\nStarting Flask development server...")
     print("Access the application at: http://127.0.0.1:5000")
