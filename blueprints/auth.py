@@ -172,8 +172,10 @@ def api_reset_password_request():
         return jsonify({'error': str(e)}), 400
 
 @auth_bp.route('/api/reset-password', methods=['POST'])
-def api_reset_password():
-    """API endpoint for password reset."""
+def reset_password():
+    """
+    Reset password using token
+    """
     data = request.get_json()
     
     try:
@@ -188,20 +190,40 @@ def api_reset_password():
 @auth_bp.route('/api/profile', methods=['PUT'])
 @jwt_required()
 def api_update_profile():
-    """API endpoint for updating user profile."""
-    user_id = get_jwt_identity()
+    """API endpoint for updating user profile"""
+    current_user_id = get_jwt_identity()
     data = request.get_json()
     
     try:
-        user = AuthService.update_user_profile(user_id, **data)
-        return jsonify(user.to_dict()), 200
-    except ValueError as e:
+        user = User.query.get(current_user_id)
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+            
+        # Update user fields
+        if 'username' in data:
+            user.username = data['username']
+        if 'email' in data:
+            user.email = data['email']
+        if 'first_name' in data:
+            user.first_name = data['first_name']
+        if 'last_name' in data:
+            user.last_name = data['last_name']
+        if 'bio' in data:
+            user.bio = data['bio']
+            
+        db.session.commit()
+        return jsonify({'message': 'Profile updated successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 400
 
-@auth_bp.route('/api/change-password', methods=['POST'])
+@auth_bp.route('/change-password', methods=['POST'])
 @jwt_required()
-def api_change_password():
-    """API endpoint for changing user password."""
+def change_password():
+    """
+    Change user password
+    """
     user_id = get_jwt_identity()
     data = request.get_json()
     
@@ -276,56 +298,6 @@ def reset_password_request():
             email=data.get('email')
         )
         return jsonify({'reset_token': reset_token}), 200
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
-
-@auth_bp.route('/reset-password', methods=['POST'])
-def reset_password():
-    """
-    Reset password using token
-    """
-    data = request.get_json()
-    
-    try:
-        user = AuthService.reset_password(
-            reset_token=data.get('reset_token'),
-            new_password=data.get('new_password')
-        )
-        return jsonify(user.to_dict()), 200
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
-
-@auth_bp.route('/profile', methods=['PUT'])
-@jwt_required()
-def update_profile():
-    """
-    Update user profile
-    """
-    user_id = get_jwt_identity()
-    data = request.get_json()
-    
-    try:
-        user = AuthService.update_user_profile(user_id, **data)
-        return jsonify(user.to_dict()), 200
-    except ValueError as e:
-        return jsonify({'error': str(e)}), 400
-
-@auth_bp.route('/change-password', methods=['POST'])
-@jwt_required()
-def change_password():
-    """
-    Change user password
-    """
-    user_id = get_jwt_identity()
-    data = request.get_json()
-    
-    try:
-        user = AuthService.change_password(
-            user_id=user_id,
-            old_password=data.get('old_password'),
-            new_password=data.get('new_password')
-        )
-        return jsonify(user.to_dict()), 200
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 

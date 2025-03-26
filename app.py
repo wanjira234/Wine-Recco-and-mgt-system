@@ -1,7 +1,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, jsonify, render_template, request, redirect, url_for, flash
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, current_app
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -9,11 +9,17 @@ from flask_socketio import SocketIO, join_room, leave_room
 from flask_cors import CORS
 from flask_mail import Mail
 from flask_jwt_extended import JWTManager, verify_jwt_in_request, get_jwt_identity
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, date
 from models import User, WineTrait, WineCategory, Wine, WineReview, Order, OrderItem, WineInventory
+from decimal import Decimal
+import json
+from jinja2 import Undefined
+from functools import wraps
+import uuid
+import inspect
 
 # // ...existing code...
 from blueprints.notification import notification_bp
@@ -46,6 +52,78 @@ from utils.error_handlers import register_error_handlers
 from utils.cache_utils import clear_all_caches
 from services.recommendation_service import create_recommendation_engine, RecommendationEngine
 from services.wine_discovery_service import create_wine_discovery_service
+
+# Function to sanitize data before JSON serialization
+def sanitize_for_json(obj):
+    """Recursively sanitize data for JSON serialization"""
+    if isinstance(obj, dict):
+        return {k: sanitize_for_json(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [sanitize_for_json(item) for item in obj]
+    elif isinstance(obj, tuple):
+        return [sanitize_for_json(item) for item in obj]
+    elif isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    elif isinstance(obj, Decimal):
+        return float(obj)
+    elif isinstance(obj, Undefined):
+        return None
+    elif isinstance(obj, uuid.UUID):
+        return str(obj)
+    elif hasattr(obj, 'to_dict') and callable(getattr(obj, 'to_dict')):
+        return sanitize_for_json(obj.to_dict())
+    elif obj is None or isinstance(obj, (str, int, float, bool)):
+        return obj
+    else:
+        # Try string conversion as last resort
+        try:
+            return str(obj)
+        except:
+            return None
+
+# Decorator to apply JSON sanitization to return values
+def json_safe(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        result = f(*args, **kwargs)
+        if isinstance(result, tuple):
+            # Handle tuple return (data, status_code)
+            data, *rest = result
+            return (sanitize_for_json(data), *rest)
+        else:
+            # Handle single return value
+            return sanitize_for_json(result)
+    return decorated_function
+
+# Monkey patch Flask's jsonify to use sanitization
+original_jsonify = jsonify
+def safe_jsonify(*args, **kwargs):
+    # Sanitize args and kwargs before passing to jsonify
+    sanitized_args = [sanitize_for_json(arg) for arg in args]
+    sanitized_kwargs = {k: sanitize_for_json(v) for k, v in kwargs.items()}
+    return original_jsonify(*sanitized_args, **sanitized_kwargs)
+
+# Replace Flask's jsonify with our safe version
+jsonify = safe_jsonify
+
+class CustomJSONEncoder(json.JSONEncoder):
+    """Custom JSON encoder that handles non-serializable types"""
+    def default(self, obj):
+        try:
+            if isinstance(obj, Undefined):
+                return None
+            if isinstance(obj, (datetime, date)):
+                return obj.isoformat()
+            if isinstance(obj, Decimal):
+                return float(obj)
+            if isinstance(obj, uuid.UUID):
+                return str(obj)
+            if hasattr(obj, 'to_dict') and callable(getattr(obj, 'to_dict')):
+                return obj.to_dict()
+            return super().default(obj)
+        except Exception as e:
+            current_app.logger.error(f"JSON encoding error: {e}")
+            return None
 
 def configure_logging(app):
     """
@@ -89,6 +167,10 @@ def create_app():
     # Load configuration
     app.config.from_object('config.Config')
     
+    # Set environment configuration
+    app.config['ENV'] = os.environ.get('FLASK_ENV', 'development')
+    app.config['DEBUG'] = app.config['ENV'] == 'development'
+    
     # Set secret key for CSRF protection
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-please-change-in-production')
     
@@ -120,6 +202,19 @@ def create_app():
                 ]
             }
         })
+        
+        # Set JSON encoder
+        app.json_encoder = CustomJSONEncoder
+        
+        # Add template context processor for config
+        @app.context_processor
+        def inject_config():
+            return {
+                'config': {
+                    'ENV': app.config.get('ENV', 'development'),
+                    'DEBUG': app.config.get('DEBUG', False)
+                }
+            }
         
         # API Documentation route
         @app.route('/api')
@@ -442,15 +537,29 @@ app = create_app()
 def serve(path):
     if path.startswith('api/'):
         return app.handle_request()
-    return render_template('react_base.html')
+    if path.startswith('static/'):
+        return app.send_static_file(path.replace('static/', '', 1))
+    config_data = {
+        'apiUrl': url_for('api_docs', _external=True),
+        'environment': app.config.get('ENV', 'development'),
+        'debug': app.config.get('DEBUG', False),
+        'csrfToken': generate_csrf()
+    }
+    # Sanitize config data before passing to template
+    sanitized_config = sanitize_for_json(config_data)
+    return render_template('react_base.html', config_data=sanitized_config)
 
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
+    if request.path.startswith('/api/'):
+        return jsonify({'error': 'Not found'}), 404
     return render_template('react_base.html'), 404
 
 @app.errorhandler(500)
 def internal_error(error):
+    if request.path.startswith('/api/'):
+        return jsonify({'error': 'Internal server error'}), 500
     return render_template('react_base.html'), 500
 
 if __name__ == '__main__':

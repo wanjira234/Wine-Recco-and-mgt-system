@@ -30,6 +30,15 @@ class WineTrait(db.Model):
     name = db.Column(db.String(50), nullable=False, unique=True)
     category = db.Column(db.String(50), nullable=False)  # e.g., 'taste', 'body', 'aroma'
     description = db.Column(db.String(200))
+    
+    def to_dict(self):
+        """Convert trait object to dictionary"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'category': self.category,
+            'description': self.description
+        }
 
 class UserRole(str, PyEnum):
     CUSTOMER = 'customer'
@@ -89,19 +98,39 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
     
     def to_dict(self):
-        return {
+        """Convert user object to dictionary for JSON serialization"""
+        # Handle potential missing attributes with defaults
+        wine_prefs = self.wine_preferences if self.wine_preferences is not None else {}
+        taste_prefs = self.taste_preferences if self.taste_preferences is not None else {}
+        
+        # Format dates to ISO format strings
+        created_at_str = self.created_at.isoformat() if self.created_at else None
+        
+        # Basic user data
+        user_dict = {
             'id': self.id,
             'username': self.username,
             'email': self.email,
-            'created_at': self.created_at.isoformat(),
+            'created_at': created_at_str,
             'is_active': self.is_active,
             'is_admin': self.is_admin,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'bio': self.bio,
-            'wine_preferences': self.wine_preferences or {},
-            'taste_preferences': self.taste_preferences or {}
+            'first_name': self.first_name or "",
+            'last_name': self.last_name or "",
+            'bio': self.bio or "",
+            'wine_preferences': wine_prefs,
+            'taste_preferences': taste_prefs
         }
+        
+        # Add preferred traits if the relationship exists
+        if hasattr(self, 'preferred_traits'):
+            user_dict['preferred_traits'] = [
+                {'id': trait.id, 'name': trait.name, 'category': trait.category}
+                for trait in self.preferred_traits
+            ]
+        else:
+            user_dict['preferred_traits'] = []
+        
+        return user_dict
     
     def __repr__(self):
         return f'<User {self.username}>'
@@ -192,18 +221,34 @@ class Wine(db.Model):
 
     def to_dict(self):
         """Convert wine object to dictionary"""
+        # Get traits safely
+        traits_list = []
+        if hasattr(self, 'traits') and self.traits is not None:
+            traits_list = [{'id': t.id, 'name': t.name, 'category': t.category} for t in self.traits]
+        
+        # Calculate average rating
+        avg_rating = 0.0
+        review_count = 0
+        if hasattr(self, 'reviews') and self.reviews is not None:
+            reviews = list(self.reviews)  # Convert to list to avoid LazyLoad issues
+            review_count = len(reviews)
+            if review_count > 0:
+                avg_rating = sum(r.rating for r in reviews) / review_count
+        
         return {
             'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'type': self.type,
-            'price': self.price,
-            'alcohol_percentage': self.alcohol_percentage,
-            'varietal': self.varietal.name if self.varietal else None,
-            'region': self.region.name if self.region else None,
-            'traits': [trait.name for trait in self.traits],
-            'average_rating': self.calculate_average_rating(),
-            'review_count': len(self.reviews)
+            'name': self.name or "",
+            'description': self.description or "",
+            'type': self.type or "",
+            'price': float(self.price) if self.price is not None else 0.0,
+            'alcohol_percentage': float(self.alcohol_percentage) if self.alcohol_percentage is not None else 0.0,
+            'varietal': self.varietal.name if self.varietal else "",
+            'varietal_id': self.varietal.id if self.varietal else None,
+            'region': self.region.name if self.region else "",
+            'region_id': self.region.id if self.region else None,
+            'traits': traits_list,
+            'average_rating': float(avg_rating),
+            'review_count': review_count
         }
 
     def calculate_average_rating(self):
@@ -324,6 +369,19 @@ class WineReview(db.Model):
     # Relationships
     user = relationship('User', back_populates='reviews')
     wine = relationship('Wine', back_populates='reviews')
+    
+    def to_dict(self):
+        """Convert review to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'wine_id': self.wine_id,
+            'rating': float(self.rating) if self.rating is not None else 0.0,
+            'comment': self.comment or "",
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'username': self.user.username if self.user else "",
+            'wine_name': self.wine.name if self.wine else ""
+        }
 
 class UserWineInteraction(db.Model):
     __tablename__ = 'user_wine_interactions'
@@ -370,6 +428,17 @@ class Order(db.Model):
     
     # Relationship
     order_items = relationship('OrderItem', backref='order', lazy='dynamic')
+    
+    def to_dict(self):
+        """Convert order to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'total_price': float(self.total_price) if self.total_price is not None else 0.0,
+            'status': self.status or "Pending",
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'items': [item.to_dict() for item in self.order_items]
+        }
 
 class OrderItem(db.Model):
     id = Column(Integer, primary_key=True)
@@ -377,7 +446,21 @@ class OrderItem(db.Model):
     wine_id = Column(Integer, db.ForeignKey('wines.id'), nullable=False)
     quantity = Column(Integer, nullable=False)
     price = Column(Float, nullable=False)
-
+    
+    # Add relationship to wine
+    wine = relationship('Wine')
+    
+    def to_dict(self):
+        """Convert order item to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'order_id': self.order_id,
+            'wine_id': self.wine_id,
+            'quantity': self.quantity,
+            'price': float(self.price) if self.price is not None else 0.0,
+            'wine_name': self.wine.name if self.wine else "",
+            'subtotal': float(self.price * self.quantity) if (self.price is not None and self.quantity is not None) else 0.0
+        }
 
 class NotificationType(PyEnum):
     RECOMMENDATION = 'recommendation'
@@ -423,7 +506,7 @@ class UserNotificationPreference(db.Model):
     push_community_updates = Column(Boolean, default=True)
     
     # Relationship with User
-    user = relationship('User', back_populates='notification_preferences')
+    user = relationship('User', back_populates='notification_preferences', single_parent=True)
 
 # models/subscription.py
 

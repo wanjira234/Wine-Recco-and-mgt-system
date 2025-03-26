@@ -1,13 +1,20 @@
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, url_for, current_app
 from flask_login import login_required, current_user
 from models import Wine, WineCategory, WineTrait
+from flask_wtf.csrf import generate_csrf
 
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
     """Serve the main React application"""
-    return render_template('react_base.html')
+    config_data = {
+        'apiUrl': url_for('api_docs', _external=True),
+        'environment': current_app.config.get('ENV', 'development'),
+        'debug': current_app.config.get('DEBUG', False),
+        'csrfToken': generate_csrf()
+    }
+    return render_template('react_base.html', config_data=config_data)
 
 @main_bp.route('/dashboard')
 @login_required

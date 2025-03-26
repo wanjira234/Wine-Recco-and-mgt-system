@@ -1952,3 +1952,831 @@ werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.h
 2025-03-26 18:29:57,455 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_profile
 2025-03-26 18:38:15,950 - app - INFO - Cache initialized successfully
 2025-03-26 18:38:19,193 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_profile
+2025-03-26 19:09:39,226 - app - INFO - Cache initialized successfully
+2025-03-26 19:09:43,356 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_profile
+2025-03-26 19:10:23,616 - app - INFO - Cache initialized successfully
+2025-03-26 19:10:25,327 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: auth.api_update_profile
+2025-03-26 19:12:05,455 - app - INFO - Cache initialized successfully
+2025-03-26 19:12:06,611 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_profile
+2025-03-26 19:12:50,428 - app - INFO - Cache initialized successfully
+2025-03-26 19:12:51,360 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_profile
+2025-03-26 19:17:03,892 - app - INFO - Cache initialized successfully
+2025-03-26 19:17:07,183 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_profile
+2025-03-26 19:21:30,201 - app - INFO - Cache initialized successfully
+2025-03-26 19:21:31,402 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_preferences
+2025-03-26 19:23:10,491 - app - INFO - Cache initialized successfully
+2025-03-26 19:23:11,595 - app - INFO - Database tables created successfully
+2025-03-26 19:23:11,709 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:23:11,710 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:23:28,247 - app - INFO - Cache initialized successfully
+2025-03-26 19:23:30,168 - app - INFO - Database tables created successfully
+2025-03-26 19:23:30,443 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:23:30,449 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:23:43,697 - app - ERROR - Error occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:23:44,093 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 50, in top-level template code
+    "environment": {{ config.ENV|tojson|safe }},
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:23:44,536 - app - ERROR - Error occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:23:44,544 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\app.py", line 445, in serve
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 50, in top-level template code
+    "environment": {{ config.ENV|tojson|safe }},
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:24:57,798 - app - INFO - Cache initialized successfully
+2025-03-26 19:24:59,360 - app - INFO - Database tables created successfully
+2025-03-26 19:24:59,531 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:24:59,533 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:25:20,309 - app - ERROR - Error occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:25:20,337 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 50, in top-level template code
+    "environment": {{ config.ENV|tojson|safe }},
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:25:20,994 - app - ERROR - Error occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:25:21,007 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\app.py", line 445, in serve
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 50, in top-level template code
+    "environment": {{ config.ENV|tojson|safe }},
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:27:05,248 - app - INFO - Cache initialized successfully
+2025-03-26 19:27:09,447 - app - INFO - Database tables created successfully
+2025-03-26 19:27:09,967 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:27:09,968 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:27:55,529 - app - INFO - Cache initialized successfully
+2025-03-26 19:27:58,297 - app - INFO - Database tables created successfully
+2025-03-26 19:27:58,690 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:27:58,698 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:28:53,730 - app - INFO - Cache initialized successfully
+2025-03-26 19:28:56,371 - app - INFO - Database tables created successfully
+2025-03-26 19:28:56,619 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:28:56,620 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:29:55,182 - app - INFO - Cache initialized successfully
+2025-03-26 19:29:56,309 - app - INFO - Database tables created successfully
+2025-03-26 19:29:56,440 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:29:56,442 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:30:03,306 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:30:03,320 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 50, in top-level template code
+    "environment": {{ config.ENV|tojson|safe }},
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:30:03,809 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:30:03,817 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 50, in top-level template code
+    "environment": {{ config.ENV|tojson|safe }},
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:31:24,092 - app - INFO - Cache initialized successfully
+2025-03-26 19:31:26,342 - app - INFO - Database tables created successfully
+2025-03-26 19:31:26,494 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:31:26,496 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:31:32,282 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:31:32,293 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 50, in top-level template code
+    "environment": {{ config.ENV|tojson|safe }},
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:32:26,995 - app - INFO - Cache initialized successfully
+2025-03-26 19:32:27,946 - app - INFO - Database tables created successfully
+2025-03-26 19:32:28,054 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:32:28,055 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:32:32,254 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:32:32,269 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 50, in top-level template code
+    "environment": {{ config.ENV|tojson|safe }},
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:33:48,666 - app - INFO - Cache initialized successfully
+2025-03-26 19:33:49,627 - app - INFO - Database tables created successfully
+2025-03-26 19:33:49,728 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:33:49,729 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:33:54,898 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:33:54,911 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 50, in top-level template code
+    "environment": {{ config.ENV|tojson|safe }},
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:35:10,602 - app - INFO - Cache initialized successfully
+2025-03-26 19:35:11,644 - app - INFO - Database tables created successfully
+2025-03-26 19:35:11,751 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:35:11,754 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:40:17,744 - app - INFO - Cache initialized successfully
+2025-03-26 19:40:18,985 - app - INFO - Database tables created successfully
+2025-03-26 19:40:19,083 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:40:19,083 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:40:47,635 - app - INFO - Cache initialized successfully
+2025-03-26 19:40:48,777 - app - INFO - Database tables created successfully
+2025-03-26 19:40:48,903 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:40:48,906 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:43:31,699 - app - INFO - Cache initialized successfully
+2025-03-26 19:43:32,708 - app - INFO - Database tables created successfully
+2025-03-26 19:43:32,824 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:43:32,825 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:43:48,305 - app - INFO - Cache initialized successfully
+2025-03-26 19:43:51,059 - app - INFO - Database tables created successfully
+2025-03-26 19:43:51,324 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:43:51,326 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:44:01,170 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:44:01,197 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 54, in top-level template code
+    Object.assign(window, { APP_CONFIG: {{ config_data|tojson|safe }} });
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:44:47,332 - app - INFO - Cache initialized successfully
+2025-03-26 19:44:48,328 - app - INFO - Database tables created successfully
+2025-03-26 19:44:48,455 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:44:48,456 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:44:52,863 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:44:52,877 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 54, in top-level template code
+    Object.assign(window, { APP_CONFIG: {{ config_data|tojson|safe }} });
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:46:57,442 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:46:57,451 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 54, in top-level template code
+    window.APP_CONFIG = JSON.parse('{{ config_data|tojson|safe }}');
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:47:00,107 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:47:00,110 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 54, in top-level template code
+    window.APP_CONFIG = JSON.parse('{{ config_data|tojson|safe }}');
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:47:00,473 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:47:00,477 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 54, in top-level template code
+    window.APP_CONFIG = JSON.parse('{{ config_data|tojson|safe }}');
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:47:26,375 - app - INFO - Cache initialized successfully
+2025-03-26 19:47:27,449 - app - INFO - Database tables created successfully
+2025-03-26 19:47:27,580 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:47:27,582 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:47:43,756 - app - INFO - Cache initialized successfully
+2025-03-26 19:47:44,832 - app - INFO - Database tables created successfully
+2025-03-26 19:47:44,973 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:47:44,974 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:47:52,530 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:47:52,543 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 54, in top-level template code
+    window.APP_CONFIG = JSON.parse('{{ config_data|tojson|safe }}');
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:48:37,601 - app - ERROR - TypeError occurred: Object of type Undefined is not JSON serializable
+2025-03-26 19:48:37,610 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 10, in index
+    return render_template('react_base.html')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\react_base.html", line 54, in top-level template code
+    window.APP_CONFIG = JSON.parse('{{ config_data|tojson|safe }}');
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\filters.py", line 1726, in do_tojson
+    return htmlsafe_json_dumps(value, dumps=dumps, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\utils.py", line 669, in htmlsafe_json_dumps
+    dumps(obj, **kwargs)
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 179, in dumps
+    return json.dumps(obj, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python311\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\json\provider.py", line 121, in _default
+    raise TypeError(f"Object of type {type(o).__name__} is not JSON serializable")
+TypeError: Object of type Undefined is not JSON serializable
+
+2025-03-26 19:48:58,198 - app - INFO - Cache initialized successfully
+2025-03-26 19:48:59,370 - app - INFO - Database tables created successfully
+2025-03-26 19:48:59,548 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:48:59,549 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 19:49:40,269 - app - INFO - Cache initialized successfully
+2025-03-26 19:49:42,137 - app - INFO - Database tables created successfully
+2025-03-26 19:49:42,588 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 19:49:42,590 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:03:01,469 - app - INFO - Cache initialized successfully
+2025-03-26 20:03:02,548 - app - INFO - Database tables created successfully
+2025-03-26 20:03:02,659 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:03:02,661 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:03:17,460 - app - INFO - Cache initialized successfully
+2025-03-26 20:03:19,829 - app - INFO - Database tables created successfully
+2025-03-26 20:03:20,027 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:03:20,030 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:11:51,312 - app - INFO - Cache initialized successfully
+2025-03-26 20:11:52,603 - app - INFO - Database tables created successfully
+2025-03-26 20:11:52,714 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:11:52,715 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 20:12:03,022 - app - INFO - Cache initialized successfully
+2025-03-26 20:12:03,945 - app - INFO - Database tables created successfully
+2025-03-26 20:12:04,047 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 20:12:04,048 - app - INFO - Wine discovery service initialized successfully

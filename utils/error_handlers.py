@@ -1,8 +1,11 @@
-from flask import jsonify, current_app
+from flask import jsonify, current_app, render_template, request
 import traceback
 import logging
 from functools import wraps
 from werkzeug.exceptions import HTTPException
+from flask_wtf.csrf import generate_csrf
+
+logger = logging.getLogger(__name__)
 
 class ErrorHandler:
     """
@@ -94,23 +97,58 @@ class ErrorHandler:
             return cls.handle_error(error)
 
         @app.errorhandler(404)
-        def handle_not_found(error):
-            return jsonify({
-                'error': 'Not Found',
-                'message': 'The requested resource could not be found',
-                'status_code': 404
-            }), 404
+        def not_found_error(error):
+            """Handle 404 errors"""
+            if request_wants_json():
+                return jsonify({'error': 'Not found'}), 404
+            return render_template('react_base.html', config_data=get_base_config()), 404
 
         @app.errorhandler(500)
-        def handle_server_error(error):
-            return jsonify({
-                'error': 'Internal Server Error',
-                'message': 'An unexpected error occurred on the server',
-                'status_code': 500
-            }), 500
+        def internal_error(error):
+            """Handle 500 errors"""
+            logger.error(f"Internal error occurred: {error}")
+            if request_wants_json():
+                return jsonify({'error': 'Internal server error'}), 500
+            return render_template('react_base.html', config_data=get_base_config()), 500
+        
+        @app.errorhandler(TypeError)
+        def type_error(error):
+            """Handle TypeError specifically for JSON serialization issues"""
+            logger.error(f"TypeError occurred: {error}")
+            if request_wants_json():
+                return jsonify({'error': str(error)}), 500
+            return render_template('react_base.html', config_data=get_base_config()), 500
+        
+        @app.errorhandler(Exception)
+        def handle_exception(error):
+            """Handle all other exceptions"""
+            current_app.logger.error(f"Unhandled exception: {str(error)}")
+            current_app.logger.error(traceback.format_exc())
+            if request_wants_json():
+                return jsonify({
+                    'error': 'Server Error',
+                    'message': 'An unexpected error occurred',
+                    'status_code': 500
+                }), 500
+            return render_template('react_base.html'), 500
 
 # Export error handling functions
 handle_error = ErrorHandler.handle_error
 log_error = ErrorHandler.log_error
 validation_error_handler = ErrorHandler.validation_error_handler
 register_error_handlers = ErrorHandler.register_error_handlers
+
+def get_base_config():
+    """Get base configuration for templates"""
+    return {
+        'apiUrl': current_app.config.get('API_URL', '/api'),
+        'environment': current_app.config.get('ENV', 'development'),
+        'debug': current_app.config.get('DEBUG', False),
+        'csrfToken': generate_csrf()
+    }
+
+def request_wants_json():
+    """Check if the request prefers JSON response"""
+    best = request.accept_mimetypes.best_match(['application/json', 'text/html'])
+    return (best == 'application/json' and
+            request.accept_mimetypes[best] > request.accept_mimetypes['text/html'])
