@@ -1648,3 +1648,293 @@ werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'home'.
 2025-03-25 05:55:51,010 - app - INFO - Database tables created successfully
 2025-03-25 05:55:51,148 - app - INFO - Recommendation engine initialized successfully
 2025-03-25 05:55:51,149 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 18:08:47,281 - app - INFO - Cache initialized successfully
+2025-03-25 18:08:49,165 - app - INFO - Database tables created successfully
+2025-03-25 18:08:49,403 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 18:08:49,403 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 18:09:05,203 - app - INFO - Cache initialized successfully
+2025-03-25 18:09:06,573 - app - INFO - Database tables created successfully
+2025-03-25 18:09:06,747 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 18:09:06,748 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 18:15:28,104 - app - INFO - Cache initialized successfully
+2025-03-25 18:15:32,122 - app - INFO - Database tables created successfully
+2025-03-25 18:15:32,597 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 18:15:32,617 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 18:59:51,917 - app - INFO - Cache initialized successfully
+2025-03-25 18:59:56,603 - app - INFO - Database tables created successfully
+2025-03-25 18:59:57,049 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 18:59:57,053 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 19:03:19,336 - app - INFO - Cache initialized successfully
+2025-03-25 19:03:21,160 - app - INFO - Database tables created successfully
+2025-03-25 19:03:21,358 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 19:03:21,360 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 19:04:22,546 - app - INFO - Cache initialized successfully
+2025-03-25 19:04:24,420 - app - INFO - Database tables created successfully
+2025-03-25 19:04:24,526 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 19:04:24,528 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 19:10:13,395 - app - INFO - Cache initialized successfully
+2025-03-25 19:10:17,294 - app - INFO - Database tables created successfully
+2025-03-25 19:10:17,665 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 19:10:17,667 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 19:11:54,702 - app - INFO - Cache initialized successfully
+2025-03-25 19:11:56,443 - app - INFO - Database tables created successfully
+2025-03-25 19:11:56,684 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 19:11:56,687 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 19:20:08,289 - app - ERROR - Error occurred: (sqlite3.OperationalError) no such column: users.first_name
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.password_hash AS users_password_hash, users.created_at AS users_created_at, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.first_name AS users_first_name, users.last_name AS users_last_name, users.bio AS users_bio 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('cerah', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 19:20:08,667 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: users.first_name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 38, in signup
+    if User.query.filter_by(username=username).first():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\context.py", line 305, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1843, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 2352, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: users.first_name
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.password_hash AS users_password_hash, users.created_at AS users_created_at, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.first_name AS users_first_name, users.last_name AS users_last_name, users.bio AS users_bio 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('cerah', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+2025-03-25 19:24:37,907 - app - INFO - Cache initialized successfully
+2025-03-25 19:24:41,020 - app - INFO - Database tables created successfully
+2025-03-25 19:24:41,344 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 19:24:41,347 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 19:29:36,062 - app - INFO - Cache initialized successfully
+2025-03-25 19:29:45,145 - app - INFO - Database tables created successfully
+2025-03-25 19:29:46,821 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 19:29:46,830 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 19:34:58,361 - app - INFO - Cache initialized successfully
+2025-03-25 19:34:58,875 - app - INFO - Database tables created successfully
+2025-03-25 19:35:04,275 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 19:35:04,311 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 20:07:54,504 - app - ERROR - Error occurred: (sqlite3.OperationalError) no such column: users.first_name
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.password_hash AS users_password_hash, users.created_at AS users_created_at, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.first_name AS users_first_name, users.last_name AS users_last_name, users.bio AS users_bio, users.wine_preferences AS users_wine_preferences, users.taste_preferences AS users_taste_preferences 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('cerah', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-03-25 20:07:54,602 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: users.first_name
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\auth.py", line 46, in signup
+    if User.query.filter_by(username=username).first():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\session.py", line 2365, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\orm\context.py", line 305, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\sql\elements.py", line 516, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1843, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 2352, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\sqlalchemy\engine\default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: users.first_name
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.email AS users_email, users.password_hash AS users_password_hash, users.created_at AS users_created_at, users.is_active AS users_is_active, users.is_admin AS users_is_admin, users.first_name AS users_first_name, users.last_name AS users_last_name, users.bio AS users_bio, users.wine_preferences AS users_wine_preferences, users.taste_preferences AS users_taste_preferences 
+FROM users 
+WHERE users.username = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('cerah', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+2025-03-25 20:59:47,623 - app - INFO - Cache initialized successfully
+2025-03-25 20:59:47,735 - app - INFO - Database tables created successfully
+2025-03-25 20:59:47,879 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 20:59:47,880 - app - INFO - Wine discovery service initialized successfully
+2025-03-25 21:02:56,689 - app - INFO - Cache initialized successfully
+2025-03-25 21:02:56,809 - app - INFO - Database tables created successfully
+2025-03-25 21:02:56,968 - app - INFO - Recommendation engine initialized successfully
+2025-03-25 21:02:56,969 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 07:32:15,390 - app - INFO - Cache initialized successfully
+2025-03-26 07:32:17,784 - app - INFO - Database tables created successfully
+2025-03-26 07:32:18,070 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 07:32:18,074 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 07:32:36,244 - app - INFO - Cache initialized successfully
+2025-03-26 07:32:37,727 - app - INFO - Database tables created successfully
+2025-03-26 07:32:37,940 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 07:32:37,940 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 07:38:22,380 - app - INFO - Cache initialized successfully
+2025-03-26 07:38:23,611 - app - INFO - Database tables created successfully
+2025-03-26 07:38:23,751 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 07:38:23,751 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 07:38:41,604 - app - INFO - Cache initialized successfully
+2025-03-26 07:38:45,166 - app - INFO - Database tables created successfully
+2025-03-26 07:38:45,623 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 07:38:45,626 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:00:10,324 - app - INFO - Cache initialized successfully
+2025-03-26 08:00:12,141 - app - INFO - Database tables created successfully
+2025-03-26 08:00:12,280 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:00:12,282 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:00:25,888 - app - INFO - Cache initialized successfully
+2025-03-26 08:00:27,025 - app - INFO - Database tables created successfully
+2025-03-26 08:00:27,174 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:00:27,176 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:14:30,232 - app - INFO - Cache initialized successfully
+2025-03-26 08:14:32,216 - app - INFO - Database tables created successfully
+2025-03-26 08:14:32,363 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:14:32,367 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:14:52,655 - app - INFO - Cache initialized successfully
+2025-03-26 08:14:53,975 - app - INFO - Database tables created successfully
+2025-03-26 08:14:54,114 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:14:54,114 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:35:08,746 - app - INFO - Cache initialized successfully
+2025-03-26 08:35:10,596 - app - INFO - Database tables created successfully
+2025-03-26 08:35:10,783 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:35:10,785 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:40:33,990 - app - INFO - Cache initialized successfully
+2025-03-26 08:40:37,026 - app - INFO - Database tables created successfully
+2025-03-26 08:40:37,376 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:40:37,379 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:42:36,139 - app - INFO - Cache initialized successfully
+2025-03-26 08:42:37,796 - app - INFO - Database tables created successfully
+2025-03-26 08:42:37,989 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:42:37,991 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:43:20,861 - app - INFO - Cache initialized successfully
+2025-03-26 08:43:23,282 - app - INFO - Database tables created successfully
+2025-03-26 08:43:23,596 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:43:23,598 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:44:10,824 - app - INFO - Cache initialized successfully
+2025-03-26 08:44:12,537 - app - INFO - Database tables created successfully
+2025-03-26 08:44:12,700 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:44:12,701 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:49:36,718 - app - INFO - Cache initialized successfully
+2025-03-26 08:49:38,804 - app - INFO - Database tables created successfully
+2025-03-26 08:49:38,954 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:49:38,956 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:50:39,352 - app - INFO - Cache initialized successfully
+2025-03-26 08:50:41,047 - app - INFO - Database tables created successfully
+2025-03-26 08:50:41,300 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:50:41,304 - app - INFO - Wine discovery service initialized successfully
+2025-03-26 08:51:23,268 - app - ERROR - Error occurred: Could not build url for endpoint 'main.home'. Did you mean 'main.welcome' instead?
+2025-03-26 08:51:23,562 - app - ERROR - Traceback (most recent call last):
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\blueprints\main.py", line 9, in index
+    return render_template('home.html', now=datetime.utcnow())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\jinja2\environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\home.html", line 1, in top-level template code
+    {% extends 'base.html' %}
+  File "c:\Users\Epiphany W. Kiruri\OneDrive\Documents\GitHub\Wine-Recco-and-mgt-system\templates\base.html", line 40, in top-level template code
+    <a href="{{ url_for('main.home') }}" class="nav-link text-gray-700 hover:text-wine-800 transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-wine-800 after:transition-all after:duration-300">Home</a>
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\flask\app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Epiphany W. Kiruri\AppData\Roaming\Python\Python311\site-packages\werkzeug\routing\map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.home'. Did you mean 'main.welcome' instead?
+
+2025-03-26 08:52:37,412 - app - INFO - Cache initialized successfully
+2025-03-26 08:52:37,605 - app - INFO - Database tables created successfully
+2025-03-26 08:52:37,835 - app - INFO - Recommendation engine initialized successfully
+2025-03-26 08:52:37,837 - app - INFO - Wine discovery service initialized successfully

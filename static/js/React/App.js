@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Switch, Redirect } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
@@ -9,6 +9,8 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import SignupStep2 from './pages/SignupStep2';
+import SignupStep3 from './pages/SignupStep3';
 import Catalog from './pages/Catalog';
 import WineDetails from './pages/WineDetails';
 import Cart from './pages/Cart';
@@ -16,10 +18,10 @@ import MyAccount from './pages/MyAccount';
 
 import './styles/index.css'; // Tailwind CSS
 
-function App() {
+const App = () => {
     return (
         <AuthProvider>
-            <Router>
+            <Router basename="/react">
                 <div className="flex flex-col min-h-screen">
                     <Navbar />
                     <main className="flex-grow">
@@ -27,6 +29,8 @@ function App() {
                             <Route path="/" element={<Home />} />
                             <Route path="/login" element={<Login />} />
                             <Route path="/signup" element={<Signup />} />
+                            <Route path="/signup/step2" element={<SignupStep2 />} />
+                            <Route path="/signup/step3" element={<SignupStep3 />} />
                             <Route path="/catalog" element={
                                 <PrivateRoute>
                                     <Catalog />
@@ -47,6 +51,9 @@ function App() {
                                     <MyAccount />
                                 </PrivateRoute>
                             } />
+                            <Route path="/">
+                                <Redirect to="/signup" />
+                            </Route>
                         </Routes>
                     </main>
                     <Footer />
@@ -54,6 +61,6 @@ function App() {
             </Router>
         </AuthProvider>
     );
-}
+};
 
 export default App;

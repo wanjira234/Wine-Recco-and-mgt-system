@@ -7,15 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-gray-50 font-poppins">
     <!-- Navigation -->
-    <nav class="fixed w-full bg-white/95 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
+    <nav class="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-sm z-50 transition-all duration-300">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
+            <div class="flex justify-between items-center h-16">
                 <!-- Logo -->
-                <a href="#home" class="flex items-center space-x-3 group">
+                <a href="/" class="flex items-center space-x-3 group">
                     <span class="text-3xl transform group-hover:scale-110 transition-transform duration-300">🍷</span>
                     <span class="text-wine-900 text-2xl font-bold font-playfair group-hover:text-wine-700 transition-colors duration-300">Wine Recommender</span>
                 </a>
@@ -36,7 +37,7 @@
 
                     <!-- Navigation Links -->
                     <div class="flex items-center space-x-6">
-                        <a href="#home" class="nav-link text-gray-700 hover:text-wine-800 transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-wine-800 after:transition-all after:duration-300">Home</a>
+                        <a href="{{ url_for('main.home') }}" class="nav-link text-gray-700 hover:text-wine-800 transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-wine-800 after:transition-all after:duration-300">Home</a>
                         <a href="#about" class="nav-link text-gray-700 hover:text-wine-800 transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-wine-800 after:transition-all after:duration-300">About</a>
                         <a href="#learn" class="nav-link text-gray-700 hover:text-wine-800 transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-wine-800 after:transition-all after:duration-300">Learn</a>
                         <a href="#contact" class="nav-link text-gray-700 hover:text-wine-800 transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 hover:after:w-full after:bg-wine-800 after:transition-all after:duration-300">Contact</a>
@@ -44,14 +45,25 @@
 
                     <!-- Auth Buttons -->
                     <div class="flex items-center space-x-4">
-                        <a href="{{ url_for('auth.login') }}" 
-                           class="px-6 py-2.5 text-wine-800 border-2 border-wine-800 rounded-full hover:bg-wine-800 hover:text-white transition-all duration-300 transform hover:-translate-y-0.5">
-                            Login
-                        </a>
-                        <a href="{{ url_for('auth.signup') }}" 
-                           class="px-6 py-2.5 bg-wine-800 text-white rounded-full hover:bg-wine-700 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg">
-                            Sign Up
-                        </a>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.catalog') }}" class="px-6 py-2.5 text-wine-800 border-2 border-wine-800 rounded-full hover:bg-wine-800 hover:text-white transition-all duration-300 transform hover:-translate-y-0.5">Catalog</a>
+                            <a href="{{ url_for('main.cart') }}" class="px-6 py-2.5 text-wine-800 border-2 border-wine-800 rounded-full hover:bg-wine-800 hover:text-white transition-all duration-300 transform hover:-translate-y-0.5">Cart</a>
+                            <a href="{{ url_for('main.account') }}" class="px-6 py-2.5 text-wine-800 border-2 border-wine-800 rounded-full hover:bg-wine-800 hover:text-white transition-all duration-300 transform hover:-translate-y-0.5">My Account</a>
+                            <a href="{{ url_for('auth.logout') }}" class="px-6 py-2.5 bg-wine-800 text-white rounded-full hover:bg-wine-700 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg">Logout</a>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" 
+                               class="px-6 py-2.5 text-wine-800 border-2 border-wine-800 rounded-full hover:bg-wine-800 hover:text-white transition-all duration-300 transform hover:-translate-y-0.5">
+                                Login
+                            </a>
+                            <a href="{{ url_for('auth.signup') }}" 
+                               class="px-6 py-2.5 bg-wine-800 text-white rounded-full hover:bg-wine-700 transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg">
+                                Sign Up
+                            </a>
+                            <!-- For React version -->
+                            <a href="{{ url_for('auth.react_signup') }}" class="text-sm text-gray-500 px-6 py-2.5 text-wine-800 border-2 border-wine-800 rounded-full hover:bg-wine-800 hover:text-white transition-all duration-300 transform hover:-translate-y-0.5">
+                                (Try New Signup)
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -76,13 +88,18 @@
                             </svg>
                         </button>
                     </div>
-                    <a href="#home" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-wine-50 hover:text-wine-800 transition-all duration-300">Home</a>
+                    <a href="{{ url_for('main.home') }}" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-wine-50 hover:text-wine-800 transition-all duration-300">Home</a>
                     <a href="#about" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-wine-50 hover:text-wine-800 transition-all duration-300">About</a>
                     <a href="#learn" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-wine-50 hover:text-wine-800 transition-all duration-300">Learn</a>
                     <a href="#contact" class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-wine-50 hover:text-wine-800 transition-all duration-300">Contact</a>
                     <div class="grid grid-cols-2 gap-4 mt-4">
-                        <a href="{{ url_for('auth.login') }}" class="text-center px-4 py-2 text-wine-800 border-2 border-wine-800 rounded-lg hover:bg-wine-800 hover:text-white transition-all duration-300">Login</a>
-                        <a href="{{ url_for('auth.signup') }}" class="text-center px-4 py-2 bg-wine-800 text-white rounded-lg hover:bg-wine-700 transition-all duration-300">Sign Up</a>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.catalog') }}" class="text-center px-4 py-2 text-wine-800 border-2 border-wine-800 rounded-lg hover:bg-wine-800 hover:text-white transition-all duration-300">Catalog</a>
+                            <a href="{{ url_for('main.cart') }}" class="text-center px-4 py-2 text-wine-800 border-2 border-wine-800 rounded-lg hover:bg-wine-800 hover:text-white transition-all duration-300">Cart</a>
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="text-center px-4 py-2 text-wine-800 border-2 border-wine-800 rounded-lg hover:bg-wine-800 hover:text-white transition-all duration-300">Login</a>
+                            <a href="{{ url_for('auth.signup') }}" class="text-center px-4 py-2 bg-wine-800 text-white rounded-lg hover:bg-wine-700 transition-all duration-300">Sign Up</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -90,7 +107,7 @@
     </nav>
 
     <!-- Flash Messages -->
-    <div class="container mx-auto px-6">
+    <div class="container mx-auto px-6 mt-16">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -103,7 +120,8 @@
         {% endwith %}
     </div>
 
-    <!-- Main Content -->
+    <!-- Main Content Block -->
+    {% block content %}
     <!-- Hero/Home Section -->
     <section id="home" class="min-h-screen flex items-center justify-center hero-bg relative">
         <div class="absolute inset-0 bg-gradient-to-b from-black/50 to-wine-900/50"></div>
@@ -203,6 +221,7 @@
             </div>
         </div>
     </section>
+    {% endblock %}
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
@@ -218,7 +237,7 @@
                 <div class="space-y-4">
                     <h4 class="text-lg font-semibold mb-6">Quick Links</h4>
                     <ul class="space-y-3">
-                        <li><a href="#home" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="{{ url_for('main.home') }}" class="text-gray-400 hover:text-white transition">Home</a></li>
                         <li><a href="#about" class="text-gray-400 hover:text-white transition">About</a></li>
                         <li><a href="#learn" class="text-gray-400 hover:text-white transition">Learn</a></li>
                         <li><a href="#contact" class="text-gray-400 hover:text-white transition">Contact</a></li>
@@ -255,7 +274,9 @@
         </div>
     </footer>
 
-    <!-- JavaScript for Smooth Scrolling and Navigation -->
+    <!-- JavaScript -->
+    {% block scripts %}
+    <script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
     <script>
         // Mobile menu toggle
         const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -321,5 +342,6 @@
             });
         });
     </script>
+    {% endblock %}
 </body>
 </html>

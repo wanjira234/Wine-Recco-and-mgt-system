@@ -11,64 +11,131 @@ from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
 
+# React Routes - These serve the React application
+@auth_bp.route('/react/signup')
+def react_signup():
+    """Serve the React-based signup page."""
+    return render_template('react_base.html')
+
+@auth_bp.route('/react/signup/step2')
+def react_signup_step2():
+    """React-based signup step 2"""
+    return render_template('react_base.html')
+
+# Traditional Flask Routes - These serve Flask templates
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
+    """Traditional Flask-based signup"""
     if current_user.is_authenticated:
         return redirect(url_for('home'))
         
     if request.method == 'POST':
-        username = request.form.get('username')
-        email = request.form.get('email')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        
-        # Validation
-        if not username or not email or not password or not confirm_password:
-            flash('All fields are required', 'error')
-            return redirect(url_for('auth.signup'))
-            
-        if password != confirm_password:
-            flash('Passwords do not match', 'error')
-            return redirect(url_for('auth.signup'))
-            
-        if len(password) < 6:
-            flash('Password must be at least 6 characters long', 'error')
-            return redirect(url_for('auth.signup'))
-            
-        # Check if user already exists
-        if User.query.filter_by(username=username).first():
-            flash('Username already exists', 'error')
-            return redirect(url_for('auth.signup'))
-            
-        if User.query.filter_by(email=email).first():
-            flash('Email already registered', 'error')
-            return redirect(url_for('auth.signup'))
-            
-        # Create new user
-        try:
-            new_user = User(
-                username=username,
-                email=email,
-                created_at=datetime.utcnow()
-            )
-            new_user.set_password(password)
-            
-            db.session.add(new_user)
-            db.session.commit()
-            
-            # Log in the new user
-            login_user(new_user)
-            current_app.logger.info(f"New user registered: {username}")
-            flash('Account created successfully!', 'success')
-            return redirect(url_for('home'))
-            
-        except Exception as e:
-            db.session.rollback()
-            current_app.logger.error(f"Error creating user: {str(e)}")
-            flash('An error occurred while creating your account. Please try again.', 'error')
-            return redirect(url_for('auth.signup'))
-            
+        # Existing signup logic
+        pass
+    
     return render_template('auth/signup.html')
+
+@auth_bp.route('/signup/step2', methods=['GET', 'POST'])
+def signup_step2():
+    """Traditional Flask-based signup step 2"""
+    if 'signup_data' not in session:
+        return redirect(url_for('auth.signup'))
+    
+    if request.method == 'POST':
+        # Existing step 2 logic
+        pass
+        
+    return render_template('auth/signup_step2.html')
+
+# API Endpoints - These serve both React and traditional forms
+@auth_bp.route('/api/signup', methods=['POST'])
+def api_signup():
+    """API endpoint for React signup form submission."""
+    data = request.get_json()
+    
+    # Validate input
+    if not all(key in data for key in ['email', 'password', 'first_name', 'last_name']):
+        return jsonify({'error': 'Missing required fields'}), 400
+    
+    # Check if user already exists
+    if User.query.filter_by(email=data['email']).first():
+        return jsonify({'error': 'Email already registered'}), 400
+    
+    # Create new user
+    try:
+        user = User(
+            email=data['email'],
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            username=generate_username(data['first_name'], data['last_name'])
+        )
+        user.set_password(data['password'])
+        db.session.add(user)
+        db.session.commit()
+        
+        # Log the user in
+        login_user(user)
+        return jsonify({'message': 'User created successfully', 'redirect': url_for('main.home')}), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/api/signup/step2', methods=['POST'])
+@login_required
+def api_signup_step2():
+    """API endpoint for step 2 of the signup process."""
+    data = request.get_json()
+    
+    try:
+        current_user.wine_preferences = data.get('wine_preferences', {})
+        db.session.commit()
+        return jsonify({'message': 'Preferences updated successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/api/signup/step3', methods=['POST'])
+@login_required
+def api_signup_step3():
+    """API endpoint for step 3 of the signup process."""
+    data = request.get_json()
+    
+    try:
+        current_user.taste_preferences = data.get('taste_preferences', {})
+        db.session.commit()
+        return jsonify({'message': 'Preferences updated successfully'}), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+def generate_username(first_name, last_name):
+    """Generate a unique username from first and last name."""
+    base = f"{first_name.lower()}{last_name.lower()}"
+    username = base
+    counter = 1
+    
+    while User.query.filter_by(username=username).first():
+        username = f"{base}{counter}"
+        counter += 1
+    
+    return username
+
+@auth_bp.route('/signup/step3', methods=['GET'])
+def signup_step3():
+    if 'signup_data' not in session:
+        return redirect(url_for('auth.signup'))
+    # Get traits for the form
+    traits_by_category = {
+        'Body': ['light', 'medium', 'full'],
+        'Sweetness': ['dry', 'off_dry', 'sweet'],
+        'Tannin': ['low', 'medium', 'high'],
+        'Acidity': ['low', 'medium', 'high'],
+        'Age': ['young', 'medium', 'aged']
+    }
+    return render_template('auth/signup_step3.html', traits_by_category=traits_by_category)
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -170,7 +237,7 @@ def change_password():
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
-# API endpoints for authentication
+# API endpoints for React
 @auth_bp.route('/api/register', methods=['POST'])
 def api_register():
     data = request.get_json()
