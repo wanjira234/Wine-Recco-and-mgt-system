@@ -3,34 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Wine Recommendation System{% endblock %}</title>
-    
+    <title>Wine Recommendation App</title>
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    
-    <!-- React and ReactDOM -->
-    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-    
-    <!-- React Router -->
-    <script src="https://unpkg.com/react-router-dom@5/umd/react-router-dom.min.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-    
-    {% block extra_head %}{% endblock %}
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
-<body class="bg-gray-50">
-    <div id="root">
-        <!-- React app will be mounted here -->
-    </div>
+<body class="bg-gray-100">
+    <!-- Root div for React -->
+    <div id="root"></div>
     
-    <!-- Your React app -->
-    <script type="text/babel" src="{{ url_for('static', filename='js/react/App.js') }}"></script>
+    <!-- React Bundle -->
+    <script src="{{ url_for('static', filename='js/react/bundle.js') }}"></script>
     
-    {% block extra_scripts %}{% endblock %}
+    <!-- Initialize React App -->
+    <script>
+        // You can pass initial data from Flask to React here
+        window.INITIAL_DATA = {
+            user: {{ current_user.to_dict()|tojson|safe if current_user else 'null' }},
+            csrf_token: '{{ csrf_token() }}'
+        };
+    </script>
 </body>
 </html> 
