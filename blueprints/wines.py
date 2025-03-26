@@ -10,7 +10,25 @@ from services.recommendation_service import recommendation_engine
 # Create Blueprint
 wines_bp = Blueprint('wines', __name__)
 
-@wines_bp.route('/list', methods=['GET'])
+# React Routes - These serve the React application
+@wines_bp.route('/wines')
+def react_wines():
+    """Serve the React-based wines page."""
+    return render_template('react_base.html')
+
+@wines_bp.route('/wines/<int:wine_id>')
+def react_wine_detail(wine_id):
+    """Serve the React-based wine detail page."""
+    return render_template('react_base.html')
+
+@wines_bp.route('/wines/new')
+@jwt_required()
+def react_wine_form():
+    """Serve the React-based wine form page."""
+    return render_template('react_base.html')
+
+# API Endpoints - These serve the React frontend
+@wines_bp.route('/api/wines', methods=['GET'])
 def list_wines():
     """
     List wines with optional filtering and pagination
@@ -70,7 +88,7 @@ def list_wines():
         current_app.logger.error(f"Wine listing error: {e}")
         return jsonify({'error': 'Failed to retrieve wines'}), 500
 
-@wines_bp.route('/details/<int:wine_id>', methods=['GET'])
+@wines_bp.route('/api/wines/<int:wine_id>', methods=['GET'])
 def get_wine_details(wine_id):
     """
     Get detailed information about a specific wine
@@ -112,32 +130,87 @@ def get_wine_details(wine_id):
         current_app.logger.error(f"Wine details retrieval error: {e}")
         return jsonify({'error': 'Failed to retrieve wine details'}), 500
 
-@wines_bp.route('/recommend', methods=['GET'])
+@wines_bp.route('/api/wines', methods=['POST'])
 @jwt_required()
-def get_recommendations():
+def create_wine():
     """
-    Get personalized wine recommendations
+    Create a new wine
     """
     try:
-        user_id = get_jwt_identity()
+        data = request.get_json()
         
-        # Get recommendations
-        recommendations = recommendation_engine.get_personalized_recommendations(
-            user_id, 
-            top_n=10
+        # Validate required fields
+        required_fields = ['name', 'type', 'varietal_id', 'region_id', 'price']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+        
+        # Create new wine
+        wine = Wine(
+            name=data['name'],
+            type=data['type'],
+            varietal_id=data['varietal_id'],
+            region_id=data['region_id'],
+            price=data['price'],
+            description=data.get('description'),
+            alcohol_percentage=data.get('alcohol_percentage')
         )
         
-        return jsonify({
-            'recommendations': recommendations
-        }), 200
+        db.session.add(wine)
+        db.session.commit()
+        
+        return jsonify(wine.to_dict()), 201
     
     except Exception as e:
-        current_app.logger.error(f"Recommendation retrieval error: {e}")
-        return jsonify({'error': 'Failed to retrieve recommendations'}), 500
+        db.session.rollback()
+        current_app.logger.error(f"Wine creation error: {e}")
+        return jsonify({'error': 'Failed to create wine'}), 500
 
-@wines_bp.route('/review', methods=['POST'])
+@wines_bp.route('/api/wines/<int:wine_id>', methods=['PUT'])
 @jwt_required()
-def add_wine_review():
+def update_wine(wine_id):
+    """
+    Update an existing wine
+    """
+    try:
+        wine = Wine.query.get_or_404(wine_id)
+        data = request.get_json()
+        
+        # Update wine fields
+        for field, value in data.items():
+            if hasattr(wine, field):
+                setattr(wine, field, value)
+        
+        db.session.commit()
+        
+        return jsonify(wine.to_dict()), 200
+    
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Wine update error: {e}")
+        return jsonify({'error': 'Failed to update wine'}), 500
+
+@wines_bp.route('/api/wines/<int:wine_id>', methods=['DELETE'])
+@jwt_required()
+def delete_wine(wine_id):
+    """
+    Delete a wine
+    """
+    try:
+        wine = Wine.query.get_or_404(wine_id)
+        
+        db.session.delete(wine)
+        db.session.commit()
+        
+        return jsonify({'message': 'Wine deleted successfully'}), 200
+    
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Wine deletion error: {e}")
+        return jsonify({'error': 'Failed to delete wine'}), 500
+
+@wines_bp.route('/api/wines/<int:wine_id>/reviews', methods=['POST'])
+@jwt_required()
+def add_wine_review(wine_id):
     """
     Add a review for a wine
     """
@@ -145,23 +218,18 @@ def add_wine_review():
         user_id = get_jwt_identity()
         data = request.get_json()
         
-        wine_id = data.get('wine_id')
-        rating = data.get('rating')
-        comment = data.get('comment')
+        wine = Wine.query.get_or_404(wine_id)
         
         # Validate input
-        if not all([wine_id, rating]):
+        if not all(key in data for key in ['rating', 'comment']):
             return jsonify({'error': 'Missing required fields'}), 400
-        
-        # Check if wine exists
-        wine = Wine.query.get_or_404(wine_id)
         
         # Create review
         review = WineReview(
             user_id=user_id,
             wine_id=wine_id,
-            rating=rating,
-            comment=comment
+            rating=data['rating'],
+            comment=data['comment']
         )
         
         db.session.add(review)
@@ -186,7 +254,7 @@ def add_wine_review():
         
         return jsonify({
             'message': 'Review added successfully',
-            'review_id': review.id
+            'review': review.to_dict()
         }), 201
     
     except Exception as e:
@@ -194,71 +262,25 @@ def add_wine_review():
         current_app.logger.error(f"Wine review error: {e}")
         return jsonify({'error': 'Failed to add review'}), 500
 
-@wines_bp.route('/catalog', methods=['GET'])
-def catalog():
+@wines_bp.route('/api/wines/recommendations', methods=['GET'])
+@jwt_required()
+def get_recommendations():
     """
-    Render the wine catalog page with filtering, pagination, and personalized recommendations
+    Get personalized wine recommendations
     """
     try:
-        # Pagination parameters
-        page = request.args.get('page', 1, type=int)
-        per_page = 12  # Number of wines per page
+        user_id = get_jwt_identity()
         
-        # Filtering parameters
-        wine_type = request.args.get('wine_type')
-        price_range = request.args.get('price_range')
-        region = request.args.get('region')
+        # Get recommendations
+        recommendations = recommendation_engine.get_personalized_recommendations(
+            user_id, 
+            top_n=10
+        )
         
-        # Base query
-        query = Wine.query
-        
-        # If user is logged in, prioritize wines matching their preferences
-        if current_user.is_authenticated:
-            # Get user's preferred traits
-            user_traits = set(current_user.preferred_traits)
-            
-            # Join with wine traits and count matches
-            query = query.outerjoin(wine_traits)\
-                .outerjoin(WineTrait)\
-                .group_by(Wine.id)\
-                .order_by(
-                    func.count(case([(WineTrait.id.in_([t.id for t in user_traits]), 1)], else_=0)).desc()
-                )
-        
-        # Apply filters
-        if wine_type:
-            query = query.filter(Wine.type == wine_type)
-        
-        if price_range:
-            if price_range == '0-20':
-                query = query.filter(Wine.price <= 20)
-            elif price_range == '20-50':
-                query = query.filter(Wine.price > 20, Wine.price <= 50)
-            elif price_range == '50-100':
-                query = query.filter(Wine.price > 50, Wine.price <= 100)
-            elif price_range == '100+':
-                query = query.filter(Wine.price > 100)
-        
-        if region:
-            query = query.join(WineRegion).filter(WineRegion.name.ilike(f'%{region}%'))
-        
-        # Get paginated results
-        pagination = query.paginate(page=page, per_page=per_page)
-        
-        # Get similar users' favorite wines if user is authenticated
-        similar_wines = []
-        if current_user.is_authenticated:
-            similar_wines = recommendation_engine.get_similar_user_recommendations(
-                current_user.id,
-                limit=6
-            )
-        
-        return render_template('catalog.html', 
-                             wines=pagination.items,
-                             pagination=pagination,
-                             similar_wines=similar_wines)
+        return jsonify({
+            'recommendations': recommendations
+        }), 200
     
     except Exception as e:
-        current_app.logger.error(f"Catalog page error: {e}")
-        return render_template('error.html', 
-                             message="An error occurred while loading the catalog"), 500
+        current_app.logger.error(f"Recommendation retrieval error: {e}")
+        return jsonify({'error': 'Failed to retrieve recommendations'}), 500

@@ -12,14 +12,24 @@ from datetime import datetime
 auth_bp = Blueprint('auth', __name__)
 
 # React Routes - These serve the React application
-@auth_bp.route('/react/signup')
+@auth_bp.route('/login')
+def react_login():
+    """Serve the React-based login page."""
+    return render_template('react_base.html')
+
+@auth_bp.route('/signup')
 def react_signup():
     """Serve the React-based signup page."""
     return render_template('react_base.html')
 
-@auth_bp.route('/react/signup/step2')
+@auth_bp.route('/signup/step2')
 def react_signup_step2():
-    """React-based signup step 2"""
+    """Serve the React-based signup step 2 page."""
+    return render_template('react_base.html')
+
+@auth_bp.route('/signup/step3')
+def react_signup_step3():
+    """Serve the React-based signup step 3 page."""
     return render_template('react_base.html')
 
 # Traditional Flask Routes - These serve Flask templates
@@ -47,7 +57,7 @@ def signup_step2():
         
     return render_template('auth/signup_step2.html')
 
-# API Endpoints - These serve both React and traditional forms
+# API Endpoints - These serve the React frontend
 @auth_bp.route('/api/signup', methods=['POST'])
 def api_signup():
     """API endpoint for React signup form submission."""
@@ -75,20 +85,28 @@ def api_signup():
         
         # Log the user in
         login_user(user)
-        return jsonify({'message': 'User created successfully', 'redirect': url_for('main.home')}), 201
+        access_token = create_access_token(identity=user.id)
+        
+        return jsonify({
+            'message': 'User created successfully',
+            'access_token': access_token,
+            'user': user.to_dict()
+        }), 201
         
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/api/signup/step2', methods=['POST'])
-@login_required
+@jwt_required()
 def api_signup_step2():
     """API endpoint for step 2 of the signup process."""
+    user_id = get_jwt_identity()
     data = request.get_json()
     
     try:
-        current_user.wine_preferences = data.get('wine_preferences', {})
+        user = User.query.get(user_id)
+        user.wine_preferences = data.get('wine_preferences', {})
         db.session.commit()
         return jsonify({'message': 'Preferences updated successfully'}), 200
         
@@ -97,19 +115,105 @@ def api_signup_step2():
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/api/signup/step3', methods=['POST'])
-@login_required
+@jwt_required()
 def api_signup_step3():
     """API endpoint for step 3 of the signup process."""
+    user_id = get_jwt_identity()
     data = request.get_json()
     
     try:
-        current_user.taste_preferences = data.get('taste_preferences', {})
+        user = User.query.get(user_id)
+        user.taste_preferences = data.get('taste_preferences', {})
         db.session.commit()
         return jsonify({'message': 'Preferences updated successfully'}), 200
         
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/api/login', methods=['POST'])
+def api_login():
+    """API endpoint for React login form submission."""
+    data = request.get_json()
+    
+    if not all(key in data for key in ['email', 'password']):
+        return jsonify({'error': 'Missing required fields'}), 400
+    
+    user = User.query.filter_by(email=data['email']).first()
+    
+    if user and user.check_password(data['password']):
+        login_user(user)
+        access_token = create_access_token(identity=user.id)
+        return jsonify({
+            'access_token': access_token,
+            'user': user.to_dict()
+        })
+    
+    return jsonify({'error': 'Invalid credentials'}), 401
+
+@auth_bp.route('/api/logout')
+@jwt_required()
+def api_logout():
+    """API endpoint for user logout."""
+    logout_user()
+    return jsonify({'message': 'Logged out successfully'})
+
+@auth_bp.route('/api/reset-password-request', methods=['POST'])
+def api_reset_password_request():
+    """API endpoint for password reset request."""
+    data = request.get_json()
+    
+    try:
+        reset_token = AuthService.reset_password_request(
+            email=data.get('email')
+        )
+        return jsonify({'reset_token': reset_token}), 200
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+@auth_bp.route('/api/reset-password', methods=['POST'])
+def api_reset_password():
+    """API endpoint for password reset."""
+    data = request.get_json()
+    
+    try:
+        user = AuthService.reset_password(
+            reset_token=data.get('reset_token'),
+            new_password=data.get('new_password')
+        )
+        return jsonify(user.to_dict()), 200
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+@auth_bp.route('/api/profile', methods=['PUT'])
+@jwt_required()
+def api_update_profile():
+    """API endpoint for updating user profile."""
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    try:
+        user = AuthService.update_user_profile(user_id, **data)
+        return jsonify(user.to_dict()), 200
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+@auth_bp.route('/api/change-password', methods=['POST'])
+@jwt_required()
+def api_change_password():
+    """API endpoint for changing user password."""
+    user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    try:
+        user = AuthService.change_password(
+            user_id=user_id,
+            old_password=data.get('old_password'),
+            new_password=data.get('new_password')
+        )
+        return jsonify(user.to_dict()), 200
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 
 def generate_username(first_name, last_name):
     """Generate a unique username from first and last name."""
@@ -263,28 +367,6 @@ def api_register():
         db.session.rollback()
         current_app.logger.error(f"API registration error: {str(e)}")
         return jsonify({'error': 'Internal server error'}), 500
-
-@auth_bp.route('/api/login', methods=['POST'])
-def api_login():
-    data = request.get_json()
-    
-    if not all(k in data for k in ('username', 'password')):
-        return jsonify({'error': 'Missing username or password'}), 400
-        
-    user = User.query.filter_by(username=data['username']).first()
-    
-    if user and user.check_password(data['password']):
-        login_user(user)
-        return jsonify({
-            'message': 'Login successful',
-            'user': {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email
-            }
-        })
-    
-    return jsonify({'error': 'Invalid username or password'}), 401
 
 @auth_bp.route('/me')
 @jwt_required()

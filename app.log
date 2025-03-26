@@ -1950,3 +1950,5 @@ werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'main.h
 2025-03-26 18:28:07,582 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_profile
 2025-03-26 18:29:55,964 - app - INFO - Cache initialized successfully
 2025-03-26 18:29:57,455 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_profile
+2025-03-26 18:38:15,950 - app - INFO - Cache initialized successfully
+2025-03-26 18:38:19,193 - app - ERROR - Application initialization failed: View function mapping is overwriting an existing endpoint function: account.update_profile

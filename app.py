@@ -170,8 +170,13 @@ def create_app():
         
         # Register Blueprints
         blueprints = [
-            (main_bp, ''),  # Main blueprint for frontend pages
-            (auth_bp, '/auth'),  # Changed from '/api/auth' to '/auth'
+            # React Routes
+            (main_bp, ''),  # Main blueprint for React pages
+            (auth_bp, '/auth'),  # Auth blueprint for React pages
+            (wines_bp, '/wines'),  # Wines blueprint for React pages
+            (account_bp, '/account'),  # Account blueprint for React pages
+            
+            # API Endpoints
             (cart_bp, '/api/cart'),
             (admin_bp, '/api/admin'),
             (recommendation_bp, '/api/recommendations'),
@@ -182,9 +187,7 @@ def create_app():
             (inventory_bp, '/api/inventory'),
             (community_bp, '/api/community'),
             (notification_bp, '/api/notifications'),
-            (search_bp, '/api/search'),
-            (wines_bp, '/api/wines'),
-            (account_bp, '/account')
+            (search_bp, '/api/search')
         ]
         
         for blueprint, url_prefix in blueprints:
