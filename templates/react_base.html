@@ -20,10 +20,10 @@
     
     <!-- Initialize React App -->
     <script>
-        // You can pass initial data from Flask to React here
+        // Initialize data from Flask to React
         window.INITIAL_DATA = {
-            user: {{ current_user.to_dict()|tojson|safe if current_user else 'null' }},
-            csrf_token: '{{ csrf_token() }}'
+            user: JSON.parse('{{ current_user.to_dict()|tojson|safe if current_user else "null" }}'),
+            csrf_token: "{{ csrf_token() }}"
         };
     </script>
 </body>

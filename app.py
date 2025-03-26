@@ -362,22 +362,6 @@ def create_app():
 # Create App Instance
 app = create_app()
 
-@app.route('/')
-def home():
-    return render_template('base.html')
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/learn')
-def learn():
-    return render_template('learn.html')
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
-
 # Serve React app for all routes except /api
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
