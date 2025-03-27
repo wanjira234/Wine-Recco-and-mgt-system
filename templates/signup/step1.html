@@ -3,6 +3,14 @@
 {% block title %}Step 1 - Create Account{% endblock %}
 
 {% block content %}
+<!-- Add test script at the top of content -->
+<script>
+    console.log('Test script loaded');
+    window.addEventListener('load', function() {
+        console.log('Window loaded');
+    });
+</script>
+
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
@@ -45,10 +53,10 @@
                         <input type="hidden" name="step" value="1">
                         
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="email" name="email" required 
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email" name="email" 
                                    pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-                                   autocomplete="email">
+                                   required>
                             <div class="invalid-feedback">
                                 Please enter a valid email address.
                             </div>
@@ -144,43 +152,83 @@
 
 {% block extra_js %}
 <script>
+// Add immediate console log to verify script is running
+console.log('Signup form script loaded');
+
+// Add error handling for invalid patterns
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded event fired');
+    
     // Password visibility toggle
     const togglePassword = document.getElementById('togglePassword');
     const password = document.getElementById('password');
     
-    togglePassword.addEventListener('click', function() {
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-        this.querySelector('i').classList.toggle('fa-eye');
-        this.querySelector('i').classList.toggle('fa-eye-slash');
+    if (togglePassword && password) {
+        console.log('Password toggle elements found');
+        togglePassword.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+            console.log('Password visibility toggled');
+        });
+    } else {
+        console.warn('Password toggle elements not found');
+    }
+
+    // Add real-time form input logging with error handling
+    const form = document.getElementById('signupForm');
+    if (!form) {
+        console.error('Signup form not found!');
+        return;
+    }
+    
+    console.log('Signup form found, setting up input listeners');
+    const formInputs = form.querySelectorAll('input');
+    console.log(`Found ${formInputs.length} input fields`);
+    
+    formInputs.forEach((input, index) => {
+        console.log(`Setting up listener for input ${index + 1}:`, input.name);
+        input.addEventListener('input', function(e) {
+            try {
+                console.log(`Input event fired for ${this.name}`);
+                const formData = new FormData(form);
+                const data = {
+                    email: formData.get('email'),
+                    name: formData.get('name'),
+                    password: formData.get('password') ? '[REDACTED]' : '',
+                    terms_accepted: formData.get('terms') === 'on',
+                    step: 1
+                };
+                console.log('Form data updated:', data);
+            } catch (error) {
+                console.error(`Error handling input for ${this.name}:`, error);
+            }
+        });
     });
 
-    // Add form submit event listener
-    const form = document.getElementById('signupForm');
+    // Add form submit event listener with proper error handling
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        if (!form.checkValidity()) {
-            e.stopPropagation();
-            form.classList.add('was-validated');
-            return false;
+        // Clear any existing alerts
+        const alertContainer = document.getElementById('alert-container');
+        if (alertContainer) {
+            alertContainer.innerHTML = '';
         }
-        
-        const formData = new FormData(form);
-        const data = {
-            email: formData.get('email'),
-            name: formData.get('name'),
-            password: formData.get('password'),
-            terms_accepted: formData.get('terms') === 'on',
-            step: 1
-        };
 
         try {
-            // First, get the CSRF token
-            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
-            console.log('CSRF Token:', csrfToken); // Debug logging
-            console.log('Sending data:', data); // Debug logging
+            const formData = {
+                email: document.getElementById('email').value,
+                name: document.getElementById('name').value,
+                password: document.getElementById('password').value,
+                step: 1
+            };
+
+            const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
+            if (!csrfToken) {
+                throw new Error('CSRF token not found');
+            }
 
             const response = await fetch('/auth/api/signup', {
                 method: 'POST',
@@ -189,50 +237,46 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRFToken': csrfToken
                 },
                 credentials: 'include',
-                body: JSON.stringify(data)
+                body: JSON.stringify(formData)
             });
 
-            const result = await response.json();
-            console.log('Signup response:', result);  // Debug logging
+            const data = await response.json();
 
-            if (response.ok && result.success) {
-                // Store the access token
-                if (result.access_token) {
-                    localStorage.setItem('access_token', result.access_token);
-                    console.log('Access token stored'); // Debug logging
-                }
-                // Redirect to step 2
-                console.log('Redirecting to step 2...'); // Debug logging
-                window.location.href = '/auth/signup/step2';
-                return false;
-            } else {
-                // Show error message
-                console.error('Signup failed:', result); // Debug logging
+            if (response.status === 409) {
+                // Email already registered
                 const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.className = 'alert alert-warning alert-dismissible fade show';
                 alertDiv.innerHTML = `
-                    ${result.message || 'An error occurred during signup. Please try again.'}
-                    ${result.error ? `<br>Error details: ${result.error}` : ''}
+                    This email is already registered. Please <a href="/auth/login">login</a> or use a different email.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 `;
-                const alertContainer = document.getElementById('alert-container');
-                alertContainer.innerHTML = ''; // Clear previous alerts
                 alertContainer.appendChild(alertDiv);
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+            }
+
+            if (data.success) {
+                if (data.access_token) {
+                    localStorage.setItem('access_token', data.access_token);
+                }
+                sessionStorage.setItem('signupStep1Data', JSON.stringify(formData));
+                window.location.href = '/auth/signup/step2';
+            } else {
+                throw new Error(data.message || 'Signup failed');
             }
         } catch (error) {
-            console.error('Error:', error); // Debug logging
+            console.error('Error:', error);
             const alertDiv = document.createElement('div');
             alertDiv.className = 'alert alert-danger alert-dismissible fade show';
             alertDiv.innerHTML = `
-                An error occurred. Please try again.<br>
-                Error details: ${error.message}
+                ${error.message || 'An error occurred during signup. Please try again.'}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `;
-            const alertContainer = document.getElementById('alert-container');
-            alertContainer.innerHTML = ''; // Clear previous alerts
             alertContainer.appendChild(alertDiv);
         }
-        return false;
     });
 });
 </script>

@@ -38,7 +38,9 @@
                         {% endif %}
                     {% endwith %}
 
-                    <form class="step3-form needs-validation" novalidate method="POST" action="/api/auth/signup">
+                    <div id="alert-container"></div>
+
+                    <form class="step3-form needs-validation" novalidate method="POST" action="/auth/api/signup">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="step" value="3">
                         <div class="mb-4">
@@ -153,6 +155,12 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
 
+        // Clear any existing alerts
+        const alertContainer = document.getElementById('alert-container');
+        if (alertContainer) {
+            alertContainer.innerHTML = '';
+        }
+
         // Validate characteristics
         const hasCharacteristics = Array.from(characteristics).some(cb => cb.checked);
         if (!hasCharacteristics) {
@@ -183,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         try {
-            const response = await fetch('/api/auth/signup', {
+            const response = await fetch('/auth/api/signup', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -207,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${result.message || 'An error occurred. Please try again.'}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 `;
-                document.querySelector('.card-body').insertBefore(alertDiv, form);
+                alertContainer.appendChild(alertDiv);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -217,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 An error occurred. Please try again.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `;
-            document.querySelector('.card-body').insertBefore(alertDiv, form);
+            alertContainer.appendChild(alertDiv);
         }
     });
 

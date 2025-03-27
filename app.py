@@ -543,12 +543,18 @@ app = create_app()
 # Serve static files
 @app.route('/static/<path:path>')
 def serve_static(path):
-    return send_from_directory('static', path)
+    response = send_from_directory('static', path)
+    if path.endswith('.js'):
+        response.headers['Content-Type'] = 'application/javascript'
+    return response
 
 # Serve Next.js static files
 @app.route('/_next/<path:path>')
 def next_static(path):
-    return send_from_directory('_next', path)
+    response = send_from_directory('_next', path)
+    if path.endswith('.js'):
+        response.headers['Content-Type'] = 'application/javascript'
+    return response
 
 # API routes
 @app.route('/api')

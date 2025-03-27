@@ -3601,3 +3601,122 @@ werkzeug.exceptions.UnsupportedMediaType: 415 Unsupported Media Type: Did not at
 2025-03-27 21:47:56,680 - app - INFO - Cache initialized successfully
 2025-03-27 21:47:57,753 - app - INFO - Cache initialized successfully
 2025-03-27 21:47:57,753 - app - INFO - Cache initialized successfully
+2025-03-27 22:21:12,684 - app - INFO - Cache initialized successfully
+2025-03-27 22:21:15,306 - app - INFO - Cache initialized successfully
+2025-03-27 22:21:15,306 - app - INFO - Cache initialized successfully
+2025-03-27 22:22:01,693 - app - INFO - Cache initialized successfully
+2025-03-27 22:22:05,196 - app - INFO - Cache initialized successfully
+2025-03-27 22:22:05,196 - app - INFO - Cache initialized successfully
+2025-03-27 22:27:49,595 - app - INFO - Cache initialized successfully
+2025-03-27 22:27:51,159 - app - INFO - Cache initialized successfully
+2025-03-27 22:27:51,159 - app - INFO - Cache initialized successfully
+2025-03-27 22:28:32,655 - app - INFO - Cache initialized successfully
+2025-03-27 22:28:36,888 - app - INFO - Cache initialized successfully
+2025-03-27 22:28:36,888 - app - INFO - Cache initialized successfully
+2025-03-27 22:38:22,435 - app - INFO - Cache initialized successfully
+2025-03-27 22:38:26,124 - app - INFO - Cache initialized successfully
+2025-03-27 22:38:26,124 - app - INFO - Cache initialized successfully
+2025-03-27 22:38:56,135 - app - INFO - Cache initialized successfully
+2025-03-27 22:39:00,692 - app - INFO - Cache initialized successfully
+2025-03-27 22:39:00,692 - app - INFO - Cache initialized successfully
+2025-03-27 22:48:39,451 - app - INFO - Cache initialized successfully
+2025-03-27 22:48:41,893 - app - INFO - Cache initialized successfully
+2025-03-27 22:48:41,893 - app - INFO - Cache initialized successfully
+2025-03-27 22:49:56,215 - app - INFO - Cache initialized successfully
+2025-03-27 22:50:07,643 - app - INFO - Cache initialized successfully
+2025-03-27 22:50:07,643 - app - INFO - Cache initialized successfully
+2025-03-27 22:56:19,781 - app - INFO - Cache initialized successfully
+2025-03-27 22:56:21,337 - app - INFO - Cache initialized successfully
+2025-03-27 22:56:21,337 - app - INFO - Cache initialized successfully
+2025-03-27 22:56:56,526 - app - INFO - Cache initialized successfully
+2025-03-27 22:57:03,148 - app - INFO - Cache initialized successfully
+2025-03-27 22:57:03,148 - app - INFO - Cache initialized successfully
+2025-03-27 23:02:59,039 - app - INFO - Cache initialized successfully
+2025-03-27 23:03:01,734 - app - INFO - Cache initialized successfully
+2025-03-27 23:03:01,734 - app - INFO - Cache initialized successfully
+2025-03-27 23:03:53,402 - app - INFO - Cache initialized successfully
+2025-03-27 23:03:58,786 - app - INFO - Cache initialized successfully
+2025-03-27 23:03:58,786 - app - INFO - Cache initialized successfully
+2025-03-27 23:07:34,016 - app - INFO - Cache initialized successfully
+2025-03-27 23:07:36,841 - app - INFO - Cache initialized successfully
+2025-03-27 23:07:36,841 - app - INFO - Cache initialized successfully
+2025-03-27 23:16:01,868 - app - INFO - Cache initialized successfully
+2025-03-27 23:16:03,337 - app - INFO - Cache initialized successfully
+2025-03-27 23:16:03,337 - app - INFO - Cache initialized successfully
+2025-03-27 23:16:50,913 - app - INFO - Cache initialized successfully
+2025-03-27 23:16:55,082 - app - INFO - Cache initialized successfully
+2025-03-27 23:16:55,082 - app - INFO - Cache initialized successfully
+2025-03-27 23:21:43,522 - app - INFO - Cache initialized successfully
+2025-03-27 23:21:45,255 - app - INFO - Cache initialized successfully
+2025-03-27 23:21:45,255 - app - INFO - Cache initialized successfully
+2025-03-27 23:22:20,235 - app - INFO - Cache initialized successfully
+2025-03-27 23:22:24,934 - app - INFO - Cache initialized successfully
+2025-03-27 23:22:24,934 - app - INFO - Cache initialized successfully
+2025-03-27 23:23:33,460 - app - INFO - Received signup request
+2025-03-27 23:23:33,460 - app - INFO - Received signup request
+2025-03-27 23:23:33,465 - app - INFO - Request data: {'email': 'kiruri@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@12', 'step': 1}
+2025-03-27 23:23:33,465 - app - INFO - Request data: {'email': 'kiruri@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@12', 'step': 1}
+2025-03-27 23:23:33,521 - app - INFO - Processing signup step: 1
+2025-03-27 23:23:33,521 - app - INFO - Processing signup step: 1
+2025-03-27 23:23:33,725 - app - INFO - Successfully created temporary user: 4
+2025-03-27 23:23:33,725 - app - INFO - Successfully created temporary user: 4
+2025-03-27 23:30:24,941 - app - INFO - Cache initialized successfully
+2025-03-27 23:30:28,024 - app - INFO - Cache initialized successfully
+2025-03-27 23:30:28,024 - app - INFO - Cache initialized successfully
+2025-03-27 23:31:05,061 - app - INFO - Cache initialized successfully
+2025-03-27 23:31:09,921 - app - INFO - Cache initialized successfully
+2025-03-27 23:31:09,921 - app - INFO - Cache initialized successfully
+2025-03-27 23:32:42,838 - app - INFO - Received signup request
+2025-03-27 23:32:42,838 - app - INFO - Received signup request
+2025-03-27 23:32:42,857 - app - INFO - Request data: {'email': 'kiruri@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@21', 'step': 1}
+2025-03-27 23:32:42,857 - app - INFO - Request data: {'email': 'kiruri@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@21', 'step': 1}
+2025-03-27 23:32:42,875 - app - INFO - Processing signup step: 1
+2025-03-27 23:32:42,875 - app - INFO - Processing signup step: 1
+2025-03-27 23:32:43,112 - app - ERROR - Email already registered: kiruri@gmail.com
+2025-03-27 23:32:43,112 - app - ERROR - Email already registered: kiruri@gmail.com
+2025-03-27 23:32:49,243 - app - INFO - Received signup request
+2025-03-27 23:32:49,243 - app - INFO - Received signup request
+2025-03-27 23:32:49,255 - app - INFO - Request data: {'email': 'kiruri@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@21', 'step': 1}
+2025-03-27 23:32:49,255 - app - INFO - Request data: {'email': 'kiruri@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@21', 'step': 1}
+2025-03-27 23:32:49,270 - app - INFO - Processing signup step: 1
+2025-03-27 23:32:49,270 - app - INFO - Processing signup step: 1
+2025-03-27 23:32:49,318 - app - ERROR - Email already registered: kiruri@gmail.com
+2025-03-27 23:32:49,318 - app - ERROR - Email already registered: kiruri@gmail.com
+2025-03-27 23:32:51,074 - app - INFO - Received signup request
+2025-03-27 23:32:51,074 - app - INFO - Received signup request
+2025-03-27 23:32:51,127 - app - INFO - Request data: {'email': 'kiruri@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@21', 'step': 1}
+2025-03-27 23:32:51,127 - app - INFO - Request data: {'email': 'kiruri@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@21', 'step': 1}
+2025-03-27 23:32:51,138 - app - INFO - Processing signup step: 1
+2025-03-27 23:32:51,138 - app - INFO - Processing signup step: 1
+2025-03-27 23:32:51,165 - app - ERROR - Email already registered: kiruri@gmail.com
+2025-03-27 23:32:51,165 - app - ERROR - Email already registered: kiruri@gmail.com
+2025-03-27 23:35:06,377 - app - INFO - Received signup request
+2025-03-27 23:35:06,377 - app - INFO - Received signup request
+2025-03-27 23:35:06,394 - app - INFO - Request data: {'email': 'kiruri12@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@21', 'step': 1}
+2025-03-27 23:35:06,394 - app - INFO - Request data: {'email': 'kiruri12@gmail.com', 'name': 'eppy cerah', 'password': 'cerah@21', 'step': 1}
+2025-03-27 23:35:06,490 - app - INFO - Processing signup step: 1
+2025-03-27 23:35:06,490 - app - INFO - Processing signup step: 1
+2025-03-27 23:35:06,748 - app - INFO - Successfully created temporary user: 5
+2025-03-27 23:35:06,748 - app - INFO - Successfully created temporary user: 5
+2025-03-27 23:40:56,582 - app - INFO - Cache initialized successfully
+2025-03-27 23:40:58,591 - app - INFO - Cache initialized successfully
+2025-03-27 23:40:58,591 - app - INFO - Cache initialized successfully
+2025-03-27 23:41:12,072 - app - INFO - Cache initialized successfully
+2025-03-27 23:41:14,152 - app - INFO - Cache initialized successfully
+2025-03-27 23:41:14,152 - app - INFO - Cache initialized successfully
+2025-03-27 23:42:05,492 - app - INFO - Received signup request
+2025-03-27 23:42:05,492 - app - INFO - Received signup request
+2025-03-27 23:42:05,500 - app - INFO - Request data: {'email': 'kiruri21@gmail.com', 'name': 'eppy cerah', 'password': '12345678', 'step': 1}
+2025-03-27 23:42:05,500 - app - INFO - Request data: {'email': 'kiruri21@gmail.com', 'name': 'eppy cerah', 'password': '12345678', 'step': 1}
+2025-03-27 23:42:05,519 - app - INFO - Processing signup step: 1
+2025-03-27 23:42:05,519 - app - INFO - Processing signup step: 1
+2025-03-27 23:42:05,553 - app - ERROR - Invalid password format
+2025-03-27 23:42:05,553 - app - ERROR - Invalid password format
+2025-03-27 23:42:17,396 - app - INFO - Received signup request
+2025-03-27 23:42:17,396 - app - INFO - Received signup request
+2025-03-27 23:42:17,445 - app - INFO - Request data: {'email': 'kiruri21@gmail.com', 'name': 'eppy cerah', 'password': 'Wanjira@12', 'step': 1}
+2025-03-27 23:42:17,445 - app - INFO - Request data: {'email': 'kiruri21@gmail.com', 'name': 'eppy cerah', 'password': 'Wanjira@12', 'step': 1}
+2025-03-27 23:42:17,455 - app - INFO - Processing signup step: 1
+2025-03-27 23:42:17,455 - app - INFO - Processing signup step: 1
+2025-03-27 23:42:17,593 - app - INFO - Successfully created temporary user: 6
+2025-03-27 23:42:17,593 - app - INFO - Successfully created temporary user: 6

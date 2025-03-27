@@ -1,5 +1,26 @@
-import { Chart } from "@/components/ui/chart"
 document.addEventListener("DOMContentLoaded", () => {
+  // Restore form state if it exists
+  const savedFormState = sessionStorage.getItem('formState');
+  if (savedFormState) {
+    try {
+      const formState = JSON.parse(savedFormState);
+      Object.entries(formState).forEach(([name, value]) => {
+        const input = document.querySelector(`[name="${name}"]`);
+        if (input) {
+          if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = value;
+          } else {
+            input.value = value;
+          }
+        }
+      });
+      // Clear the saved state after restoring
+      sessionStorage.removeItem('formState');
+    } catch (error) {
+      console.error('Error restoring form state:', error);
+    }
+  }
+
   // Form validation
   const forms = document.querySelectorAll(".needs-validation")
 
@@ -209,82 +230,263 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Signup form submission
-  document.getElementById('signupForm')?.addEventListener('submit', function(e) {
+  document.getElementById('signupForm')?.addEventListener('submit', async function(e) {
     e.preventDefault();
+    console.log('Signup form submitted');
 
-    const formData = {
+    // Clear any existing alerts
+    const alertContainer = document.getElementById('alert-container');
+    if (alertContainer) {
+      alertContainer.innerHTML = '';
+    }
+
+    try {
+      const formData = {
         email: document.getElementById('email').value,
         name: document.getElementById('name').value,
-        password: document.getElementById('password').value
-    };
+        password: document.getElementById('password').value,
+        step: 1
+      };
 
-    // Store step 1 data in session storage
-    sessionStorage.setItem('signupStep1Data', JSON.stringify(formData));
+      console.log('Form data collected:', {
+        ...formData,
+        password: '[REDACTED]'
+      });
 
-    // Redirect to step 2
-    window.location.href = '/auth/signup/step2';
+      // Get CSRF token
+      const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
+      if (!csrfToken) {
+        throw new Error('CSRF token not found');
+      }
+
+      // Send data to the server
+      const response = await fetch('/auth/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        },
+        credentials: 'include',
+        body: JSON.stringify(formData)
+      });
+
+      console.log('Server response received:', response.status);
+      
+      const data = await response.json();
+      console.log('Server response data:', {
+        ...data,
+        access_token: data.access_token ? '[REDACTED]' : undefined
+      });
+
+      if (response.status === 409) {
+        // Email already registered
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-warning alert-dismissible fade show';
+        alertDiv.innerHTML = `
+          This email is already registered. Please <a href="/auth/login">login</a> or use a different email.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        alertContainer.appendChild(alertDiv);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      if (data.success) {
+        // Store the access token
+        if (data.access_token) {
+          localStorage.setItem('access_token', data.access_token);
+          console.log('Access token stored in localStorage');
+        }
+        // Store step 1 data in session storage
+        sessionStorage.setItem('signupStep1Data', JSON.stringify(formData));
+        console.log('Step 1 data stored in session storage');
+        // Redirect to step 2
+        console.log('Redirecting to step 2');
+        window.location.href = '/auth/signup/step2';
+      } else {
+        throw new Error(data.message || 'Signup failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Show error message to user
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+      alertDiv.innerHTML = `
+        ${error.message || 'An error occurred during signup. Please try again.'}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+      alertContainer.appendChild(alertDiv);
+    }
   });
 
   // Step 2 form submission
   document.getElementById('signupStep2Form')?.addEventListener('submit', function(e) {
     e.preventDefault();
+    console.log('Step 2 form submitted');
 
     const step2Data = {
         wine_types: Array.from(document.getElementById('wine_types').selectedOptions).map(opt => opt.value),
-        price_range: document.getElementById('price_range').value
+        price_range: document.getElementById('price_range').value,
+        step: 2  // Add step parameter
     };
 
-    // Store step 2 data in session storage
-    sessionStorage.setItem('signupStep2Data', JSON.stringify(step2Data));
+    console.log('Step 2 data collected:', step2Data);
 
-    // Redirect to step 3
-    window.location.href = '/auth/signup/step3';
-  });
+    // Get CSRF token
+    const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
+    if (!csrfToken) {
+        console.error('CSRF token not found');
+        return;
+    }
 
-  // Step 3 form submission (final step)
-  document.getElementById('signupStep3Form')?.addEventListener('submit', function(e) {
-    e.preventDefault();
+    // Get access token
+    const accessToken = localStorage.getItem('access_token');
+    if (!accessToken) {
+        console.error('Access token not found');
+        return;
+    }
 
-    // Get data from all steps
-    const step1Data = JSON.parse(sessionStorage.getItem('signupStep1Data'));
-    const step2Data = JSON.parse(sessionStorage.getItem('signupStep2Data'));
-    const step3Data = {
-        traits: Array.from(document.getElementById('traits').selectedOptions).map(opt => opt.value)
-    };
-
-    // Combine all data
-    const finalData = {
-        ...step1Data,
-        wine_preferences: step2Data,
-        traits: step3Data.traits
-    };
-
-    // Send final data to create account
+    // Send data to the server
     fetch('/auth/api/signup', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+            'X-CSRFToken': csrfToken,
+            'Authorization': `Bearer ${accessToken}`
         },
-        body: JSON.stringify(finalData)
+        credentials: 'include',  // Include cookies
+        body: JSON.stringify(step2Data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Server response received:', response.status);
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.message || `HTTP error! status: ${response.status}`);
+            });
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('Server response data:', data);
         if (data.success) {
-            // Clear session storage
-            sessionStorage.removeItem('signupStep1Data');
-            sessionStorage.removeItem('signupStep2Data');
-            
-            // Redirect to recommendations
-            window.location.href = '/recommendations';
+            // Store step 2 data in session storage
+            sessionStorage.setItem('signupStep2Data', JSON.stringify(step2Data));
+            console.log('Step 2 data stored in session storage');
+            // Redirect to step 3
+            console.log('Redirecting to step 3');
+            window.location.href = '/auth/signup/step3';
         } else {
-            throw new Error(data.message || 'Signup failed');
+            throw new Error(data.message || 'Step 2 failed');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error creating account: ' + error.message);
+        // Show error message to user
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+            ${error.message || 'An error occurred. Please try again.'}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        const alertContainer = document.getElementById('alert-container');
+        if (alertContainer) {
+            alertContainer.innerHTML = ''; // Clear previous alerts
+            alertContainer.appendChild(alertDiv);
+        } else {
+            console.error('Alert container not found');
+        }
     });
+  });
+
+  // Step 3 form submission (final step)
+  document.getElementById('signupStep3Form')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    console.log('Step 3 form submitted');
+
+    try {
+      // Get data from all steps
+      const step1Data = JSON.parse(sessionStorage.getItem('signupStep1Data'));
+      const step2Data = JSON.parse(sessionStorage.getItem('signupStep2Data'));
+      const step3Data = {
+        preferences: Array.from(document.querySelectorAll('input[name="preferences"]:checked')).map(input => input.value),
+        step: 3
+      };
+
+      // Combine all data
+      const finalData = {
+        ...step1Data,
+        ...step2Data,
+        ...step3Data
+      };
+
+      console.log('Final form data:', {
+        ...finalData,
+        password: '[REDACTED]'
+      });
+
+      // Get CSRF token
+      const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
+      if (!csrfToken) {
+        throw new Error('CSRF token not found');
+      }
+
+      // Get access token
+      const accessToken = localStorage.getItem('access_token');
+      if (!accessToken) {
+        throw new Error('Access token not found');
+      }
+
+      // Send the complete data to the server
+      const response = await fetch('/auth/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken,
+          'Authorization': `Bearer ${accessToken}`
+        },
+        credentials: 'include',
+        body: JSON.stringify(finalData)
+      });
+
+      console.log('Server response received:', response.status);
+      
+      const data = await response.json();
+      console.log('Server response data:', data);
+
+      if (!response.ok) {
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
+
+      if (data.success) {
+        // Clear session storage
+        sessionStorage.removeItem('signupStep1Data');
+        sessionStorage.removeItem('signupStep2Data');
+        console.log('Signup completed successfully');
+        // Redirect to success page or dashboard
+        window.location.href = '/';
+      } else {
+        throw new Error(data.message || 'Signup failed');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Show error message to user
+      const alertDiv = document.createElement('div');
+      alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+      alertDiv.innerHTML = `
+        ${error.message || 'An error occurred during signup. Please try again.'}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+      const alertContainer = document.getElementById('alert-container');
+      if (alertContainer) {
+        alertContainer.innerHTML = ''; // Clear previous alerts
+        alertContainer.appendChild(alertDiv);
+      } else {
+        console.error('Alert container not found');
+      }
+    }
   });
 
   // Add event listeners for the continue buttons

@@ -127,10 +127,64 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     
     {% block scripts %}{% endblock %}
+
+    <!-- Live Reload Script -->
+    <script>
+        // Function to check for changes and reload
+        function checkForChanges() {
+            // Don't check if we're on a form page or if there's an active form submission
+            if (document.querySelector('form') || document.querySelector('.form-step')) {
+                return;
+            }
+
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const currentScripts = document.getElementsByTagName('script');
+                    const newScripts = doc.getElementsByTagName('script');
+                    
+                    // Check if any scripts have changed
+                    for (let i = 0; i < currentScripts.length; i++) {
+                        if (currentScripts[i].src && currentScripts[i].src !== newScripts[i].src) {
+                            // Save form state before reload
+                            const formState = {};
+                            document.querySelectorAll('form input, form select, form textarea').forEach(input => {
+                                if (input.type === 'checkbox' || input.type === 'radio') {
+                                    formState[input.name] = input.checked;
+                                } else {
+                                    formState[input.name] = input.value;
+                                }
+                            });
+                            sessionStorage.setItem('formState', JSON.stringify(formState));
+                            
+                            window.location.reload();
+                            return;
+                        }
+                    }
+                })
+                .catch(error => console.error('Error checking for changes:', error));
+        }
+
+        // Check for changes every 5 seconds in development
+        {% if config.DEBUG %}
+        let reloadInterval = setInterval(checkForChanges, 5000);
+
+        // Stop checking for changes when on form pages
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.querySelector('form') || document.querySelector('.form-step')) {
+                clearInterval(reloadInterval);
+            }
+        });
+        {% endif %}
+    </script>
 </body>
 </html>
 
