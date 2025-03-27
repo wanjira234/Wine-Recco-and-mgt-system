@@ -1,0 +1,234 @@
+/* Global Styles */
+:root {
+  --wine-red: #722f37;
+  --wine-burgundy: #4e1c24;
+  --wine-gold: #d4af37;
+  --wine-cream: #f5f5dc;
+  --wine-dark: #1a0f11;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: #f8f9fa;
+}
+
+/* Navbar Customization */
+.navbar-dark {
+  background-color: var(--wine-burgundy) !important;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  color: var(--wine-cream) !important;
+}
+
+.nav-link.btn-primary {
+  background-color: var(--wine-red);
+  border-color: var(--wine-red);
+}
+
+.nav-link.btn-outline-light:hover {
+  background-color: var(--wine-cream);
+  color: var(--wine-burgundy);
+}
+
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("../img/wine-hero.jpg");
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 100px 0;
+  margin-bottom: 40px;
+}
+
+.hero-content {
+  max-width: 600px;
+}
+
+/* Wine Cards */
+.wine-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 20px;
+  height: 100%;
+}
+
+.wine-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.wine-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.wine-card .badge {
+  background-color: var(--wine-red);
+}
+
+/* Forms */
+.form-control:focus {
+  border-color: var(--wine-red);
+  box-shadow: 0 0 0 0.25rem rgba(114, 47, 55, 0.25);
+}
+
+.btn-wine {
+  background-color: var(--wine-red);
+  border-color: var(--wine-red);
+  color: white;
+}
+
+.btn-wine:hover {
+  background-color: var(--wine-burgundy);
+  border-color: var(--wine-burgundy);
+  color: white;
+}
+
+/* Multi-step Form */
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.step {
+  text-align: center;
+  width: 30%;
+  position: relative;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  font-weight: bold;
+}
+
+.step.active .step-number {
+  background-color: var(--wine-red);
+  color: white;
+}
+
+.step.completed .step-number {
+  background-color: #28a745;
+  color: white;
+}
+
+.step-title {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.step.active .step-title {
+  color: var(--wine-red);
+  font-weight: bold;
+}
+
+.step-connector {
+  position: absolute;
+  top: 20px;
+  height: 2px;
+  background-color: #e9ecef;
+  width: 100%;
+  left: 50%;
+  z-index: -1;
+}
+
+.step:last-child .step-connector {
+  display: none;
+}
+
+/* Admin Dashboard */
+.sidebar {
+  min-height: calc(100vh - 56px);
+  background-color: #343a40;
+  padding-top: 20px;
+}
+
+.sidebar .nav-link {
+  color: rgba(255, 255, 255, 0.75);
+  padding: 10px 20px;
+}
+
+.sidebar .nav-link:hover {
+  color: white;
+}
+
+.sidebar .nav-link.active {
+  color: white;
+  background-color: var(--wine-burgundy);
+}
+
+.sidebar .nav-link i {
+  margin-right: 10px;
+}
+
+/* Wine Traits Selection */
+.trait-option {
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+}
+
+.trait-option:hover {
+  border-color: var(--wine-red);
+}
+
+.trait-option.selected {
+  background-color: rgba(114, 47, 55, 0.1);
+  border-color: var(--wine-red);
+}
+
+.trait-option i {
+  color: var(--wine-red);
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+/* Footer */
+footer {
+  background-color: var(--wine-burgundy) !important;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+.social-icons a {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.1);
+  text-align: center;
+  line-height: 36px;
+  transition: background-color 0.3s ease;
+}
+
+.social-icons a:hover {
+  background-color: var(--wine-red);
+  text-decoration: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 60px 0;
+  }
+
+  .step-title {
+    font-size: 0.8rem;
+  }
+}
+

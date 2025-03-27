@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Wine Quality Prediction{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h1 class="display-4 fw-bold mb-4">Discover Your Perfect Wine</h1>
+            <p class="lead mb-4">Our AI-powered wine recommendation system helps you find wines that match your unique taste preferences.</p>
+            <div class="d-flex gap-3">
+                <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg">Get Started</a>
+                <a href="{{ url_for('about') }}" class="btn btn-outline-light btn-lg">Learn More</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="container mb-5">
+    <h2 class="text-center mb-5">How It Works</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary bg-gradient text-white mb-3 mx-auto" style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-user-plus fa-2x"></i>
+                    </div>
+                    <h3 class="card-title h5">Create Your Profile</h3>
+                    <p class="card-text">Tell us about your wine preferences and taste profile to get personalized recommendations.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary bg-gradient text-white mb-3 mx-auto" style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-robot fa-2x"></i>
+                    </div>
+                    <h3 class="card-title h5">AI Analysis</h3>
+                    <p class="card-text">Our advanced AI analyzes thousands of wines to find the perfect matches for your palate.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="feature-icon bg-primary bg-gradient text-white mb-3 mx-auto" style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-wine-glass-alt fa-2x"></i>
+                    </div>
+                    <h3 class="card-title h5">Discover Wines</h3>
+                    <p class="card-text">Explore personalized wine recommendations and expand your wine knowledge.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Wines Section -->
+<section class="container mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Featured Wines</h2>
+        <a href="{{ url_for('catalog') }}" class="btn btn-outline-primary">View All</a>
+    </div>
+    <div class="row g-4">
+        {% for wine in featured_wines %}
+        <div class="col-md-3">
+            <div class="card wine-card">
+                <img src="{{ wine.image_url }}" class="card-img-top" alt="{{ wine.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ wine.name }}</h5>
+                    <p class="card-text text-muted">{{ wine.winery }} | {{ wine.region }}, {{ wine.country }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">${{ wine.price }}</span>
+                        <span class="badge bg-primary">{{ wine.rating }}/100</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0">
+                    <a href="{{ url_for('wine_details', wine_id=wine.id) }}" class="btn btn-sm btn-outline-primary w-100">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="bg-light py-5 mb-5">
+    <div class="container">
+        <h2 class="text-center mb-5">What Our Users Say</h2>
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3 text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="card-text mb-3">"The wine recommendations were spot on! I discovered several new favorites that I would have never tried on my own."</p>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ url_for('static', filename='img/user1.jpg') }}" alt="User" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">Sarah Johnson</h6>
+                                <small class="text-muted">Wine Enthusiast</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3 text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="card-text mb-3">"As a sommelier, I'm impressed by the accuracy of the AI predictions. This platform is a game-changer for wine lovers of all experience levels."</p>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ url_for('static', filename='img/user2.jpg') }}" alt="User" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">Michael Rodriguez</h6>
+                                <small class="text-muted">Professional Sommelier</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3 text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <p class="card-text mb-3">"I used to be intimidated by wine selection, but this platform has made it so easy to find wines I love. The educational content is fantastic too!"</p>
+                        <div class="d-flex align-items-center">
+                            <img src="{{ url_for('static', filename='img/user3.jpg') }}" alt="User" class="rounded-circle me-3" width="50" height="50">
+                            <div>
+                                <h6 class="mb-0">Emily Chen</h6>
+                                <small class="text-muted">Wine Novice</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-body p-5 text-center">
+                    <h3 class="mb-3">Stay Updated</h3>
+                    <p class="mb-4">Subscribe to our newsletter for the latest wine recommendations and industry insights.</p>
+                    <form class="row g-3 justify-content-center">
+                        <div class="col-md-8">
+                            <input type="email" class="form-control" placeholder="Your email address" required>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-wine w-100">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

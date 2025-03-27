@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Taste Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="text-center mb-4">Your Taste Profile</h1>
+                    
+                    <!-- Step Indicator -->
+                    <div class="step-indicator mb-5">
+                        <div class="step completed">
+                            <div class="step-number">1</div>
+                            <div class="step-title">Personal Details</div>
+                            <div class="step-connector"></div>
+                        </div>
+                        <div class="step completed">
+                            <div class="step-number">2</div>
+                            <div class="step-title">Wine Preferences</div>
+                            <div class="step-connector"></div>
+                        </div>
+                        <div class="step active">
+                            <div class="step-number">3</div>
+                            <div class="step-title">Taste Profile</div>
+                        </div>
+                    </div>
+                    
+                    <form action="{{ url_for('signup_complete') }}" method="post" class="multi-step-form needs-validation" novalidate>
+                        <div class="form-step">
+                            <div class="mb-4">
+                                <label class="form-label">How do you prefer your wine's body?</label>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="trait-option text-center">
+                                            <input type="radio" name="body" id="lightBody" value="light" class="d-none" required>
+                                            <i class="fas fa-wine-glass"></i>
+                                            <h5>Light</h5>
+                                            <p class="small text-muted">Delicate and refreshing</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="trait-option text-center">
+                                            <input type="radio" name="body" id="mediumBody" value="medium" class="d-none" required>
+                                            <i class="fas fa-wine-glass-alt"></i>
+                                            <h5>Medium</h5>
+                                            <p class="small text-muted">Balanced and smooth</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="trait-option text-center">
+                                            <input type="radio" name="body" id="fullBody" value="full" class="d-none" required>
+                                            <i class="fas fa-wine-bottle"></i>
+                                            <h5>Full</h5>
+                                            <p class="small text-muted">Rich and intense</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please select your preferred body.
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">What flavor profiles do you enjoy?</label>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="trait-option text-center">
+                                            <input type="checkbox" name="flavors" id="fruity" value="fruity" class="d-none">
+                                            <i class="fas fa-apple-alt"></i>
+                                            <h5>Fruity</h5>
+                                            <p class="small text-muted">Berry, citrus, stone fruit</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="trait-option text-center">
+                                            <input type="checkbox" name="flavors" id="earthy" value="earthy" class="d-none">
+                                            <i class="fas fa-leaf"></i>
+                                            <h5>Earthy</h5>
+                                            <p class="small text-muted">Soil, mushroom, mineral</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="trait-option text-center">
+                                            <input type="checkbox" name="flavors" id="spicy" value="spicy" class="d-none">
+                                            <i class="fas fa-pepper-hot"></i>
+                                            <h5>Spicy</h5>
+                                            <p class="small text-muted">Pepper, cinnamon, clove</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="trait-option text-center">
+                                            <input type="checkbox" name="flavors" id="floral" value="floral" class="d-none">
+                                            <i class="fas fa-spa"></i>
+                                            <h5>Floral</h5>
+                                            <p class="small text-muted">Rose, violet, lavender</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="trait-option text-center">
+                                            <input type="checkbox" name="flavors" id="oaky" value="oaky" class="d-none">
+                                            <i class="fas fa-tree"></i>
+                                            <h5>Oaky</h5>
+                                            <p class="small text-muted">Vanilla, toast, smoke</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="trait-option text-center">
+                                            <input type="checkbox" name="flavors" id="herbaceous" value="herbaceous" class="d-none">
+                                            <i class="fas fa-seedling"></i>
+                                            <h5>Herbaceous</h5>
+                                            <p class="small text-muted">Grass, mint, eucalyptus</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">How do you prefer your wine's acidity?</label>
+                                <div class="range-slider">
+                                    <input type="range" class="form-range" id="acidity" name="acidity" min="1" max="5" value="3">
+                                    <div class="range-labels d-flex justify-content-between mt-2">
+                                        <span>Low</span>
+                                        <span>Medium-Low</span>
+                                        <span>Medium</span>
+                                        <span>Medium-High</span>
+                                        <span>High</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">How do you prefer your wine's tannin level? (For red wines)</label>
+                                <div class="range-slider">
+                                    <input type="range" class="form-range" id="tannin" name="tannin" min="1" max="5" value="3">
+                                    <div class="range-labels d-flex justify-content-between mt-2">
+                                        <span>Soft</span>
+                                        <span>Medium-Soft</span>
+                                        <span>Medium</span>
+                                        <span>Medium-Firm</span>
+                                        <span>Firm</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label">How do you prefer your wine's sweetness?</label>
+                                <div class="range-slider">
+                                    <input type="range" class="form-range" id="sweetness" name="sweetness" min="1" max="5" value="2">
+                                    <div class="range-labels d-flex justify-content-between mt-2">
+                                        <span>Dry</span>
+                                        <span>Off-Dry</span>
+                                        <span>Medium</span>
+                                        <span>Medium-Sweet</span>
+                                        <span>Sweet</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ url_for('signup_step2') }}" class="btn btn-outline-secondary btn-prev">Back</a>
+                                <button type="submit" class="btn btn-wine btn-next">Complete Sign Up</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

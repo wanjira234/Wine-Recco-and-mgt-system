@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Wine Quality Prediction{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin.dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.users') }}">
+                            <i class="fas fa-users me-2"></i>User Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.wines') }}">
+                            <i class="fas fa-wine-bottle me-2"></i>Wine Catalog
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.recommendations') }}">
+                            <i class="fas fa-robot me-2"></i>Recommendation Control
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.analytics') }}">
+                            <i class="fas fa-chart-line me-2"></i>Analytics
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.settings') }}">
+                            <i class="fas fa-cog me-2"></i>Settings
+                        </a>
+                    </li>
+                </ul>
+                
+                <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                    <span>Reports</span>
+                </h6>
+                <ul class="nav flex-column mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.reports.monthly') }}">
+                            <i class="fas fa-file-alt me-2"></i>Monthly Report
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.reports.quarterly') }}">
+                            <i class="fas fa-file-alt me-2"></i>Quarterly Report
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                        <i class="fas fa-calendar me-1"></i>This week
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-xl-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                        <i class="fas fa-users fa-2x text-primary"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-0">Total Users</h6>
+                                    <h2 class="mt-2 mb-0">1,258</h2>
+                                    <p class="text-success mb-0"><i class="fas fa-arrow-up me-1"></i>12.5% <span class="text-muted">from last month</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-xl-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-success bg-opacity-10 p-3 rounded">
+                                        <i class="fas fa-wine-bottle fa-2x text-success"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-0">Total Wines</h6>
+                                    <h2 class="mt-2 mb-0">3,542</h2>
+                                    <p class="text-success mb-0"><i class="fas fa-arrow-up me-1"></i>8.3% <span class="text-muted">from last month</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-xl-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-info bg-opacity-10 p-3 rounded">
+                                        <i class="fas fa-thumbs-up fa-2x text-info"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-0">Recommendations</h6>
+                                    <h2 class="mt-2 mb-0">15,842</h2>
+                                    <p class="text-success mb-0"><i class="fas fa-arrow-up me-1"></i>24.7% <span class="text-muted">from last month</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-xl-3">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                        <i class="fas fa-star fa-2x text-warning"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="card-title mb-0">Avg. Rating</h6>
+                                    <h2 class="mt-2 mb-0">4.7/5</h2>
+                                    <p class="text-success mb-0"><i class="fas fa-arrow-up me-1"></i>3.2% <span class="text-muted">from last month</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">User Growth</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="userGrowthChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">Wine Categories</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="wineCategoriesChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Recent Activity</h5>
+                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Activity</th>
+                                    <th>Wine</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='img/user1.jpg') }}" class="rounded-circle me-2" width="32" height="32" alt="User">
+                                            <span>Sarah Johnson</span>
+                                        </div>
+                                    </td>
+                                    <td>Rated a wine</td>
+                                    <td>Château Margaux 2015</td>
+                                    <td>2 hours ago</td>
+                                    <td><span class="badge bg-success">5 Stars</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='img/user2.jpg') }}" class="rounded-circle me-2" width="32" height="32" alt="User">
+                                            <span>Michael Rodriguez</span>
+                                        </div>
+                                    </td>
+                                    <td>Updated preferences</td>
+                                    <td>-</td>
+                                    <td>3 hours ago</td>
+                                    <td><span class="badge bg-info">Updated</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='img/user3.jpg') }}" class="rounded-circle me-2" width="32" height="32" alt="User">
+                                            <span>Emily Chen</span>
+                                        </div>
+                                    </td>
+                                    <td>Purchased a wine</td>
+                                    <td>Opus One 2018</td>
+                                    <td>5 hours ago</td>
+                                    <td><span class="badge bg-primary">Purchased</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='img/user4.jpg') }}" class="rounded-circle me-2" width="32" height="32" alt="User">
+                                            <span>David Thompson</span>
+                                        </div>
+                                    </td>
+                                    <td>Added to wishlist</td>
+                                    <td>Sassicaia 2017</td>
+                                    <td>Yesterday</td>
+                                    <td><span class="badge bg-warning">Wishlist</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ url_for('static', filename='img/user5.jpg') }}" class="rounded-circle me-2" width="32" height="32" alt="User">
+                                            <span>Jessica Williams</span>
+                                        </div>
+                                    </td>
+                                    <td>Signed up</td>
+                                    <td>-</td>
+                                    <td>Yesterday</td>
+                                    <td><span class="badge bg-success">New User</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Recommendations -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Recent Recommendations</h5>
+                        <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Recommended Wine</th>
+                                    <th>Match Score</th>
+                                    <th>Date</th>
+                                    <th>User Feedback</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Sarah Johnson</td>
+                                    <td>Château Margaux 2015</td>
+                                    <td>98%</td>
+                                    <td>Today</td>
+                                    <td><span class="badge bg-success">Positive</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Michael Rodriguez</td>
+                                    <td>Opus One 2018</td>
+                                    <td>95%</td>
+                                    <td>Today</td>
+                                    <td><span class="badge bg-success">Positive</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Emily Chen</td>
+                                    <td>Sassicaia 2017</td>
+                                    <td>92%</td>
+                                    <td>Yesterday</td>
+                                    <td><span class="badge bg-warning">Neutral</span></td>
+                                </tr>
+                                <tr>
+                                    <td>David Thompson</td>
+                                    <td>Penfolds Grange 2016</td>
+                                    <td>89%</td>
+                                    <td>Yesterday</td>
+                                    <td><span class="badge bg-danger">Negative</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Jessica Williams</td>
+                                    <td>Caymus Special Selection 2018</td>
+                                    <td>97%</td>
+                                    <td>2 days ago</td>
+                                    <td><span class="badge bg-success">Positive</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // User Growth Chart
+        const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+        const userGrowthChart = new Chart(userGrowthCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'New Users',
+                    data: [65, 78, 90, 115, 135, 158, 190, 230, 260, 290, 310, 330],
+                    borderColor: '#722F37',
+                    backgroundColor: 'rgba(114, 47, 55, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // Wine Categories Chart
+        const wineCategoriesCtx = document.getElementById('wineCategoriesChart').getContext('2d');
+        const wineCategoriesChart = new Chart(wineCategoriesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Red', 'White', 'Rosé', 'Sparkling', 'Dessert'],
+                datasets: [{
+                    data: [45, 30, 15, 7, 3],
+                    backgroundColor: [
+                        '#722F37',
+                        '#D4AF37',
+                        '#E09999',
+                        '#B5D8CC',
+                        '#9B7653'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+

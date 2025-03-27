@@ -540,21 +540,47 @@ def create_app():
 # Create App Instance
 app = create_app()
 
-# Update the serve function to handle React routes properly
+# Serve static files
+@app.route('/static/<path:path>')
+def serve_static(path):
+    return send_from_directory('static', path)
+
+# Serve Next.js static files
 @app.route('/_next/<path:path>')
 def next_static(path):
     return send_from_directory('_next', path)
 
-# All other routes will be handled by Next.js
+# API routes
+@app.route('/api')
+def api_index():
+    return jsonify({
+        'status': 'success',
+        'message': 'Welcome to the WineRecco API',
+        'version': '1.0.0'
+    })
+
+# Handle all other routes
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
+    # If the path starts with api/, return 404
     if path.startswith('api/'):
         return jsonify({'error': 'Not found'}), 404
-    return render_template('index.html')
-
-# Remove conflicting error handlers
-# The centralized error handling from utils.error_handlers will be used instead
+    
+    # If the path starts with _next/, return 404
+    if path.startswith('_next/'):
+        return jsonify({'error': 'Not found'}), 404
+    
+    # If the path starts with static/, return 404
+    if path.startswith('static/'):
+        return jsonify({'error': 'Not found'}), 404
+    
+    # Try to render the template if it exists
+    try:
+        return render_template(f'{path}.html' if path else 'home.html')
+    except:
+        # If template doesn't exist, return 404
+        return jsonify({'error': 'Not found'}), 404
 
 if __name__ == '__main__':
     app = create_app()
@@ -567,28 +593,6 @@ if __name__ == '__main__':
         response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
         response.headers.add('Access-Control-Allow-Credentials', 'true')
         return response
-    
-    # API index endpoint
-    @app.route('/api')
-    def api_index():
-        return jsonify({
-            'status': 'success',
-            'message': 'Welcome to the WineRecco API',
-            'version': '1.0.0'
-        })
-    
-    # Serve static files
-    @app.route('/static/<path:path>')
-    def serve_static(path):
-        return send_from_directory('static', path)
-    
-    # All other routes will be handled by Next.js
-    @app.route('/', defaults={'path': ''})
-    @app.route('/<path:path>')
-    def catch_all(path):
-        if path.startswith('api/'):
-            return jsonify({'error': 'Not found'}), 404
-        return render_template('index.html')
     
     print(" * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)")
     print(" * Next.js development server should be running on http://localhost:3002/")

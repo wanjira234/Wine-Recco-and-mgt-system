@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}Wine Catalog - Wine Quality Prediction{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Wine Catalog</h1>
+    
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Filters</h5>
+                    <form id="filter-form" action="{{ url_for('catalog') }}" method="get">
+                        <div class="mb-3">
+                            <label class="form-label">Wine Type</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="redWine" name="type" value="red" {% if 'red' in selected_types %}checked{% endif %}>
+                                <label class="form-check-label" for="redWine">Red Wine</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="whiteWine" name="type" value="white" {% if 'white' in selected_types %}checked{% endif %}>
+                                <label class="form-check-label" for="whiteWine">White Wine</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="roseWine" name="type" value="rose" {% if 'rose' in selected_types %}checked{% endif %}>
+                                <label class="form-check-label" for="roseWine">Rosé Wine</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="sparklingWine" name="type" value="sparkling" {% if 'sparkling' in selected_types %}checked{% endif %}>
+                                <label class="form-check-label" for="sparklingWine">Sparkling Wine</label>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="price-range" class="form-label">Price Range</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="range" class="form-range" id="price-range" name="max_price" min="10" max="200" step="10" value="{{ max_price|default(100) }}">
+                                <span id="price-value">${{ max_price|default(100) }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Minimum Rating</label>
+                            <select class="form-select" id="rating" name="min_rating">
+                                <option value="0" {% if min_rating == 0 %}selected{% endif %}>Any Rating</option>
+                                <option value="85" {% if min_rating == 85 %}selected{% endif %}>85+</option>
+                                <option value="90" {% if min_rating == 90 %}selected{% endif %}>90+</option>
+                                <option value="95" {% if min_rating == 95 %}selected{% endif %}>95+</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="country" class="form-label">Country</label>
+                            <select class="form-select" id="country" name="country">
+                                <option value="">All Countries</option>
+                                {% for country in countries %}
+                                <option value="{{ country }}" {% if selected_country == country %}selected{% endif %}>{{ country }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Body</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="lightBody" name="body" value="light" {% if 'light' in selected_body %}checked{% endif %}>
+                                <label class="form-check-label" for="lightBody">Light</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="mediumBody" name="body" value="medium" {% if 'medium' in selected_body %}checked{% endif %}>
+                                <label class="form-check-label" for="mediumBody">Medium</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="fullBody" name="body" value="full" {% if 'full' in selected_body %}checked{% endif %}>
+                                <label class="form-check-label" for="fullBody">Full</label>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-wine">Apply Filters</button>
+                        </div>
+                        
+                        <div class="d-grid mt-2">
+                            <a href="{{ url_for('catalog') }}" class="btn btn-outline-secondary">Clear Filters</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Wine Catalog -->
+        <div class="col-lg-9">
+            <!-- AI Recommendations Section -->
+            {% if current_user.is_authenticated %}
+            <div class="mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-robot me-2"></i>AI Recommendations For You
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            {% for wine in recommended_wines %}
+                            <div class="col-md-4">
+                                <div class="card wine-card h-100">
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span class="badge bg-primary">{{ wine.match_score }}% Match</span>
+                                    </div>
+                                    <img src="{{ wine.image_url }}" class="card-img-top" alt="{{ wine.name }}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ wine.name }}</h5>
+                                        <p class="card-text text-muted">{{ wine.winery }} | {{ wine.region }}, {{ wine.country }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold">${{ wine.price }}</span>
+                                            <span class="badge bg-secondary">{{ wine.rating }}/100</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer bg-white border-top-0">
+                                        <a href="{{ url_for('wine_details', wine_id=wine.id) }}" class="btn btn-sm btn-outline-primary w-100">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Search and Sort -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                    <form action="{{ url_for('catalog') }}" method="get" class="d-flex">
+                        <input type="text" class="form-control me-2" name="search" placeholder="Search wines..." value="{{ search_query }}">
+                        <button type="submit" class="btn btn-wine">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="d-flex align-items-center">
+                    <label for="sort" class="me-2">Sort by:</label>
+                    <select id="sort" class="form-select" onchange="window.location.href=this.value">
+                        <option value="{{ url_for('catalog', sort='name', **request.args) }}" {% if sort == 'name' %}selected{% endif %}>Name</option>
+                        <option value="{{ url_for('catalog', sort='price_asc', **request.args) }}" {% if sort == 'price_asc' %}selected{% endif %}>Price (Low to High)</option>
+                        <option value="{{ url_for('catalog', sort='price_desc', **request.args) }}" {% if sort == 'price_desc' %}selected{% endif %}>Price (High to Low)</option>
+                        <option value="{{ url_for('catalog', sort='rating', **request.args) }}" {% if sort == 'rating' %}selected{% endif %}>Rating</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Wine List -->
+            {% if wines %}
+            <div class="row g-4">
+                {% for wine in wines %}
+                <div class="col-md-4">
+                    <div class="card wine-card h-100">
+                        {% if wine.rating >= 90 %}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            <span class="badge bg-success">Top Rated</span>
+                        </div>
+                        {% endif %}
+                        <img src="{{ wine.image_url }}" class="card-img-top" alt="{{ wine.name }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ wine.name }}</h5>
+                            <p class="card-text text-muted">{{ wine.winery }} | {{ wine.region }}, {{ wine.country }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">${{ wine.price }}</span>
+                                <span class="badge bg-secondary">{{ wine.rating }}/100</span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <a href="{{ url_for('wine_details', wine_id=wine.id) }}" class="btn btn-sm btn-outline-primary w-100">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            <nav aria-label="Wine catalog pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if page == 1 %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('catalog', page=page-1, **request.args) }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% for p in range(1, total_pages + 1) %}
+                    <li class="page-item {% if p == page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('catalog', page=p, **request.args) }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+                    <li class="page-item {% if page == total_pages %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('catalog', page=page+1, **request.args) }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No wines found matching your criteria. Try adjusting your filters.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

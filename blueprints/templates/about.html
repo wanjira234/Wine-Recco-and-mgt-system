@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}About - Wine Quality Prediction{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <h1 class="display-5 fw-bold mb-4">About Our Wine Quality Prediction System</h1>
+            <p class="lead">Discover how our AI-powered platform is revolutionizing the way people find and enjoy wines.</p>
+            <p>Our Wine Quality Prediction System combines advanced machine learning algorithms with expert wine knowledge to provide personalized wine recommendations tailored to your unique preferences.</p>
+            <p>Whether you're a wine connoisseur or just beginning your wine journey, our platform helps you discover new wines that match your taste profile, budget, and preferences.</p>
+        </div>
+        <div class="col-lg-6">
+            <img src="{{ url_for('static', filename='img/about-hero.jpg') }}" alt="Wine tasting" class="img-fluid rounded shadow">
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Our Mission</h2>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <p class="lead mb-0">To make wine discovery accessible, enjoyable, and personalized for everyone by leveraging the power of artificial intelligence and data science.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12 mb-4">
+            <h2 class="text-center">How Our AI Works</h2>
+            <p class="text-center mb-5">Our sophisticated AI system analyzes multiple factors to provide accurate wine predictions and recommendations.</p>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 mb-3 mx-auto" style="width: 80px; height: 80px;">
+                        <i class="fas fa-database text-primary fa-2x"></i>
+                    </div>
+                    <h3 class="h5 mb-3">Data Collection</h3>
+                    <p class="card-text">We analyze thousands of wines, their chemical properties, expert ratings, and user feedback to build our comprehensive database.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 mb-3 mx-auto" style="width: 80px; height: 80px;">
+                        <i class="fas fa-brain text-primary fa-2x"></i>
+                    </div>
+                    <h3 class="h5 mb-3">Machine Learning</h3>
+                    <p class="card-text">Our algorithms learn from user preferences and wine characteristics to create accurate prediction models.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 mb-3 mx-auto" style="width: 80px; height: 80px;">
+                        <i class="fas fa-wine-glass-alt text-primary fa-2x"></i>
+                    </div>
+                    <h3 class="h5 mb-3">Personalization</h3>
+                    <p class="card-text">We match your unique taste profile with our wine database to recommend wines you'll love.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12 mb-4">
+            <h2 class="text-center">Our Technology</h2>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <h3 class="h4 mb-3">Content-Based Filtering</h3>
+            <p>Our system analyzes the intrinsic properties of wines such as acidity, tannin levels, body, and flavor profiles to recommend similar wines based on ones you've enjoyed in the past.</p>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <h3 class="h4 mb-3">Collaborative Filtering</h3>
+            <p>By identifying patterns among users with similar preferences, our system can recommend wines that like-minded wine enthusiasts have enjoyed.</p>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <h3 class="h4 mb-3">Natural Language Processing</h3>
+            <p>We analyze wine descriptions, reviews, and tasting notes to understand the subjective characteristics that make each wine unique.</p>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <h3 class="h4 mb-3">Continuous Learning</h3>
+            <p>Our AI models continuously improve as they receive more data from user interactions, ratings, and feedback.</p>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Meet Our Team</h2>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <img src="{{ url_for('static', filename='img/team1.jpg') }}" class="card-img-top" alt="Team member">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-1">Dr. Emma Wilson</h5>
+                    <p class="text-muted mb-3">Chief Data Scientist</p>
+                    <div class="social-links">
+                        <a href="#" class="text-secondary me-2"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-secondary me-2"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-secondary"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <img src="{{ url_for('static', filename='img/team2.jpg') }}" class="card-img-top" alt="Team member">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-1">James Chen</h5>
+                    <p class="text-muted mb-3">Lead Developer</p>
+                    <div class="social-links">
+                        <a href="#" class="text-secondary me-2"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-secondary me-2"><i class="fab fa-github"></i></a>
+                        <a href="#" class="text-secondary"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <img src="{{ url_for('static', filename='img/team3.jpg') }}" class="card-img-top" alt="Team member">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-1">Sofia Martinez</h5>
+                    <p class="text-muted mb-3">Wine Expert & Sommelier</p>
+                    <div class="social-links">
+                        <a href="#" class="text-secondary me-2"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-secondary me-2"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-secondary"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <img src="{{ url_for('static', filename='img/team4.jpg') }}" class="card-img-top" alt="Team member">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-1">David Thompson</h5>
+                    <p class="text-muted mb-3">UX/UI Designer</p>
+                    <div class="social-links">
+                        <a href="#" class="text-secondary me-2"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-secondary me-2"><i class="fab fa-dribbble"></i></a>
+                        <a href="#" class="text-secondary"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 text-center">
+            <h2 class="mb-4">Ready to Discover Your Perfect Wine?</h2>
+            <a href="{{ url_for('signup') }}" class="btn btn-wine btn-lg">Get Started Now</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
