@@ -1,7 +1,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, current_app
+from flask import Flask, jsonify, render_template, request, redirect, url_for, flash, current_app, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -541,16 +541,16 @@ def create_app():
 app = create_app()
 
 # Update the serve function to handle React routes properly
+@app.route('/_next/<path:path>')
+def next_static(path):
+    return send_from_directory('_next', path)
+
+# All other routes will be handled by Next.js
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
-def serve(path):
-    """
-    Serve the React application for all non-API routes
-    """
+def catch_all(path):
     if path.startswith('api/'):
         return jsonify({'error': 'Not found'}), 404
-    if path.startswith('static/'):
-        return app.send_static_file(path)
     return render_template('index.html')
 
 # Remove conflicting error handlers
@@ -559,10 +559,20 @@ def serve(path):
 if __name__ == '__main__':
     app = create_app()
     app.config['DEBUG'] = True
-    app.config['TESTING'] = True
-    print("\nStarting Flask development server...")
+    
+    # Serve Next.js static files
+    @app.route('/_next/<path:path>')
+    def next_static(path):
+        return send_from_directory('_next', path)
+    
+    # All other routes will be handled by Next.js
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def catch_all(path):
+        if path.startswith('api/'):
+            return jsonify({'error': 'Not found'}), 404
+        return render_template('index.html')
+    
     print(" * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)")
-    print(" * Restarting with stat")
-    print(" * Debugger is active!")
-    print(" * Debugger PIN: 123-456-789\n")
+    print(" * Next.js frontend will be available at http://127.0.0.1:3000/")
     app.run(debug=True, host='127.0.0.1', port=5000)
