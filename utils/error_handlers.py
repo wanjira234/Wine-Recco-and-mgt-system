@@ -4,6 +4,7 @@ import logging
 from functools import wraps
 from werkzeug.exceptions import HTTPException
 from flask_wtf.csrf import generate_csrf
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, ProgrammingError, IntegrityError
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,37 @@ class ErrorHandler:
         # Log the error
         current_app.logger.error(f"Error occurred: {str(error)}")
         current_app.logger.error(traceback.format_exc())
+
+        # Handle Database Errors
+        if isinstance(error, SQLAlchemyError):
+            if isinstance(error, OperationalError):
+                # Handle missing tables/columns
+                if "no such table" in str(error) or "no such column" in str(error):
+                    message = "Database schema is not up to date. Please run database migrations."
+                    logger.error(f"Database schema error: {message}")
+                    return jsonify({
+                        'error': 'Database Schema Error',
+                        'message': message,
+                        'status_code': 500,
+                        'action_required': 'Run database migrations'
+                    }), 500
+            elif isinstance(error, ProgrammingError):
+                return jsonify({
+                    'error': 'Database Programming Error',
+                    'message': 'A database operation failed due to programming error',
+                    'status_code': 500
+                }), 500
+            elif isinstance(error, IntegrityError):
+                return jsonify({
+                    'error': 'Database Integrity Error',
+                    'message': 'The operation violated database integrity constraints',
+                    'status_code': 400
+                }), 400
+            return jsonify({
+                'error': 'Database Error',
+                'message': 'A database operation failed',
+                'status_code': 500
+            }), 500
 
         # Handle HTTP Exceptions
         if isinstance(error, HTTPException):
@@ -50,105 +82,112 @@ class ErrorHandler:
         # Generic server error for unhandled exceptions
         return jsonify({
             'error': 'Internal Server Error',
-            'message': 'An unexpected error occurred',
-            'details': str(error),
+            'message': str(error),
             'status_code': 500
         }), 500
 
     @staticmethod
+    def handle_initialization_error(error, component_name):
+        """
+        Handle initialization errors for application components
+        
+        :param error: Exception object
+        :param component_name: Name of the component that failed to initialize
+        :return: None, but logs the error and sets up fallback if possible
+        """
+        logger.error(f"{component_name} initialization failed: {str(error)}")
+        logger.error(traceback.format_exc())
+        
+        if isinstance(error, SQLAlchemyError):
+            logger.error("Database error during initialization. Please ensure database is properly configured and migrations are up to date.")
+            if isinstance(error, OperationalError):
+                if "no such table" in str(error) or "no such column" in str(error):
+                    logger.error("Database schema is out of date. Running migrations may fix this issue.")
+                    logger.error("Try running: flask db upgrade")
+
+    @staticmethod
     def log_error(error, level=logging.ERROR):
         """
-        Log errors with different severity levels
+        Log an error with the specified level
         
-        :param error: Error message or exception
-        :param level: Logging level
+        :param error: Exception object
+        :param level: Logging level (default: ERROR)
         """
-        logger = current_app.logger if current_app else logging.getLogger(__name__)
-        
-        if isinstance(error, Exception):
-            logger.log(level, f"Error: {str(error)}")
-            logger.log(level, traceback.format_exc())
-        else:
-            logger.log(level, str(error))
+        logger.log(level, f"Error occurred: {str(error)}")
+        logger.log(level, traceback.format_exc())
 
     @staticmethod
     def validation_error_handler(errors):
         """
-        Handle validation errors (e.g., from marshmallow or form validation)
+        Handle validation errors
         
-        :param errors: Validation error details
+        :param errors: Validation errors dictionary
         :return: JSON response with validation errors
         """
         return jsonify({
-            'error': 'Validation Failed',
-            'messages': errors,
+            'error': 'Validation Error',
+            'message': 'Invalid input data',
+            'errors': errors,
             'status_code': 400
         }), 400
 
     @classmethod
     def register_error_handlers(cls, app):
         """
-        Register global error handlers for a Flask application
+        Register all error handlers for the application
         
         :param app: Flask application instance
         """
         @app.errorhandler(Exception)
         def handle_global_error(error):
-            return cls.handle_error(error)
+            """Handle all unhandled exceptions"""
+            if request.path.startswith('/api/'):
+                return cls.handle_error(error)
+            return render_template('index.html', config_data=get_base_config()), 500
 
         @app.errorhandler(404)
         def not_found_error(error):
-            """Handle 404 errors"""
-            if request_wants_json():
-                return jsonify({'error': 'Not found'}), 404
-            return render_template('react_base.html', config_data=get_base_config()), 404
+            """Handle 404 Not Found errors"""
+            if request.path.startswith('/api/'):
+                return jsonify({
+                    'error': 'Not Found',
+                    'message': 'The requested resource was not found',
+                    'status_code': 404
+                }), 404
+            return render_template('index.html', config_data=get_base_config()), 404
 
         @app.errorhandler(500)
         def internal_error(error):
-            """Handle 500 errors"""
-            logger.error(f"Internal error occurred: {error}")
-            if request_wants_json():
-                return jsonify({'error': 'Internal server error'}), 500
-            return render_template('react_base.html', config_data=get_base_config()), 500
-        
-        @app.errorhandler(TypeError)
-        def type_error(error):
-            """Handle TypeError specifically for JSON serialization issues"""
-            logger.error(f"TypeError occurred: {error}")
-            if request_wants_json():
-                return jsonify({'error': str(error)}), 500
-            return render_template('react_base.html', config_data=get_base_config()), 500
-        
-        @app.errorhandler(Exception)
-        def handle_exception(error):
-            """Handle all other exceptions"""
-            current_app.logger.error(f"Unhandled exception: {str(error)}")
-            current_app.logger.error(traceback.format_exc())
-            if request_wants_json():
+            """Handle 500 Internal Server errors"""
+            if request.path.startswith('/api/'):
                 return jsonify({
-                    'error': 'Server Error',
+                    'error': 'Internal Server Error',
                     'message': 'An unexpected error occurred',
                     'status_code': 500
                 }), 500
-            return render_template('react_base.html'), 500
+            return render_template('index.html', config_data=get_base_config()), 500
 
-# Export error handling functions
-handle_error = ErrorHandler.handle_error
-log_error = ErrorHandler.log_error
-validation_error_handler = ErrorHandler.validation_error_handler
-register_error_handlers = ErrorHandler.register_error_handlers
+        @app.errorhandler(SQLAlchemyError)
+        def handle_db_error(error):
+            """Handle database-related errors"""
+            return cls.handle_error(error)
 
 def get_base_config():
     """Get base configuration for templates"""
     return {
-        'apiUrl': current_app.config.get('API_URL', '/api'),
+        'apiUrl': current_app.config.get('API_URL', ''),
         'environment': current_app.config.get('ENV', 'development'),
         'debug': current_app.config.get('DEBUG', False),
         'csrfToken': generate_csrf()
     }
 
 def request_wants_json():
-    """Check if the request prefers JSON response"""
-    best = request.accept_mimetypes.best_match(['application/json', 'text/html'])
-    return (best == 'application/json' and
-            request.accept_mimetypes[best] > request.accept_mimetypes['text/html'])
+    """Check if the request wants JSON response"""
+    return request.accept_mimetypes['application/json'] >= request.accept_mimetypes['text/html']
+
+# Export the error handler functions
+register_error_handlers = ErrorHandler.register_error_handlers
+handle_error = ErrorHandler.handle_error
+handle_initialization_error = ErrorHandler.handle_initialization_error
+log_error = ErrorHandler.log_error
+validation_error_handler = ErrorHandler.validation_error_handler

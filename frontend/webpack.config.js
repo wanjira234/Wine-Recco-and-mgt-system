@@ -3,12 +3,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-    entry: './src/index.js',
+    entry: './src/index.jsx',
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'js/[name].[contenthash].js',
-        publicPath: '/',
-        clean: true
+        path: path.resolve(__dirname, '../static/js'),
+        filename: 'bundle.js',
+        publicPath: '/static/js/'
     },
     module: {
         rules: [
@@ -18,28 +17,13 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        cacheDirectory: true,
-                        cacheCompression: false
+                        presets: ['@babel/preset-react', '@babel/preset-env']
                     }
                 }
             },
             {
                 test: /\.css$/,
-                use: [
-                    MiniCssExtractPlugin.loader,
-                    'css-loader',
-                    {
-                        loader: 'postcss-loader',
-                        options: {
-                            postcssOptions: {
-                                plugins: [
-                                    'tailwindcss',
-                                    'autoprefixer'
-                                ]
-                            }
-                        }
-                    }
-                ]
+                use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader']
             },
             {
                 test: /\.(png|jpg|gif|svg|ico)$/,
@@ -61,7 +45,7 @@ module.exports = {
             favicon: './public/favicon.ico'
         }),
         new MiniCssExtractPlugin({
-            filename: 'css/[name].[contenthash].css'
+            filename: '../css/styles.css'
         })
     ],
     resolve: {
@@ -92,11 +76,7 @@ module.exports = {
         hot: true,
         port: 3000,
         proxy: {
-            '/api': {
-                target: 'http://localhost:5000',
-                changeOrigin: true,
-                secure: false
-            }
+            '/api': 'http://localhost:5000'
         }
     }
 };

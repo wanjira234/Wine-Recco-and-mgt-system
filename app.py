@@ -20,6 +20,7 @@ from jinja2 import Undefined
 from functools import wraps
 import uuid
 import inspect
+import traceback
 
 # // ...existing code...
 from blueprints.notification import notification_bp
@@ -185,6 +186,28 @@ def create_app():
         db.init_app(app)
         migrate = Migrate(app, db)
         
+        # Check database migrations status
+        with app.app_context():
+            from flask_migrate import current
+            from alembic.script import ScriptDirectory
+            from alembic.runtime.migration import MigrationContext
+            
+            # Get current migration version
+            conn = db.engine.connect()
+            context = MigrationContext.configure(conn)
+            current_rev = context.get_current_revision()
+            
+            # Get latest available migration
+            config = migrate.get_config()
+            script = ScriptDirectory.from_config(config)
+            head_rev = script.get_current_head()
+            
+            if current_rev != head_rev:
+                logger.warning("Database schema is not up to date!")
+                logger.warning("Current revision: %s", current_rev)
+                logger.warning("Latest revision: %s", head_rev)
+                logger.warning("Please run: flask db upgrade")
+        
         # JWT Manager
         jwt = JWTManager(app)
         
@@ -197,12 +220,8 @@ def create_app():
                     "Content-Type", 
                     "Authorization", 
                     "X-CSRFToken",
-                    "Access-Control-Allow-Credentials",
-                    "Access-Control-Allow-Headers",
-                    "Access-Control-Allow-Methods",
-                    "Access-Control-Allow-Origin"
-                ],
-                "supports_credentials": True
+                    "Access-Control-Allow-Credentials"
+                ]
             }
         })
         
@@ -266,61 +285,44 @@ def create_app():
         # Celery Configuration
         celery.conf.update(app.config)
         
-        # Register Blueprints
-        blueprints = [
-            # React Routes
-            (main_bp, ''),  # Main blueprint for React pages
-            (auth_bp, ''),  # Auth blueprint for both React pages and API endpoints
-            (wines_bp, '/wines'),  # Wines blueprint for React pages
-            (account_bp, '/account'),  # Account blueprint for React pages
-            
-            # API Endpoints
-            (cart_bp, '/api/cart'),
-            (admin_bp, '/api/admin'),
-            (recommendation_bp, '/api/recommendations'),
-            (interaction_bp, '/api/interactions'),
-            (wine_discovery_bp, '/api/wine-discovery'),
-            (analytics_bp, '/api/analytics'),
-            (order_bp, '/api/orders'),
-            (inventory_bp, '/api/inventory'),
-            (community_bp, '/api/community'),
-            (notification_bp, '/api/notifications'),
-            (search_bp, '/api/search')
-        ]
-        
-        for blueprint, url_prefix in blueprints:
-            app.register_blueprint(blueprint, url_prefix=url_prefix)
-        
-        # Initialize Services within Application Context
+        # Register error handlers
+        register_error_handlers(app)
+
+        # Register blueprints
+        app.register_blueprint(main_bp)
+        app.register_blueprint(auth_bp, url_prefix='/auth')
+        app.register_blueprint(wines_bp, url_prefix='/api/wines')
+        app.register_blueprint(cart_bp, url_prefix='/api/cart')
+        app.register_blueprint(admin_bp, url_prefix='/api/admin')
+        app.register_blueprint(recommendation_bp, url_prefix='/api/recommendations')
+        app.register_blueprint(interaction_bp, url_prefix='/api/interactions')
+        app.register_blueprint(wine_discovery_bp, url_prefix='/api/discover')
+        app.register_blueprint(analytics_bp, url_prefix='/api/analytics')
+        app.register_blueprint(order_bp, url_prefix='/api/orders')
+        app.register_blueprint(inventory_bp, url_prefix='/api/inventory')
+        app.register_blueprint(community_bp, url_prefix='/api/community')
+        app.register_blueprint(notification_bp, url_prefix='/api/notifications')
+        app.register_blueprint(search_bp, url_prefix='/api/search')
+        app.register_blueprint(account_bp, url_prefix='/api/account')
+
+        # Initialize services with error handling
         with app.app_context():
-            # Create database tables
             try:
-                db.create_all()
-                logger.info("Database tables created successfully")
-            except Exception as db_error:
-                logger.error(f"Failed to create database tables: {db_error}")
-                raise
-            
-            # Initialize Recommendation Engine
+                recommendation_engine = create_recommendation_engine()
+                app.config['recommendation_engine'] = recommendation_engine
+            except Exception as e:
+                from utils.error_handlers import handle_initialization_error
+                handle_initialization_error(e, "Recommendation Engine")
+                app.config['recommendation_engine'] = None
+
             try:
-                from services.recommendation_service import get_recommendation_engine
-                # Only initialize if not already initialized
-                if not hasattr(app, 'recommendation_engine'):
-                    app.recommendation_engine = get_recommendation_engine()
-                    logger.info("Recommendation engine initialized successfully")
-            except Exception as recommendation_error:
-                logger.error(f"Failed to initialize recommendation engine: {recommendation_error}")
-                app.recommendation_engine = None
-            
-            # Initialize Wine Discovery Service
-            try:
-                if not hasattr(app, 'wine_discovery_service'):
-                    app.wine_discovery_service = create_wine_discovery_service()
-                    logger.info("Wine discovery service initialized successfully")
-            except Exception as discovery_error:
-                logger.error(f"Failed to initialize wine discovery service: {discovery_error}")
-                app.wine_discovery_service = None
-        
+                wine_discovery_service = create_wine_discovery_service()
+                app.config['wine_discovery_service'] = wine_discovery_service
+            except Exception as e:
+                from utils.error_handlers import handle_initialization_error
+                handle_initialization_error(e, "Wine Discovery Service")
+                app.config['wine_discovery_service'] = None
+
         # WebSocket Authentication and Event Handlers
         @socketio.on('connect')
         def handle_connect():
@@ -342,9 +344,6 @@ def create_app():
             except Exception as e:
                 logger.error(f"WebSocket disconnection error: {e}")
         
-        # Global Error Handlers
-        register_error_handlers(app)
-        
         # CLI Commands
         @app.cli.command("init-db")
         def init_db():
@@ -361,8 +360,6 @@ def create_app():
                         {'name': 'White Wine', 'description': 'Wines made from white grapes'},
                         {'name': 'Rosé Wine', 'description': 'Wines with a pink color, made from red grapes'},
                         {'name': 'Sparkling Wine', 'description': 'Wines with significant levels of carbon dioxide'},
-                        {'name': 'Dessert Wine', 'description': 'Sweet wines typically served with dessert'},
-                        {'name': 'Fortified Wine', 'description': 'Wines with added distilled spirit'}
                     ]
                     
                     for category_data in categories:
@@ -372,7 +369,14 @@ def create_app():
                     db.session.commit()
                     print("Wine categories populated successfully!")
                 
-                print("Database initialized successfully!")
+                # Verify tables were created
+                with db.engine.connect() as conn:
+                    tables = db.inspect(db.engine).get_table_names()
+                    print("\nCreated tables:")
+                    for table in tables:
+                        print(f"- {table}")
+                
+                print("\nDatabase initialized successfully!")
                 
             except Exception as e:
                 print(f"Error initializing database: {e}")
@@ -496,14 +500,6 @@ def create_app():
                         'name': 'Sparkling Wine',
                         'description': 'Wines with significant levels of carbon dioxide'
                     },
-                    {
-                        'name': 'Dessert Wine',
-                        'description': 'Sweet wines typically served with dessert'
-                    },
-                    {
-                        'name': 'Fortified Wine',
-                        'description': 'Wines with added distilled spirit'
-                    }
                 ]
 
                 for category_data in categories:
@@ -536,103 +532,37 @@ def create_app():
         
         return app
     
-    except Exception as app_init_error:
-        logger.error(f"Application initialization failed: {app_init_error}")
+    except Exception as e:
+        logger.error(f"Application initialization failed: {str(e)}")
+        logger.error(traceback.format_exc())
         raise
 
 # Create App Instance
 app = create_app()
 
-# Serve React app for all routes except /api
+# Update the serve function to handle React routes properly
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve(path):
-    # Extensive logging for debugging
-    current_app.logger.info(f"Serving path: {path}")
-    
+    """
+    Serve the React application for all non-API routes
+    """
     if path.startswith('api/'):
-        return app.handle_request()
-    if path.startswith('static/'):
-        return app.send_static_file(path.replace('static/', '', 1))
-    
-    # Create config data with default values and extensive logging
-    try:
-        config_data = {
-            'apiUrl': url_for('api_docs', _external=True) if 'api_docs' in app.view_functions else '',
-            'environment': app.config.get('ENV', 'development'),
-            'debug': app.config.get('DEBUG', False),
-            'csrfToken': generate_csrf()
-        }
-        
-        # Log configuration details
-        current_app.logger.info(f"Generated config data: {config_data}")
-        
-        # Sanitize config data before passing to template
-        sanitized_config = sanitize_for_json(config_data)
-        
-        # Log sanitized configuration
-        current_app.logger.info(f"Sanitized config data: {sanitized_config}")
-        
-        return render_template('react_base.html', config_data=sanitized_config)
-    
-    except Exception as e:
-        # Log any errors during configuration generation
-        current_app.logger.error(f"Error in serve function: {str(e)}", exc_info=True)
-        
-        # Fallback configuration
-        fallback_config = {
-            'apiUrl': '',
-            'environment': 'development',
-            'debug': True,
-            'csrfToken': ''
-        }
-        
-        return render_template('react_base.html', config_data=fallback_config), 500
-
-# Error handlers
-@app.errorhandler(404)
-def not_found_error(error):
-    if request.path.startswith('/api/'):
         return jsonify({'error': 'Not found'}), 404
-    if request.path.startswith('/static/'):
-        return '', 404  # Return empty response for missing static files
-    return render_template('react_base.html', config_data=sanitize_for_json({
-        'apiUrl': url_for('api_docs', _external=True) if 'api_docs' in app.view_functions else '',
-        'environment': app.config.get('ENV', 'development'),
-        'debug': app.config.get('DEBUG', False),
-        'csrfToken': generate_csrf()
-    })), 404
+    if path.startswith('static/'):
+        return app.send_static_file(path)
+    return render_template('index.html')
 
-@app.errorhandler(500)
-def internal_error(error):
-    if request.path.startswith('/api/'):
-        return jsonify({'error': 'Internal server error'}), 500
-    if request.path.startswith('/static/'):
-        return '', 500  # Return empty response for static file errors
-    return render_template('react_base.html', config_data=sanitize_for_json({
-        'apiUrl': url_for('api_docs', _external=True) if 'api_docs' in app.view_functions else '',
-        'environment': app.config.get('ENV', 'development'),
-        'debug': app.config.get('DEBUG', False),
-        'csrfToken': generate_csrf()
-    })), 500
+# Remove conflicting error handlers
+# The centralized error handling from utils.error_handlers will be used instead
 
 if __name__ == '__main__':
+    app = create_app()
+    app.config['DEBUG'] = True
+    app.config['TESTING'] = True
     print("\nStarting Flask development server...")
-    print("Access the application at: http://127.0.0.1:5000")
-    print("API endpoints are available at: http://127.0.0.1:5000/api/")
-    print("\nAvailable API endpoints:")
-    print("- /api/auth/ - Authentication endpoints")
-    print("- /api/wines/ - Wine management")
-    print("- /api/recommendations/ - Wine recommendations")
-    print("- /api/cart/ - Shopping cart")
-    print("- /api/orders/ - Order management")
-    print("- /api/community/ - Community features")
-    print("- /api/search/ - Search functionality")
-    print("\nPress CTRL+C to quit\n")
-    
-    socketio.run(
-        app, 
-        host='0.0.0.0', 
-        port=5000, 
-        debug=True
-    )
+    print(" * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)")
+    print(" * Restarting with stat")
+    print(" * Debugger is active!")
+    print(" * Debugger PIN: 123-456-789\n")
+    app.run(debug=True, host='127.0.0.1', port=5000)
