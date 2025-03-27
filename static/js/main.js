@@ -18,6 +18,23 @@ document.addEventListener("DOMContentLoaded", () => {
     )
   })
 
+  // Password visibility toggle
+  const passwordInputs = document.querySelectorAll('input[type="password"]')
+  passwordInputs.forEach(input => {
+    const wrapper = input.parentElement
+    const toggleButton = document.createElement('button')
+    toggleButton.type = 'button'
+    toggleButton.className = 'btn btn-outline-secondary'
+    toggleButton.innerHTML = '<i class="fas fa-eye"></i>'
+    wrapper.appendChild(toggleButton)
+
+    toggleButton.addEventListener('click', () => {
+      const type = input.getAttribute('type') === 'password' ? 'text' : 'password'
+      input.setAttribute('type', type)
+      toggleButton.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>'
+    })
+  })
+
   // Wine trait selection
   const traitOptions = document.querySelectorAll(".trait-option")
 
@@ -189,6 +206,177 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       })
     }
+  }
+
+  // Signup Form Handling
+  const signupForm = document.querySelector('form.signup-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Validate form before submission
+      if (!this.checkValidity()) {
+        e.stopPropagation();
+        this.classList.add('was-validated');
+        return;
+      }
+      
+      // Get form data
+      const formData = new FormData(this);
+      const data = {
+        email: formData.get('email'),
+        name: formData.get('name'),
+        password: formData.get('password'),
+        terms_accepted: formData.get('terms') === 'on',
+        step: 1
+      };
+
+      try {
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+          },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // Store the access token
+          localStorage.setItem('access_token', result.access_token);
+          
+          // Redirect to next step
+          window.location.href = '/signup/step2';
+        } else {
+          // Show error message
+          const alertDiv = document.createElement('div');
+          alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+          alertDiv.innerHTML = `
+            ${result.message || 'An error occurred during signup. Please try again.'}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          `;
+          signupForm.insertBefore(alertDiv, signupForm.firstChild);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        // Show error message
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+          An error occurred. Please try again.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        signupForm.insertBefore(alertDiv, signupForm.firstChild);
+      }
+    });
+  }
+
+  // Step 2 Form Handling
+  const step2Form = document.querySelector('form.step2-form');
+  if (step2Form) {
+    step2Form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Get form data
+      const formData = new FormData(this);
+      const data = {
+        wine_types: Array.from(formData.getAll('wineTypes')),
+        price_range: formData.get('priceRange'),
+        regions: Array.from(formData.getAll('regions')),
+        step: 2
+      };
+
+      try {
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          window.location.href = '/signup/step3';
+        } else {
+          const alertDiv = document.createElement('div');
+          alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+          alertDiv.innerHTML = `
+            ${result.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          `;
+          step2Form.insertBefore(alertDiv, step2Form.firstChild);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+          An error occurred. Please try again.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        step2Form.insertBefore(alertDiv, step2Form.firstChild);
+      }
+    });
+  }
+
+  // Step 3 Form Handling
+  const step3Form = document.querySelector('form.step3-form');
+  if (step3Form) {
+    step3Form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Get form data
+      const formData = new FormData(this);
+      const data = {
+        characteristics: Array.from(formData.getAll('characteristics')),
+        flavors: Array.from(formData.getAll('flavors')),
+        step: 3
+      };
+
+      try {
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Clear access token as signup is complete
+          localStorage.removeItem('access_token');
+          window.location.href = '/';
+        } else {
+          const alertDiv = document.createElement('div');
+          alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+          alertDiv.innerHTML = `
+            ${result.message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          `;
+          step3Form.insertBefore(alertDiv, step3Form.firstChild);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+        alertDiv.innerHTML = `
+          An error occurred. Please try again.
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        step3Form.insertBefore(alertDiv, step3Form.firstChild);
+      }
+    });
   }
 })
 

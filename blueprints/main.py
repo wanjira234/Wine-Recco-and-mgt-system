@@ -7,51 +7,46 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
-    """Serve the main React application"""
+    """Serve the main home page"""
     config_data = {
         'apiUrl': url_for('api_docs', _external=True),
         'environment': current_app.config.get('ENV', 'development'),
         'debug': current_app.config.get('DEBUG', False),
         'csrfToken': generate_csrf()
     }
-    return render_template('index.html', config_data=config_data)
+    return render_template('home.html', config_data=config_data)
 
 @main_bp.route('/dashboard')
 @login_required
 def dashboard():
-    """Serve the React dashboard"""
-    return render_template('index.html')
+    """Serve the dashboard page"""
+    return render_template('home.html')
 
 @main_bp.route('/profile')
 @login_required
 def profile():
-    """Serve the React profile page"""
-    return render_template('index.html')
+    """Serve the profile page"""
+    return render_template('home.html')
 
-@main_bp.route('/wines')
-def wines():
-    """Serve the React wines page"""
-    return render_template('index.html')
-
-@main_bp.route('/wines/<int:wine_id>')
-def wine_detail(wine_id):
-    """Serve the React wine detail page"""
-    return render_template('index.html')
-
-@main_bp.route('/search')
-def search():
-    """Serve the React search page"""
-    return render_template('index.html')
+@main_bp.route('/catalog')
+def catalog():
+    """Serve the catalog page"""
+    return render_template('catalog.html')
 
 @main_bp.route('/about')
 def about():
-    """Serve the React about page"""
-    return render_template('index.html')
+    """Serve the about page"""
+    return render_template('about.html')
 
 @main_bp.route('/contact')
 def contact():
-    """Serve the React contact page"""
-    return render_template('index.html')
+    """Serve the contact page"""
+    return render_template('contact.html')
+
+@main_bp.route('/predict')
+def predict():
+    """Serve the prediction page"""
+    return render_template('predict.html')
 
 @main_bp.route('/health')
 def health_check():

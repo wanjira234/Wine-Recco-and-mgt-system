@@ -16,27 +16,6 @@ auth_bp = Blueprint('auth', __name__)
 EMAIL_REGEX = re.compile(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
 PASSWORD_REGEX = re.compile(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$')
 
-# React Routes - These serve the React application
-@auth_bp.route('/auth/login')
-def react_login():
-    """Serve the React-based login page."""
-    return render_template('react_base.html')
-
-@auth_bp.route('/auth/signup')
-def react_signup():
-    """Serve the React-based signup page."""
-    return render_template('react_base.html')
-
-@auth_bp.route('/auth/signup/step2')
-def react_signup_step2():
-    """Serve the React-based signup step 2 page."""
-    return render_template('react_base.html')
-
-@auth_bp.route('/auth/signup/step3')
-def react_signup_step3():
-    """Serve the React-based signup step 3 page."""
-    return render_template('react_base.html')
-
 # API endpoints for authentication
 @auth_bp.route('/api/auth/signup', methods=['GET', 'POST', 'OPTIONS'])
 def api_signup_handler():
@@ -205,3 +184,113 @@ def delete_account():
         db.session.rollback()
         current_app.logger.error(f"Error deleting account: {str(e)}")
         return jsonify({'success': False, 'message': 'Error deleting account'}), 500
+
+# Add login route
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    """Handle user login"""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+        
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        remember = request.form.get('remember', False)
+        
+        if not username or not password:
+            flash('Please enter both username and password', 'error')
+            return redirect(url_for('auth.login'))
+            
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
+            login_user(user, remember=remember)
+            next_page = request.args.get('next')
+            return redirect(next_page or url_for('main.index'))
+        else:
+            flash('Invalid username or password', 'error')
+            
+    return render_template('signup/login.html')
+
+# Add logout route
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    """Handle user logout"""
+    logout_user()
+    flash('You have been logged out', 'success')
+    return redirect(url_for('main.index'))
+
+@auth_bp.route('/signup', methods=['GET'])
+def signup():
+    """Handle step 1 of signup process"""
+    if current_user.is_authenticated:
+        return redirect(url_for('main.index'))
+    return render_template('signup/step1.html')
+
+@auth_bp.route('/signup/step2', methods=['GET'])
+@jwt_required()
+def signup_step2():
+    """Handle step 2 of signup process"""
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        if not user:
+            flash('User not found', 'error')
+            return redirect(url_for('auth.login'))
+            
+        if user.signup_step != 1:
+            flash('Please complete step 1 first', 'error')
+            return redirect(url_for('auth.signup'))
+            
+        return render_template('signup/step2.html')
+        
+    except Exception as e:
+        current_app.logger.error(f"Error in signup step 2: {str(e)}")
+        flash('An error occurred', 'error')
+        return redirect(url_for('auth.signup'))
+
+@auth_bp.route('/signup/step3', methods=['GET', 'POST'])
+@jwt_required()
+def signup_step3():
+    """Handle step 3 of the signup process"""
+    if request.method == 'GET':
+        return render_template('signup/step3.html')
+        
+    try:
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        
+        if not user:
+            flash('User not found', 'error')
+            return redirect(url_for('auth.login'))
+            
+        if user.signup_step != 2:
+            flash('Please complete step 2 first', 'error')
+            return redirect(url_for('auth.signup_step2'))
+            
+        # Get form data
+        characteristics = request.form.getlist('characteristics')
+        flavors = request.form.getlist('flavors')
+        
+        if not characteristics or not flavors:
+            flash('Please select at least one characteristic and one flavor', 'error')
+            return redirect(url_for('auth.signup_step3'))
+            
+        # Update user preferences
+        user.taste_preferences = {
+            'characteristics': characteristics,
+            'flavors': flavors
+        }
+        user.signup_step = 3  # Mark step 3 as completed
+        db.session.commit()
+        
+        flash('Your wine preferences have been saved!', 'success')
+        return redirect(url_for('main.index'))
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error in signup step 3: {str(e)}")
+        flash('An error occurred while saving your preferences', 'error')
+        return redirect(url_for('auth.signup_step3'))

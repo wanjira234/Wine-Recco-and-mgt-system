@@ -10,23 +10,6 @@ from services.recommendation_service import recommendation_engine
 # Create Blueprint
 wines_bp = Blueprint('wines', __name__)
 
-# React Routes - These serve the React application
-@wines_bp.route('/wines')
-def react_wines():
-    """Serve the React-based wines page."""
-    return render_template('react_base.html')
-
-@wines_bp.route('/wines/<int:wine_id>')
-def react_wine_detail(wine_id):
-    """Serve the React-based wine detail page."""
-    return render_template('react_base.html')
-
-@wines_bp.route('/wines/new')
-@jwt_required()
-def react_wine_form():
-    """Serve the React-based wine form page."""
-    return render_template('react_base.html')
-
 # API Endpoints - These serve the React frontend
 @wines_bp.route('/api/wines', methods=['GET'])
 def list_wines():

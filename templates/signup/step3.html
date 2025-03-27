@@ -1,168 +1,138 @@
 {% extends 'base.html' %}
 
-{% block title %}Sign Up - Taste Profile{% endblock %}
+{% block title %}Step 3 - Wine Characteristics{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow">
-                <div class="card-body p-4 p-md-5">
-                    <h1 class="text-center mb-4">Your Taste Profile</h1>
-                    
-                    <!-- Step Indicator -->
-                    <div class="step-indicator mb-5">
-                        <div class="step completed">
-                            <div class="step-number">1</div>
-                            <div class="step-title">Personal Details</div>
-                            <div class="step-connector"></div>
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 mt-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="step-indicator mb-4">
+                            <div class="step completed">
+                                <div class="step-number">1</div>
+                                <div class="step-title">Account Details</div>
+                            </div>
+                            <div class="step completed">
+                                <div class="step-number">2</div>
+                                <div class="step-title">Preferences</div>
+                            </div>
+                            <div class="step active">
+                                <div class="step-number">3</div>
+                                <div class="step-title">Characteristics</div>
+                            </div>
                         </div>
-                        <div class="step completed">
-                            <div class="step-number">2</div>
-                            <div class="step-title">Wine Preferences</div>
-                            <div class="step-connector"></div>
-                        </div>
-                        <div class="step active">
-                            <div class="step-number">3</div>
-                            <div class="step-title">Taste Profile</div>
-                        </div>
+                        <h2 class="h4 mb-0">Wine Characteristics</h2>
+                        <p class="text-muted">Tell us about your preferred wine characteristics</p>
                     </div>
-                    
-                    <form action="{{ url_for('signup_complete') }}" method="post" class="multi-step-form needs-validation" novalidate>
-                        <div class="form-step">
-                            <div class="mb-4">
-                                <label class="form-label">How do you prefer your wine's body?</label>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <div class="trait-option text-center">
-                                            <input type="radio" name="body" id="lightBody" value="light" class="d-none" required>
-                                            <i class="fas fa-wine-glass"></i>
-                                            <h5>Light</h5>
-                                            <p class="small text-muted">Delicate and refreshing</p>
-                                        </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('auth.signup_step3') }}" class="step3-form needs-validation" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div class="mb-4">
+                            <label class="form-label">Wine Characteristics</label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="characteristics" value="dry" id="dry">
+                                        <label class="form-check-label" for="dry">Dry</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="trait-option text-center">
-                                            <input type="radio" name="body" id="mediumBody" value="medium" class="d-none" required>
-                                            <i class="fas fa-wine-glass-alt"></i>
-                                            <h5>Medium</h5>
-                                            <p class="small text-muted">Balanced and smooth</p>
-                                        </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="characteristics" value="sweet" id="sweet">
+                                        <label class="form-check-label" for="sweet">Sweet</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="trait-option text-center">
-                                            <input type="radio" name="body" id="fullBody" value="full" class="d-none" required>
-                                            <i class="fas fa-wine-bottle"></i>
-                                            <h5>Full</h5>
-                                            <p class="small text-muted">Rich and intense</p>
-                                        </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="characteristics" value="light" id="light">
+                                        <label class="form-check-label" for="light">Light-bodied</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="characteristics" value="full" id="full">
+                                        <label class="form-check-label" for="full">Full-bodied</label>
                                     </div>
                                 </div>
-                                <div class="invalid-feedback">
-                                    Please select your preferred body.
-                                </div>
-                            </div>
-                            
-                            <div class="mb-4">
-                                <label class="form-label">What flavor profiles do you enjoy?</label>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <div class="trait-option text-center">
-                                            <input type="checkbox" name="flavors" id="fruity" value="fruity" class="d-none">
-                                            <i class="fas fa-apple-alt"></i>
-                                            <h5>Fruity</h5>
-                                            <p class="small text-muted">Berry, citrus, stone fruit</p>
-                                        </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="characteristics" value="oaked" id="oaked">
+                                        <label class="form-check-label" for="oaked">Oaked</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="trait-option text-center">
-                                            <input type="checkbox" name="flavors" id="earthy" value="earthy" class="d-none">
-                                            <i class="fas fa-leaf"></i>
-                                            <h5>Earthy</h5>
-                                            <p class="small text-muted">Soil, mushroom, mineral</p>
-                                        </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="characteristics" value="unoaked" id="unoaked">
+                                        <label class="form-check-label" for="unoaked">Unoaked</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="trait-option text-center">
-                                            <input type="checkbox" name="flavors" id="spicy" value="spicy" class="d-none">
-                                            <i class="fas fa-pepper-hot"></i>
-                                            <h5>Spicy</h5>
-                                            <p class="small text-muted">Pepper, cinnamon, clove</p>
-                                        </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="characteristics" value="tannic" id="tannic">
+                                        <label class="form-check-label" for="tannic">Tannic</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="trait-option text-center">
-                                            <input type="checkbox" name="flavors" id="floral" value="floral" class="d-none">
-                                            <i class="fas fa-spa"></i>
-                                            <h5>Floral</h5>
-                                            <p class="small text-muted">Rose, violet, lavender</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="trait-option text-center">
-                                            <input type="checkbox" name="flavors" id="oaky" value="oaky" class="d-none">
-                                            <i class="fas fa-tree"></i>
-                                            <h5>Oaky</h5>
-                                            <p class="small text-muted">Vanilla, toast, smoke</p>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="trait-option text-center">
-                                            <input type="checkbox" name="flavors" id="herbaceous" value="herbaceous" class="d-none">
-                                            <i class="fas fa-seedling"></i>
-                                            <h5>Herbaceous</h5>
-                                            <p class="small text-muted">Grass, mint, eucalyptus</p>
-                                        </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="characteristics" value="smooth" id="smooth">
+                                        <label class="form-check-label" for="smooth">Smooth</label>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="mb-4">
-                                <label class="form-label">How do you prefer your wine's acidity?</label>
-                                <div class="range-slider">
-                                    <input type="range" class="form-range" id="acidity" name="acidity" min="1" max="5" value="3">
-                                    <div class="range-labels d-flex justify-content-between mt-2">
-                                        <span>Low</span>
-                                        <span>Medium-Low</span>
-                                        <span>Medium</span>
-                                        <span>Medium-High</span>
-                                        <span>High</span>
+                            <div class="invalid-feedback">
+                                Please select at least one characteristic.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Preferred Flavors</label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flavors" value="fruity" id="fruity">
+                                        <label class="form-check-label" for="fruity">Fruity</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flavors" value="floral" id="floral">
+                                        <label class="form-check-label" for="floral">Floral</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flavors" value="spicy" id="spicy">
+                                        <label class="form-check-label" for="spicy">Spicy</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flavors" value="earthy" id="earthy">
+                                        <label class="form-check-label" for="earthy">Earthy</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flavors" value="mineral" id="mineral">
+                                        <label class="form-check-label" for="mineral">Mineral</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flavors" value="herbal" id="herbal">
+                                        <label class="form-check-label" for="herbal">Herbal</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flavors" value="vanilla" id="vanilla">
+                                        <label class="form-check-label" for="vanilla">Vanilla</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="flavors" value="chocolate" id="chocolate">
+                                        <label class="form-check-label" for="chocolate">Chocolate</label>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="mb-4">
-                                <label class="form-label">How do you prefer your wine's tannin level? (For red wines)</label>
-                                <div class="range-slider">
-                                    <input type="range" class="form-range" id="tannin" name="tannin" min="1" max="5" value="3">
-                                    <div class="range-labels d-flex justify-content-between mt-2">
-                                        <span>Soft</span>
-                                        <span>Medium-Soft</span>
-                                        <span>Medium</span>
-                                        <span>Medium-Firm</span>
-                                        <span>Firm</span>
-                                    </div>
-                                </div>
+                            <div class="invalid-feedback">
+                                Please select at least one flavor.
                             </div>
-                            
-                            <div class="mb-4">
-                                <label class="form-label">How do you prefer your wine's sweetness?</label>
-                                <div class="range-slider">
-                                    <input type="range" class="form-range" id="sweetness" name="sweetness" min="1" max="5" value="2">
-                                    <div class="range-labels d-flex justify-content-between mt-2">
-                                        <span>Dry</span>
-                                        <span>Off-Dry</span>
-                                        <span>Medium</span>
-                                        <span>Medium-Sweet</span>
-                                        <span>Sweet</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ url_for('signup_step2') }}" class="btn btn-outline-secondary btn-prev">Back</a>
-                                <button type="submit" class="btn btn-wine btn-next">Complete Sign Up</button>
-                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('auth.signup_step2') }}" class="btn btn-outline-secondary">Back</a>
+                            <button type="submit" class="btn btn-wine">Complete Sign Up</button>
                         </div>
                     </form>
                 </div>
@@ -170,5 +140,37 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Checkbox validation
+    const characteristics = document.querySelectorAll('input[name="characteristics"]');
+    const flavors = document.querySelectorAll('input[name="flavors"]');
+    
+    function validateCheckboxes(checkboxes) {
+        const checked = Array.from(checkboxes).some(cb => cb.checked);
+        if (!checked) {
+            checkboxes[0].setCustomValidity('Please select at least one option');
+        } else {
+            checkboxes[0].setCustomValidity('');
+        }
+    }
+
+    characteristics.forEach(cb => cb.addEventListener('change', () => validateCheckboxes(characteristics)));
+    flavors.forEach(cb => cb.addEventListener('change', () => validateCheckboxes(flavors)));
+});
+</script>
 {% endblock %}
 

@@ -143,7 +143,7 @@ class ErrorHandler:
             """Handle all unhandled exceptions"""
             if request.path.startswith('/api/'):
                 return cls.handle_error(error)
-            return render_template('index.html', config_data=get_base_config()), 500
+            return render_template('home.html', config_data=get_base_config()), 500
 
         @app.errorhandler(404)
         def not_found_error(error):
@@ -154,18 +154,19 @@ class ErrorHandler:
                     'message': 'The requested resource was not found',
                     'status_code': 404
                 }), 404
-            return render_template('index.html', config_data=get_base_config()), 404
+            return render_template('home.html', config_data=get_base_config()), 404
 
         @app.errorhandler(500)
-        def internal_error(error):
-            """Handle 500 Internal Server errors"""
-            if request.path.startswith('/api/'):
-                return jsonify({
-                    'error': 'Internal Server Error',
-                    'message': 'An unexpected error occurred',
-                    'status_code': 500
-                }), 500
-            return render_template('index.html', config_data=get_base_config()), 500
+        def internal_server_error(error):
+            """Handle 500 Internal Server Error"""
+            app.logger.error(f"Internal Server Error: {error}")
+            return render_template('home.html', config_data=get_base_config()), 500
+
+        @app.errorhandler(403)
+        def forbidden_error(error):
+            """Handle 403 Forbidden Error"""
+            app.logger.error(f"Forbidden Error: {error}")
+            return render_template('home.html', config_data=get_base_config()), 403
 
         @app.errorhandler(SQLAlchemyError)
         def handle_db_error(error):

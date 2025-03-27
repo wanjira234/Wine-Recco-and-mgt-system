@@ -577,9 +577,45 @@ def catch_all(path):
     
     # Try to render the template if it exists
     try:
-        return render_template(f'{path}.html' if path else 'home.html')
-    except:
-        # If template doesn't exist, return 404
+        # Map paths to template names
+        template_map = {
+            '': 'home.html',  # Root path maps to home.html
+            'about': 'about.html',
+            'contact': 'contact.html',
+            'catalog': 'catalog.html',
+            'predict': 'predict.html',
+            'login': 'auth/login.html',
+            'signup': 'signup/step1.html',
+            'signup/step2': 'signup/step2.html',
+            'signup/step3': 'signup/step3.html'
+        }
+        
+        # Get template name from map or construct from path
+        template_name = template_map.get(path, f'{path}.html')
+        
+        # Check if template exists
+        template_path = os.path.join('templates', template_name)
+        if not os.path.exists(template_path):
+            return jsonify({'error': 'Not found'}), 404
+        
+        # For signup steps, pass the step data
+        if path == 'signup':
+            signup_data = {
+                'current_step': 1,
+                'total_steps': 3,
+                'requirements': {
+                    'step1': {
+                        'email': 'Valid email address',
+                        'name': 'Your full name',
+                        'password': 'At least 8 characters with letters and numbers'
+                    }
+                }
+            }
+            return render_template(template_name, signup_data=signup_data)
+        
+        return render_template(template_name)
+    except Exception as e:
+        current_app.logger.error(f"Template rendering error: {str(e)}")
         return jsonify({'error': 'Not found'}), 404
 
 if __name__ == '__main__':

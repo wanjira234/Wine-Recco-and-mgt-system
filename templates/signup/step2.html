@@ -1,138 +1,116 @@
 {% extends 'base.html' %}
 
-{% block title %}Sign Up - Wine Preferences{% endblock %}
+{% block title %}Step 2 - Wine Preferences{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container">
     <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow">
-                <div class="card-body p-4 p-md-5">
-                    <h1 class="text-center mb-4">Your Wine Preferences</h1>
-                    
-                    <!-- Step Indicator -->
-                    <div class="step-indicator mb-5">
-                        <div class="step completed">
-                            <div class="step-number">1</div>
-                            <div class="step-title">Personal Details</div>
-                            <div class="step-connector"></div>
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 mt-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="step-indicator mb-4">
+                            <div class="step completed">
+                                <div class="step-number">1</div>
+                                <div class="step-title">Account Details</div>
+                            </div>
+                            <div class="step active">
+                                <div class="step-number">2</div>
+                                <div class="step-title">Preferences</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-title">Characteristics</div>
+                            </div>
                         </div>
-                        <div class="step active">
-                            <div class="step-number">2</div>
-                            <div class="step-title">Wine Preferences</div>
-                            <div class="step-connector"></div>
-                        </div>
-                        <div class="step">
-                            <div class="step-number">3</div>
-                            <div class="step-title">Taste Profile</div>
-                        </div>
+                        <h2 class="h4 mb-0">Wine Preferences</h2>
+                        <p class="text-muted">Tell us about your wine preferences</p>
                     </div>
-                    
-                    <form action="{{ url_for('signup_step3') }}" method="post" class="multi-step-form needs-validation" novalidate>
-                        <div class="form-step">
-                            <div class="mb-4">
-                                <label class="form-label">What types of wine do you enjoy?</label>
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="redWine" name="wineTypes" value="red">
-                                            <label class="form-check-label" for="redWine">Red Wine</label>
-                                        </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form class="step2-form needs-validation" novalidate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Price Range</label>
+                            <select class="form-select" name="priceRange" required>
+                                <option value="">Select your preferred price range</option>
+                                <option value="under_20">Under $20</option>
+                                <option value="20_50">$20 - $50</option>
+                                <option value="50_100">$50 - $100</option>
+                                <option value="over_100">$100+</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select your preferred price range.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Wine Types</label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="wineTypes" value="red" id="redWine">
+                                        <label class="form-check-label" for="redWine">Red Wine</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="whiteWine" name="wineTypes" value="white">
-                                            <label class="form-check-label" for="whiteWine">White Wine</label>
-                                        </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="wineTypes" value="white" id="whiteWine">
+                                        <label class="form-check-label" for="whiteWine">White Wine</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="roseWine" name="wineTypes" value="rose">
-                                            <label class="form-check-label" for="roseWine">Rosé Wine</label>
-                                        </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="wineTypes" value="rose" id="roseWine">
+                                        <label class="form-check-label" for="roseWine">Rosé Wine</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="sparklingWine" name="wineTypes" value="sparkling">
-                                            <label class="form-check-label" for="sparklingWine">Sparkling Wine</label>
-                                        </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="wineTypes" value="sparkling" id="sparklingWine">
+                                        <label class="form-check-label" for="sparklingWine">Sparkling Wine</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="dessertWine" name="wineTypes" value="dessert">
-                                            <label class="form-check-label" for="dessertWine">Dessert Wine</label>
-                                        </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="wineTypes" value="dessert" id="dessertWine">
+                                        <label class="form-check-label" for="dessertWine">Dessert Wine</label>
                                     </div>
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="fortifiedWine" name="wineTypes" value="fortified">
-                                            <label class="form-check-label" for="fortifiedWine">Fortified Wine</label>
-                                        </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="wineTypes" value="fortified" id="fortifiedWine">
+                                        <label class="form-check-label" for="fortifiedWine">Fortified Wine</label>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="mb-4">
-                                <label class="form-label">What is your wine experience level?</label>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="experienceLevel" id="novice" value="novice" required>
-                                    <label class="form-check-label" for="novice">
-                                        Novice - I'm just starting to explore wines
-                                    </label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="experienceLevel" id="intermediate" value="intermediate" required>
-                                    <label class="form-check-label" for="intermediate">
-                                        Intermediate - I know what I like but want to expand my knowledge
-                                    </label>
-                                </div>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="experienceLevel" id="advanced" value="advanced" required>
-                                    <label class="form-check-label" for="advanced">
-                                        Advanced - I have extensive wine knowledge
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="experienceLevel" id="professional" value="professional" required>
-                                    <label class="form-check-label" for="professional">
-                                        Professional - I work in the wine industry
-                                    </label>
-                                </div>
-                                <div class="invalid-feedback">
-                                    Please select your experience level.
-                                </div>
+                            <div class="invalid-feedback">
+                                Please select at least one wine type.
                             </div>
-                            
-                            <div class="mb-4">
-                                <label for="priceRange" class="form-label">What is your typical budget per bottle?</label>
-                                <div class="d-flex align-items-center gap-3">
-                                    <input type="range" class="form-range flex-grow-1" id="priceRange" name="priceRange" min="10" max="200" step="5" value="30">
-                                    <span id="price-value" class="badge bg-primary px-3 py-2">$30</span>
-                                </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Favorite Wine Regions</label>
+                            <select class="form-select" name="regions" multiple required>
+                                <option value="france">France</option>
+                                <option value="italy">Italy</option>
+                                <option value="spain">Spain</option>
+                                <option value="california">California</option>
+                                <option value="australia">Australia</option>
+                                <option value="chile">Chile</option>
+                            </select>
+                            <div class="form-text">Hold Ctrl (or Cmd on Mac) to select multiple regions</div>
+                            <div class="invalid-feedback">
+                                Please select at least one region.
                             </div>
-                            
-                            <div class="mb-4">
-                                <label class="form-label">Which wine regions do you prefer?</label>
-                                <select class="form-select" name="regions" multiple aria-label="Wine regions" size="5">
-                                    <option value="france">France</option>
-                                    <option value="italy">Italy</option>
-                                    <option value="spain">Spain</option>
-                                    <option value="usa">United States</option>
-                                    <option value="australia">Australia</option>
-                                    <option value="argentina">Argentina</option>
-                                    <option value="chile">Chile</option>
-                                    <option value="germany">Germany</option>
-                                    <option value="portugal">Portugal</option>
-                                    <option value="new_zealand">New Zealand</option>
-                                    <option value="south_africa">South Africa</option>
-                                </select>
-                                <div class="form-text">Hold Ctrl (or Cmd on Mac) to select multiple regions</div>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between">
-                                <a href="{{ url_for('signup') }}" class="btn btn-outline-secondary btn-prev">Back</a>
-                                <button type="button" class="btn btn-wine btn-next">Continue to Taste Profile</button>
-                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('auth.signup') }}" class="btn btn-outline-secondary">Back</a>
+                            <button type="submit" class="btn btn-wine">Continue to Characteristics</button>
                         </div>
                     </form>
                 </div>
@@ -140,5 +118,41 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form validation
+    const form = document.querySelector('.step2-form');
+    const wineTypes = document.querySelectorAll('input[name="wineTypes"]');
+    
+    form.addEventListener('submit', function(event) {
+        // Check if at least one wine type is selected
+        const hasWineType = Array.from(wineTypes).some(input => input.checked);
+        if (!hasWineType) {
+            event.preventDefault();
+            event.stopPropagation();
+            wineTypes[0].setCustomValidity('Please select at least one wine type');
+        } else {
+            wineTypes[0].setCustomValidity('');
+        }
+
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Clear wine type validation message when any checkbox is clicked
+    wineTypes.forEach(input => {
+        input.addEventListener('change', () => {
+            const hasWineType = Array.from(wineTypes).some(input => input.checked);
+            wineTypes[0].setCustomValidity(hasWineType ? '' : 'Please select at least one wine type');
+        });
+    });
+});
+</script>
 {% endblock %}
 
