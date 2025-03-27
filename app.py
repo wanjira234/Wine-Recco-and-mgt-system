@@ -560,10 +560,27 @@ if __name__ == '__main__':
     app = create_app()
     app.config['DEBUG'] = True
     
-    # Serve Next.js static files
-    @app.route('/_next/<path:path>')
-    def next_static(path):
-        return send_from_directory('_next', path)
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3002')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-CSRFToken')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+    
+    # API index endpoint
+    @app.route('/api')
+    def api_index():
+        return jsonify({
+            'status': 'success',
+            'message': 'Welcome to the WineRecco API',
+            'version': '1.0.0'
+        })
+    
+    # Serve static files
+    @app.route('/static/<path:path>')
+    def serve_static(path):
+        return send_from_directory('static', path)
     
     # All other routes will be handled by Next.js
     @app.route('/', defaults={'path': ''})
@@ -574,5 +591,5 @@ if __name__ == '__main__':
         return render_template('index.html')
     
     print(" * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)")
-    print(" * Next.js frontend will be available at http://127.0.0.1:3000/")
+    print(" * Next.js development server should be running on http://localhost:3002/")
     app.run(debug=True, host='127.0.0.1', port=5000)

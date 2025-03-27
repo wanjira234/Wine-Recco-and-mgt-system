@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}WineRecco{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <nav class="main-nav">
+            <div class="nav-brand">
+                <a href="{{ url_for('main.index') }}">WineRecco</a>
+            </div>
+            <div class="nav-links">
+                <a href="{{ url_for('main.wines') }}">Browse Wines</a>
+                <a href="{{ url_for('main.recommendations') }}">Recommendations</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+                    <a href="{{ url_for('main.cart') }}" class="cart-link">
+                        Cart <span class="cart-count">0</span>
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="auth-link">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="auth-link">Login</a>
+                    <a href="{{ url_for('auth.register') }}" class="auth-link">Register</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; {{ now.year }} WineRecco. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% endblock %}
+</body>
+</html> 
