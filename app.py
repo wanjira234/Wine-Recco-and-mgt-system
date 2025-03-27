@@ -575,45 +575,42 @@ def catch_all(path):
     if path.startswith('static/'):
         return jsonify({'error': 'Not found'}), 404
     
+    # If the path starts with auth/, let the auth blueprint handle it
+    if path.startswith('auth/'):
+        return redirect(url_for(f'auth.{path.split("/")[-1]}'))
+    
     # Try to render the template if it exists
     try:
-        # Map paths to template names
+        # Map paths to template names and blueprint routes
         template_map = {
             '': 'home.html',  # Root path maps to home.html
             'about': 'about.html',
             'contact': 'contact.html',
             'catalog': 'catalog.html',
             'predict': 'predict.html',
-            'login': 'auth/login.html',
-            'signup': 'signup/step1.html',
-            'signup/step2': 'signup/step2.html',
-            'signup/step3': 'signup/step3.html'
+            'login': 'auth.login',
+            'signup': 'auth.signup',  # Changed to use auth blueprint
+            'signup/step2': 'auth.signup_step2',  # Changed to use auth blueprint
+            'signup/step3': 'auth.signup_step3',  # Changed to use auth blueprint
+            'profile': 'account/profile.html'
         }
         
-        # Get template name from map or construct from path
-        template_name = template_map.get(path, f'{path}.html')
-        
-        # Check if template exists
+        # Check if path is in template map
+        if path in template_map:
+            # If it's a blueprint route, redirect to it
+            if '.' in template_map[path]:
+                return redirect(url_for(template_map[path]))
+            # Otherwise render the template
+            return render_template(template_map[path])
+            
+        # For paths not in map, try to render template directly
+        template_name = f'{path}.html'
         template_path = os.path.join('templates', template_name)
         if not os.path.exists(template_path):
             return jsonify({'error': 'Not found'}), 404
-        
-        # For signup steps, pass the step data
-        if path == 'signup':
-            signup_data = {
-                'current_step': 1,
-                'total_steps': 3,
-                'requirements': {
-                    'step1': {
-                        'email': 'Valid email address',
-                        'name': 'Your full name',
-                        'password': 'At least 8 characters with letters and numbers'
-                    }
-                }
-            }
-            return render_template(template_name, signup_data=signup_data)
-        
+            
         return render_template(template_name)
+        
     except Exception as e:
         current_app.logger.error(f"Template rendering error: {str(e)}")
         return jsonify({'error': 'Not found'}), 404

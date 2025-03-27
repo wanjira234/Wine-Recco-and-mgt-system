@@ -26,7 +26,7 @@ def dashboard():
 @login_required
 def profile():
     """Serve the profile page"""
-    return render_template('home.html')
+    return render_template('account/profile.html')
 
 @main_bp.route('/catalog')
 def catalog():

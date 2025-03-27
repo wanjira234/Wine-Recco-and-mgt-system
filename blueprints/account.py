@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, current_app
-from flask_login import login_required, current_user
+from flask_login import login_required, current_user, logout_user
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import User, WineTrait, WineReview, Order
 from extensions import db
@@ -34,23 +34,117 @@ def my_account():
                          orders=orders,
                          wine_traits=traits_by_category)
 
+@account_bp.route('/delete-profile', methods=['POST'])
+@login_required
+def delete_profile():
+    """Delete user account"""
+    try:
+        # Get the current user
+        user = current_user
+        
+        # Store username for logging
+        username = user.username
+        
+        # Delete the account using the model method
+        if user.delete_account():
+            # Log the deletion
+            current_app.logger.info(f"User account deleted successfully: {username}")
+            
+            # Log out the user and clear session
+            logout_user()
+            
+            return jsonify({
+                'success': True,
+                'message': 'Account deleted successfully',
+                'redirect': url_for('main.index')
+            })
+        else:
+            current_app.logger.error(f"Failed to delete user account: {username}")
+            return jsonify({
+                'success': False,
+                'message': 'Failed to delete account'
+            }), 500
+            
+    except Exception as e:
+        current_app.logger.error(f"Error deleting account: {str(e)}")
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': str(e) if str(e) else 'An error occurred while deleting your account'
+        }), 500
+
 @account_bp.route('/update-profile', methods=['POST'])
 @login_required
 def update_profile():
     """Update user profile"""
-    data = request.get_json()
     try:
-        current_user.username = data.get('username', current_user.username)
-        current_user.email = data.get('email', current_user.email)
-        current_user.first_name = data.get('first_name', current_user.first_name)
-        current_user.last_name = data.get('last_name', current_user.last_name)
-        current_user.bio = data.get('bio', current_user.bio)
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'message': 'No data provided'
+            }), 400
+
+        # Validate required fields
+        if not data.get('username'):
+            return jsonify({
+                'success': False,
+                'message': 'Username is required'
+            }), 400
+        
+        if not data.get('email'):
+            return jsonify({
+                'success': False,
+                'message': 'Email is required'
+            }), 400
+
+        # Check if username is taken by another user
+        existing_user = User.query.filter(
+            User.username == data['username'],
+            User.id != current_user.id
+        ).first()
+        if existing_user:
+            return jsonify({
+                'success': False,
+                'message': 'Username is already taken'
+            }), 400
+
+        # Check if email is taken by another user
+        existing_user = User.query.filter(
+            User.email == data['email'],
+            User.id != current_user.id
+        ).first()
+        if existing_user:
+            return jsonify({
+                'success': False,
+                'message': 'Email is already taken'
+            }), 400
+
+        # Update user information
+        current_user.username = data['username']
+        current_user.email = data['email']
+        
+        # Update wine preferences
+        if 'wine_preferences' in data and isinstance(data['wine_preferences'], dict):
+            current_user.wine_preferences = {
+                'wine_types': data['wine_preferences'].get('wine_types', []),
+                'price_range': data['wine_preferences'].get('price_range', '')
+            }
         
         db.session.commit()
-        return jsonify({'message': 'Profile updated successfully'}), 200
+        
+        return jsonify({
+            'success': True,
+            'message': 'Profile updated successfully'
+        })
+        
     except Exception as e:
         db.session.rollback()
-        return jsonify({'error': str(e)}), 400
+        current_app.logger.error(f"Error updating profile: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred while updating your profile'
+        }), 500
 
 @account_bp.route('/view-profile', methods=['GET'])
 @login_required

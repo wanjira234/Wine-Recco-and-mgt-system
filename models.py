@@ -49,12 +49,15 @@ class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(64), unique=True, nullable=False)
+    username = db.Column(db.String(64), unique=True, nullable=True)  # Make nullable for temporary storage
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
+    signup_step = db.Column(db.Integer, default=1)  # Track signup progress (1: basic info, 2: preferences, 3: traits)
+    signup_data = db.Column(db.JSON, nullable=True)  # Store temporary signup data
+    is_signup_complete = db.Column(db.Boolean, default=False)  # Track if signup is complete
     
     # Profile fields
     first_name = db.Column(db.String(64))
@@ -91,11 +94,88 @@ class User(UserMixin, db.Model):
     preferred_traits = db.relationship('WineTrait', secondary=user_traits,
                                      backref=db.backref('users', lazy='dynamic'))
 
+    @classmethod
+    def generate_unique_username(cls, name):
+        """Generate a unique username from the given name"""
+        # Remove special characters and spaces, convert to lowercase
+        base_username = ''.join(e.lower() for e in name if e.isalnum())
+        username = base_username
+        counter = 1
+        
+        # Keep trying until we find a unique username
+        while cls.query.filter_by(username=username).first():
+            username = f"{base_username}{counter}"
+            counter += 1
+            
+        return username
+
+    @classmethod
+    def create_temporary_user(cls, email, password, name):
+        """Create a temporary user during the signup process"""
+        user = cls(
+            email=email,
+            signup_step=1,
+            is_signup_complete=False,
+            signup_data={
+                'name': name,
+                'email': email
+            }
+        )
+        user.set_password(password)
+        return user
+
+    def complete_signup(self):
+        """Complete the signup process and create the final user"""
+        if not self.signup_data:
+            raise ValueError("No signup data available")
+
+        # Generate unique username from the stored name
+        if not self.username:
+            self.username = self.generate_unique_username(self.signup_data.get('name', ''))
+
+        # Set final user data
+        self.is_signup_complete = True
+        self.signup_step = 3
+        
+        # Clear temporary signup data
+        temp_data = self.signup_data
+        self.signup_data = None
+        
+        return temp_data
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
         
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+    
+    def update_signup_data(self, step, data):
+        """Update signup data for the current step"""
+        if not self.signup_data:
+            self.signup_data = {}
+        
+        self.signup_data.update(data)
+        self.signup_step = step
+        
+        return self.signup_data
+
+    def delete_account(self):
+        """Delete the user account and all associated data"""
+        try:
+            # Delete all associated data
+            WineReview.query.filter_by(user_id=self.id).delete()
+            UserWineInteraction.query.filter_by(user_id=self.id).delete()
+            UserInteraction.query.filter_by(user_id=self.id).delete()
+            UserInteraction.query.filter_by(target_user_id=self.id).delete()
+            
+            # Delete the user
+            db.session.delete(self)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error deleting account: {str(e)}")
+            return False
     
     def to_dict(self):
         """Convert user object to dictionary for JSON serialization"""

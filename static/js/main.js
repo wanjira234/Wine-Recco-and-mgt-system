@@ -208,175 +208,89 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Signup Form Handling
-  const signupForm = document.querySelector('form.signup-form');
-  if (signupForm) {
-    signupForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      // Validate form before submission
-      if (!this.checkValidity()) {
-        e.stopPropagation();
-        this.classList.add('was-validated');
-        return;
-      }
-      
-      // Get form data
-      const formData = new FormData(this);
-      const data = {
-        email: formData.get('email'),
-        name: formData.get('name'),
-        password: formData.get('password'),
-        terms_accepted: formData.get('terms') === 'on',
-        step: 1
-      };
+  // Signup form submission
+  document.getElementById('signupForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
 
-      try {
-        const response = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: {
+    const formData = {
+        email: document.getElementById('email').value,
+        name: document.getElementById('name').value,
+        password: document.getElementById('password').value
+    };
+
+    // Store step 1 data in session storage
+    sessionStorage.setItem('signupStep1Data', JSON.stringify(formData));
+
+    // Redirect to step 2
+    window.location.href = '/auth/signup/step2';
+  });
+
+  // Step 2 form submission
+  document.getElementById('signupStep2Form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const step2Data = {
+        wine_types: Array.from(document.getElementById('wine_types').selectedOptions).map(opt => opt.value),
+        price_range: document.getElementById('price_range').value
+    };
+
+    // Store step 2 data in session storage
+    sessionStorage.setItem('signupStep2Data', JSON.stringify(step2Data));
+
+    // Redirect to step 3
+    window.location.href = '/auth/signup/step3';
+  });
+
+  // Step 3 form submission (final step)
+  document.getElementById('signupStep3Form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Get data from all steps
+    const step1Data = JSON.parse(sessionStorage.getItem('signupStep1Data'));
+    const step2Data = JSON.parse(sessionStorage.getItem('signupStep2Data'));
+    const step3Data = {
+        traits: Array.from(document.getElementById('traits').selectedOptions).map(opt => opt.value)
+    };
+
+    // Combine all data
+    const finalData = {
+        ...step1Data,
+        wine_preferences: step2Data,
+        traits: step3Data.traits
+    };
+
+    // Send final data to create account
+    fetch('/auth/api/signup', {
+        method: 'POST',
+        headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
-          },
-          credentials: 'include',
-          body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (response.ok && result.success) {
-          // Store the access token
-          localStorage.setItem('access_token', result.access_token);
-          
-          // Redirect to next step
-          window.location.href = '/signup/step2';
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(finalData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Clear session storage
+            sessionStorage.removeItem('signupStep1Data');
+            sessionStorage.removeItem('signupStep2Data');
+            
+            // Redirect to recommendations
+            window.location.href = '/recommendations';
         } else {
-          // Show error message
-          const alertDiv = document.createElement('div');
-          alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-          alertDiv.innerHTML = `
-            ${result.message || 'An error occurred during signup. Please try again.'}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          `;
-          signupForm.insertBefore(alertDiv, signupForm.firstChild);
+            throw new Error(data.message || 'Signup failed');
         }
-      } catch (error) {
+    })
+    .catch(error => {
         console.error('Error:', error);
-        // Show error message
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-        alertDiv.innerHTML = `
-          An error occurred. Please try again.
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        signupForm.insertBefore(alertDiv, signupForm.firstChild);
-      }
+        alert('Error creating account: ' + error.message);
     });
-  }
+  });
 
-  // Step 2 Form Handling
-  const step2Form = document.querySelector('form.step2-form');
-  if (step2Form) {
-    step2Form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      // Get form data
-      const formData = new FormData(this);
-      const data = {
-        wine_types: Array.from(formData.getAll('wineTypes')),
-        price_range: formData.get('priceRange'),
-        regions: Array.from(formData.getAll('regions')),
-        step: 2
-      };
-
-      try {
-        const response = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
-          },
-          body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          window.location.href = '/signup/step3';
-        } else {
-          const alertDiv = document.createElement('div');
-          alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-          alertDiv.innerHTML = `
-            ${result.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          `;
-          step2Form.insertBefore(alertDiv, step2Form.firstChild);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-        alertDiv.innerHTML = `
-          An error occurred. Please try again.
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        step2Form.insertBefore(alertDiv, step2Form.firstChild);
-      }
-    });
-  }
-
-  // Step 3 Form Handling
-  const step3Form = document.querySelector('form.step3-form');
-  if (step3Form) {
-    step3Form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      // Get form data
-      const formData = new FormData(this);
-      const data = {
-        characteristics: Array.from(formData.getAll('characteristics')),
-        flavors: Array.from(formData.getAll('flavors')),
-        step: 3
-      };
-
-      try {
-        const response = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-            'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
-          },
-          body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          // Clear access token as signup is complete
-          localStorage.removeItem('access_token');
-          window.location.href = '/';
-        } else {
-          const alertDiv = document.createElement('div');
-          alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-          alertDiv.innerHTML = `
-            ${result.message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-          `;
-          step3Form.insertBefore(alertDiv, step3Form.firstChild);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-        alertDiv.innerHTML = `
-          An error occurred. Please try again.
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        step3Form.insertBefore(alertDiv, step3Form.firstChild);
-      }
-    });
-  }
+  // Add event listeners for the continue buttons
+  document.querySelector('.continue-btn')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelector('form').dispatchEvent(new Event('submit'));
+  });
 })
 

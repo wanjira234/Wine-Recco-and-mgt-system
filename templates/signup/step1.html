@@ -40,7 +40,7 @@
                         {% endif %}
                     {% endwith %}
 
-                    <form class="signup-form needs-validation" novalidate autocomplete="off" action="{{ url_for('auth.api_signup_handler') }}" method="POST">
+                    <form class="signup-form needs-validation" novalidate id="signupForm" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="step" value="1">
                         
@@ -156,9 +156,84 @@ document.addEventListener('DOMContentLoaded', function() {
         this.querySelector('i').classList.toggle('fa-eye-slash');
     });
 
-    // Clear any existing error messages when the form is loaded
-    const alertContainer = document.getElementById('alert-container');
-    alertContainer.innerHTML = '';
+    // Add form submit event listener
+    const form = document.getElementById('signupForm');
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        if (!form.checkValidity()) {
+            e.stopPropagation();
+            form.classList.add('was-validated');
+            return false;
+        }
+        
+        const formData = new FormData(form);
+        const data = {
+            email: formData.get('email'),
+            name: formData.get('name'),
+            password: formData.get('password'),
+            terms_accepted: formData.get('terms') === 'on',
+            step: 1
+        };
+
+        try {
+            // First, get the CSRF token
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+            console.log('CSRF Token:', csrfToken); // Debug logging
+            console.log('Sending data:', data); // Debug logging
+
+            const response = await fetch('/auth/api/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            console.log('Signup response:', result);  // Debug logging
+
+            if (response.ok && result.success) {
+                // Store the access token
+                if (result.access_token) {
+                    localStorage.setItem('access_token', result.access_token);
+                    console.log('Access token stored'); // Debug logging
+                }
+                // Redirect to step 2
+                console.log('Redirecting to step 2...'); // Debug logging
+                window.location.href = '/auth/signup/step2';
+                return false;
+            } else {
+                // Show error message
+                console.error('Signup failed:', result); // Debug logging
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    ${result.message || 'An error occurred during signup. Please try again.'}
+                    ${result.error ? `<br>Error details: ${result.error}` : ''}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                const alertContainer = document.getElementById('alert-container');
+                alertContainer.innerHTML = ''; // Clear previous alerts
+                alertContainer.appendChild(alertDiv);
+            }
+        } catch (error) {
+            console.error('Error:', error); // Debug logging
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                An error occurred. Please try again.<br>
+                Error details: ${error.message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = ''; // Clear previous alerts
+            alertContainer.appendChild(alertDiv);
+        }
+        return false;
+    });
 });
 </script>
 {% endblock %}

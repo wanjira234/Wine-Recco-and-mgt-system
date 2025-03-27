@@ -38,8 +38,9 @@
                         {% endif %}
                     {% endwith %}
 
-                    <form class="step2-form needs-validation" novalidate>
+                    <form class="step2-form needs-validation" novalidate method="POST" action="/api/auth/signup">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="step" value="2">
                         
                         <div class="mb-4">
                             <label class="form-label">Price Range</label>
@@ -109,7 +110,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ url_for('auth.signup') }}" class="btn btn-outline-secondary">Back</a>
+                            <a href="/signup" class="btn btn-outline-secondary">Back</a>
                             <button type="submit" class="btn btn-wine">Continue to Characteristics</button>
                         </div>
                     </form>
@@ -123,33 +124,75 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Form validation
     const form = document.querySelector('.step2-form');
     const wineTypes = document.querySelectorAll('input[name="wineTypes"]');
     
-    form.addEventListener('submit', function(event) {
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
         // Check if at least one wine type is selected
         const hasWineType = Array.from(wineTypes).some(input => input.checked);
         if (!hasWineType) {
-            event.preventDefault();
-            event.stopPropagation();
             wineTypes[0].setCustomValidity('Please select at least one wine type');
-        } else {
-            wineTypes[0].setCustomValidity('');
+            form.classList.add('was-validated');
+            return;
         }
 
-        if (!form.checkValidity()) {
-            event.preventDefault();
+        if (!this.checkValidity()) {
             event.stopPropagation();
+            form.classList.add('was-validated');
+            return;
         }
-        form.classList.add('was-validated');
+
+        const formData = new FormData(this);
+        const data = {
+            price_range: formData.get('priceRange'),
+            wine_types: Array.from(wineTypes).filter(cb => cb.checked).map(cb => cb.value),
+            regions: Array.from(formData.getAll('regions')),
+            step: 2
+        };
+
+        try {
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('input[name="csrf_token"]').content,
+                    'Authorization': 'Bearer ' + localStorage.getItem('access_token')
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                window.location.href = '/signup/step3';
+            } else {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    ${result.message || 'An error occurred. Please try again.'}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                document.querySelector('.card-body').insertBefore(alertDiv, form);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                An error occurred. Please try again.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.querySelector('.card-body').insertBefore(alertDiv, form);
+        }
     });
 
     // Clear wine type validation message when any checkbox is clicked
     wineTypes.forEach(input => {
         input.addEventListener('change', () => {
-            const hasWineType = Array.from(wineTypes).some(input => input.checked);
-            wineTypes[0].setCustomValidity(hasWineType ? '' : 'Please select at least one wine type');
+            wineTypes[0].setCustomValidity('');
         });
     });
 });
